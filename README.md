@@ -1,19 +1,13 @@
-# HiPDA·NG
-
-# **本项目现处于低频率维护阶段**
-
+# HiPDA Next
 
 **HiPDA论坛非官方客户端**
 
-论坛帖子地址 https://www.4d4y.com/forum/viewthread.php?tid=1579403
+HiPDA Next 是 HiPDA 论坛的非官方 Android 客户端，基于 HiPDA·NG 分叉继续维护。
 
-Google Play https://play.google.com/store/apps/details?id=net.jejer.hipda.ng
+项目地址 https://github.com/lichader/hipda-next
 
-本项目是HiPDA论坛的非官方客户端。  
-HiPDA·NG是使用MD风格的版本，即master分支，为目前主要维护版本。  
-怪兽版则是原版风格的版本，即classic分支，已经停止功能更新，仅修复重大问题。
-
-多谢原作者 jejer 的分享   
+多谢 HiPDA·NG 作者绿皮怪兽（GreenSkinMonster）及原作者 jejer 的分享  
+HiPDA·NG 发布帖 https://www.4d4y.com/forum/viewthread.php?tid=1579403  
 原项目发布于 https://www.4d4y.com/forum/viewthread.php?tid=1408844
 
 # 开发者注意

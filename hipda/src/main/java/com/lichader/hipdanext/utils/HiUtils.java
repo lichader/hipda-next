@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public class HiUtils {
-    public static final String UserAgentPrefix = "net.jejer.hipda ";
+    public static final String UserAgentPrefix = "hipda-next";
 
     public static final String ForumServer = "https://www.4d4y.com";
     public static final String ImageHost = "https://img02.4d4y.com";

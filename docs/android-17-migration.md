@@ -30,7 +30,7 @@ Not yet done: unit tests and parser fixtures (Stage 0), SwipeBack reflection and
 
 ## Objective
 
-Update HiPDA·NG to compile and target Android 17 (API 37), preserving forum browsing, accounts, posting, images, downloads, notifications, and the local emoji library. Keep the existing Java/XML architecture throughout the compatibility migration.
+Update HiPDA Next to compile and target Android 17 (API 37), preserving forum browsing, accounts, posting, images, downloads, notifications, and the local emoji library. Keep the existing Java/XML architecture throughout the compatibility migration.
 
 Upgrade build tooling, dependencies, and target SDK behavior in separate, reviewable changes. Raise `compileSdk` before `targetSdk` so compilation problems can be resolved before enabling new platform behavior.
 

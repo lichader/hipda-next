@@ -2,7 +2,7 @@
 
 Status: draft. Updated on 2026-11-25 for the Android 17 toolchain (AGP 9.1.1, Gradle 9.3.1, JDK 21, compile SDK 37). The command-line build matches the CI workflow ([.github/workflows/build.yml](../.github/workflows/build.yml)), which builds debug and release APKs and runs lint on every push. Android Studio steps have not been tested end to end.
 
-This guide covers building, installing, and checking HiPDA·NG on your own machine. For project layout and coding conventions, see [AGENTS.md](../AGENTS.md).
+This guide covers building, installing, and checking HiPDA Next on your own machine. For project layout and coding conventions, see [AGENTS.md](../AGENTS.md).
 
 ## Toolchain Summary
 
@@ -92,7 +92,7 @@ adb devices
 ./gradlew :hipda:installDebug
 ```
 
-Then launch *HiPDA·NG* on the device. Because the app targets API 37, test on an Android 15+ device or emulator as well as an older one: edge-to-edge layout, predictive Back and the notification permission only take effect on newer Android versions. The application ID is `com.lichader.hipdanext`, which differs from the original Play Store build (`net.jejer.hipda.ng`), so both can be installed side by side.
+Then launch *HiPDA Next* on the device. Because the app targets API 37, test on an Android 15+ device or emulator as well as an older one: edge-to-edge layout, predictive Back and the notification permission only take effect on newer Android versions. The application ID is `com.lichader.hipdanext`, which differs from the original Play Store build (`net.jejer.hipda.ng`), so both can be installed side by side.
 
 Logging in, posting, and most forum flows need a HiPDA forum account.
 
