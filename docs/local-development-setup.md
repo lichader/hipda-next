@@ -92,7 +92,7 @@ adb devices
 ./gradlew :hipda:installDebug
 ```
 
-Then launch *HiPDA·NG* on the device. Because the app targets API 37, test on an Android 15+ device or emulator as well as an older one: edge-to-edge layout, predictive Back and the notification permission only take effect on newer Android versions. The debug build uses the same application ID as the Play Store build (`net.jejer.hipda.ng`), so uninstall the store version first if it is installed; Android will refuse to replace an app signed with a different key.
+Then launch *HiPDA·NG* on the device. Because the app targets API 37, test on an Android 15+ device or emulator as well as an older one: edge-to-edge layout, predictive Back and the notification permission only take effect on newer Android versions. The application ID is `com.lichader.hipdanext`, which differs from the original Play Store build (`net.jejer.hipda.ng`), so both can be installed side by side.
 
 Logging in, posting, and most forum flows need a HiPDA forum account.
 

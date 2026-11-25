@@ -22,6 +22,8 @@ Done on branch `ccr-c3fe8892-s8q0cq`. Builds were verified only in CI (GitHub Ac
 | Edge-to-edge | On Android 15+, `BaseActivity` pads the content view with system bar, cutout and keyboard insets and paints the padding with `colorPrimaryDark` | Not verified on device |
 | Lint | Emoji module lint made nonfatal like the app (existing `ResourceName` errors) | CI lint |
 
+Note: the package rename on `master` changed the application ID to `com.lichader.hipdanext`, so installs of the original `net.jejer.hipda.ng` build cannot upgrade in place. The upgrade checks below apply only to earlier `com.lichader.hipdanext` builds, if any were distributed.
+
 Not yet done: unit tests and parser fixtures (Stage 0), SwipeBack reflection and predictive-Back animation review, `EmojiPopup` keyboard-height heuristics, deprecated system-UI flags in `UIUtils`, `FileProvider` path narrowing, `androidx.security` override review, large-screen orientation behavior, IME restoration after rotation, image memory profiling, and every device check in the release gate below. Edge-to-edge padding is a compatibility measure; per-screen inset handling may look better.
 
 
