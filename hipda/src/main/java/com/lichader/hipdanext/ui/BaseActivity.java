@@ -61,6 +61,7 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
+        UIUtils.applySystemBarInsets(this);
         if (mAppBarLayout != null) {
             if (UIUtils.isWhiteTheme(this)) {
                 mAppBarLayout.setStateListAnimator(null);

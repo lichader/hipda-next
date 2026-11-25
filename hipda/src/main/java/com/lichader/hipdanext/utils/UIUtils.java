@@ -22,6 +22,7 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.util.TypedValue;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
@@ -29,6 +30,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.graphics.Insets;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -516,6 +520,34 @@ public class UIUtils {
             HiSettingsHelper.getInstance().setLightTheme(HiSettingsHelper.THEME_WHITE);
             return R.style.ThemeLight_White;
         }
+    }
+
+    /**
+     * Apps targeting API 35+ are drawn edge-to-edge on Android 15+, and the window no longer
+     * resizes for the keyboard. Keep the previous layout by padding the content view with the
+     * system bar, display cutout and keyboard insets, and paint the padding with the color the
+     * status bar used to have.
+     */
+    public static void applySystemBarInsets(Activity activity) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM)
+            return;
+        ViewGroup content = activity.findViewById(android.R.id.content);
+        if (content == null)
+            return;
+        TypedValue typedValue = new TypedValue();
+        if (activity.getTheme().resolveAttribute(androidx.appcompat.R.attr.colorPrimaryDark, typedValue, true)
+                && typedValue.type >= TypedValue.TYPE_FIRST_COLOR_INT
+                && typedValue.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+            content.setBackgroundColor(typedValue.data);
+        }
+        ViewCompat.setOnApplyWindowInsetsListener(content, (v, insets) -> {
+            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars()
+                    | WindowInsetsCompat.Type.displayCutout());
+            Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
+            v.setPadding(bars.left, bars.top, bars.right, Math.max(bars.bottom, ime.bottom));
+            return WindowInsetsCompat.CONSUMED;
+        });
+        ViewCompat.requestApplyInsets(content);
     }
 
     public static void hideSystemUI(Activity activity) {
