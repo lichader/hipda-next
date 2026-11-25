@@ -27,7 +27,8 @@ This plan is based on static inspection. No Android SDK was configured in the re
 
 ## Decisions to Record
 
-- **Oldest supported Android version:** preserve API 21 until a different minimum is agreed. Select dependencies accordingly. WorkManager 2.11 raised its minimum to 23, and 2.12.0 raised it to 24; upgrading to the newest release therefore changes device support. See the [WorkManager release notes](https://developer.android.com/jetpack/androidx/releases/work).
+- **Reason for targeting API 37:** record what drives the target, such as store target-API requirements or Android 17 runtime behavior. The reason determines whether intermediate targets can ship and how much of Stage 6 the first release needs.
+- **Oldest supported Android version:** preserve API 21 until a different minimum is agreed. Select dependencies accordingly. WorkManager 2.11 raised its minimum to 23, and 2.12.0 raised it to 24; upgrading to the newest release therefore changes device support. See the [WorkManager release notes](https://developer.android.com/jetpack/androidx/releases/work). Other current AndroidX libraries may also require API 23 or higher, so check each library's release notes during Stage 2 rather than treating WorkManager as the only constraint. Raising the minimum to 23 would also remove the API 21–22 plaintext-credential branch described in [TD-02](technical-debt/td-02-credential-storage-silently-falls-back-to-plaintext.md) and the API-level handling for `FLAG_IMMUTABLE`, which was added in API 23.
 - **Build environment:** use a compatible AGP/Gradle/JDK combination and pin it in local setup and CI. Java source compatibility can remain at 8 while Gradle runs on JDK 17.
 - **Upgrade compatibility:** preserve the application ID, signing identity, stored accounts, database contents, and scheduled work across an in-place app upgrade.
 
@@ -152,6 +153,7 @@ Configure an instrumentation runner before adding connected-device test commands
 - [ ] Cover login/logout/account switching, thread lists/details, replies/new posts/polls, forum messages, images/GIFs, attachment downloads, notifications, themes, fonts, and emoji input.
 - [ ] Exercise denied permissions, offline/reconnected networking, rotation, backgrounding, process recreation, and notification launches.
 - [ ] Test an in-place upgrade from version 5.0.05 using matching signing credentials, preserving accounts, drafts, history, preferences, and scheduled work.
+- [ ] Keep the `#.#.##` version-name format, or fix `UpdateHelper.newer()` first. It compares versions with the dots removed, so a name such as `5.1.0` would suppress the release-notes dialog and, on the following upgrade, reset the forum server and image host settings. See [TD-46](technical-debt/td-46-crash-handling-obsolete-code-and-setup-documentation-need-cleanup.md).
 - [ ] Review backup/restore rules for encrypted preferences and cookies; verify failures do not silently expose credentials or discard user data.
 - [ ] Validate the minified release artifact separately, update version metadata and release notes, and update contributor setup instructions to match the final toolchain.
 

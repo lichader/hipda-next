@@ -1,8 +1,10 @@
 # Technical Debt Review
 
-Reviewed on 2026-11-17 against commit `81b8010c`. Status: findings recorded; application fixes not implemented.
+Reviewed on 2026-11-17 against commit `81b8010c`. Status: findings recorded; application fixes not implemented. Revised on 2026-11-25 after a source re-check: TD-07 raised to P1, TD-27 lowered to P3, and the impact of TD-06, TD-08, TD-12, and TD-46 clarified.
 
-Each finding has its own `%severity% - %summary%.md` file. IDs remain stable for cross-references; all findings are open.
+Each finding has its own `td-NN-summary.md` file. Priority is recorded inside each file and in the tables below, so re-prioritizing a finding does not rename its file. IDs remain stable for cross-references; all findings are open.
+
+Source links use line numbers from commit `81b8010c`. After code changes, locate the named class or method rather than relying on the line number.
 
 ## Scope and Evidence
 
@@ -22,19 +24,23 @@ Priority indicates suggested order, not a claim that an incident has occurred:
 
 | Priority | Meaning | Findings |
 | --- | --- | --- |
-| P1 | Address before the next substantial release or as a prerequisite to safe migration | 9 |
-| P2 | Important correctness, reliability, security hardening, or compatibility work | 36 |
-| P3 | Incremental design, performance, and maintenance improvements | 3 |
+| P1 | Address before the next substantial release or as a prerequisite to safe migration | 10 |
+| P2 | Important correctness, reliability, security hardening, or compatibility work | 34 |
+| P3 | Incremental design, performance, and maintenance improvements | 4 |
 
 Existing focused documents: [Android 17 migration](../android-17-migration.md) and [swipe-back flash investigation](../swipe-back-flash.md). The reported flash remains **unconfirmed as to root cause**; animation overrides and hidden translucency APIs are investigation targets, not a proven diagnosis. Its dedicated device-validation checklist remains open.
 
 ## First Work Packages
 
-1. **Protect credentials and restore trust:** [TD-01](P1%20-%20Auth%20cookies%20are%20attached%20using%20URL%20substring%20matching.md), [TD-02](P1%20-%20Credential%20storage%20silently%20falls%20back%20to%20plaintext.md), [TD-03](P2%20-%20Backup%20rules%20omit%20encrypted%20credentials%20and%20session%20data.md), [TD-05](P2%20-%20Logging%20and%20cleartext%20policies%20need%20explicit%20boundaries.md), and [TD-08](P1%20-%20The%20report-post%20action%20does%20not%20submit%20a%20report.md). Fix origin validation and encryption fallback, define backup/logging policies, and make report submission truthful.
-2. **Fix independently reproducible defects:** [TD-06](P1%20-%20Saving%20an%20image%20writes%20extra%20bytes.md), [TD-07](P2%20-%20EXIF%20normalization%20falls%20through%20switch%20cases.md), [TD-09](P1%20-%20Every%20intercepted%20request%20pays%20a%20500%20ms%20delay.md), [TD-11](P2%20-%20ProfileComparator%20violates%20the%20comparator%20contract.md), [TD-12](P2%20-%20Thread%20parsing%20mixes%20node%20counts%20with%20element%20indexing.md), [TD-31](P2%20-%20Image%20metadata%20cannot%20recover%20from%20a%20stale%20successful%20state.md), and [TD-47](P2%20-%20Password%20representation%20is%20guessed%20from%20its%20length.md). Add regression tests alongside each small fix.
-3. **Stabilize posting and account transitions:** [TD-15](P2%20-%20Posting%20preflight%20failures%20can%20escape%20normal%20error%20reporting.md), [TD-22](P1%20-%20Jobs%20and%20caches%20are%20not%20scoped%20to%20an%20account%20generation.md), [TD-23](P1%20-%20Posting%20has%20no%20durable%20outbox%20and%20draft%20recovery%20is%20incomplete.md), [TD-24](P2%20-%20Upload%20completion%20events%20can%20disappear%20while%20another%20screen%20is%20visible.md), and [TD-28](P2%20-%20Notification%20work%20reports%20success%20regardless%20of%20failure.md). Establish account-scoped operations and recoverable drafts/submission state.
-4. **Bound resources and lifecycle work:** [TD-10](P2%20-%20HTTP%20error%20and%20early-return%20paths%20leave%20responses%20open.md), [TD-17](P2%20-%20Failed%20uploads%20bypass%20temporary-file%20cleanup.md) through [TD-19](P2%20-%20Database%20lifetime%20and%20migrations%20are%20not%20consistently%20owned.md), [TD-25](P2%20-%20Retained%20fragments%20outlive%20their%20view%20and%20activity%20references.md) through [TD-30](P2%20-%20DNS%20cache%20is%20shared%20unsafely%20and%20has%20no%20expiry.md), [TD-32](P2%20-%20Image%20upload%20decodes%20full-resolution%20images%20for%20thumbnails.md) through [TD-39](P2%20-%20Cache%20cleanup%20bypasses%20active%20resource%20ownership.md), and [TD-48](P2%20-%20Navigation%20and%20keyboard%20layout%20depend%20on%20legacy%20window%20behavior.md).
-5. **Upgrade the platform with build gates:** [TD-40](P1%20-%20The%20target-30%20build%20needs%20a%20staged%20platform%20upgrade.md) through [TD-43](P2%20-%20Build%20reproducibility%20and%20dependency%20review%20need%20explicit%20support.md) and the existing migration plan; then address the remaining UI/design backlog.
+Every finding appears in exactly one package.
+
+1. **Establish a test and CI baseline:** [TD-41](td-41-there-is-no-automated-regression-suite-or-ci.md). Configure unit-test source sets, test dependencies, and CI first, so each fix in the following packages can land with a regression test. This matches Stage 0 of the migration plan.
+2. **Protect credentials and make reporting truthful:** [TD-01](td-01-auth-cookies-are-attached-using-url-substring-matching.md), [TD-02](td-02-credential-storage-silently-falls-back-to-plaintext.md), [TD-03](td-03-backup-rules-omit-encrypted-credentials-and-session-data.md), [TD-04](td-04-fileprovider-permits-an-unnecessarily-broad-external-path.md), [TD-05](td-05-logging-and-cleartext-policies-need-explicit-boundaries.md), and [TD-08](td-08-the-report-post-action-does-not-submit-a-report.md). Fix origin validation and encryption fallback, narrow FileProvider paths, and define backup/logging policies. TD-08 needs a product decision before implementation.
+3. **Fix independently reproducible defects:** [TD-06](td-06-saving-an-image-writes-extra-bytes.md), [TD-07](td-07-exif-normalization-falls-through-switch-cases.md) with [TD-16](td-16-compressed-uploads-retain-the-source-mime-type.md), [TD-09](td-09-every-intercepted-request-pays-a-500-ms-delay.md), [TD-11](td-11-profilecomparator-violates-the-comparator-contract.md), [TD-12](td-12-thread-parsing-mixes-node-counts-with-element-indexing.md), [TD-31](td-31-image-metadata-cannot-recover-from-a-stale-successful-state.md), and [TD-47](td-47-password-representation-is-guessed-from-its-length.md). Fix TD-07 and TD-16 together because both determine what the upload path sends. Add a regression test alongside each small fix.
+4. **Fix list and input-handling correctness:** [TD-13](td-13-replacing-a-thread-page-can-desynchronize-recyclerview-counts.md), [TD-14](td-14-click-handling-uses-positions-cached-at-bind-time.md), [TD-20](td-20-settings-mutate-collections-returned-by-sharedpreferences.md), and [TD-21](td-21-numeric-and-imported-input-validation-is-incomplete.md).
+5. **Stabilize posting and account transitions:** [TD-15](td-15-posting-preflight-failures-can-escape-normal-error-reporting.md), [TD-22](td-22-jobs-and-caches-are-not-scoped-to-an-account-generation.md), [TD-23](td-23-posting-has-no-durable-outbox-and-draft-recovery-is-incomplete.md), [TD-24](td-24-upload-completion-events-can-disappear-while-another-screen-is-visible.md), and [TD-28](td-28-notification-work-reports-success-regardless-of-failure.md). Establish account-scoped operations and recoverable drafts/submission state.
+6. **Bound resources and lifecycle work:** [TD-10](td-10-http-error-and-early-return-paths-leave-responses-open.md), [TD-17](td-17-failed-uploads-bypass-temporary-file-cleanup.md) through [TD-19](td-19-database-lifetime-and-migrations-are-not-consistently-owned.md), [TD-25](td-25-retained-fragments-outlive-their-view-and-activity-references.md) through [TD-27](td-27-one-shot-executors-are-created-without-shutdown.md), [TD-29](td-29-avatar-fetcher-does-not-close-the-file-streams-it-returns.md), [TD-30](td-30-dns-cache-is-shared-unsafely-and-has-no-expiry.md), [TD-32](td-32-image-upload-decodes-full-resolution-images-for-thumbnails.md) through [TD-39](td-39-cache-cleanup-bypasses-active-resource-ownership.md), and [TD-48](td-48-navigation-and-keyboard-layout-depend-on-legacy-window-behavior.md).
+7. **Upgrade the platform with build gates:** [TD-40](td-40-the-target-30-build-needs-a-staged-platform-upgrade.md), [TD-42](td-42-lint-and-release-shrinking-hide-useful-feedback.md), [TD-43](td-43-build-reproducibility-and-dependency-review-need-explicit-support.md), and the existing migration plan. Fix the version comparison in [TD-46](td-46-crash-handling-obsolete-code-and-setup-documentation-need-cleanup.md) before any release changes the `#.#.##` version format. Then address [TD-44](td-44-ui-persistence-parsing-and-account-state-are-tightly-coupled.md), [TD-45](td-45-accessibility-and-ui-text-need-a-dedicated-pass.md), and the rest of TD-46.
 
 ## Focused Probe Results
 
@@ -58,84 +64,84 @@ The request probe used a fake transport, and the URL probe evaluated only the pr
 
 | ID | Severity | Finding | Evidence |
 | --- | --- | --- | --- |
-| TD-01 | P1 | [Auth cookies are attached using URL substring matching](P1%20-%20Auth%20cookies%20are%20attached%20using%20URL%20substring%20matching.md) | Probe-confirmed |
-| TD-02 | P1 | [Credential storage silently falls back to plaintext](P1%20-%20Credential%20storage%20silently%20falls%20back%20to%20plaintext.md) | Confirmed |
-| TD-03 | P2 | [Backup rules omit encrypted credentials and session data](P2%20-%20Backup%20rules%20omit%20encrypted%20credentials%20and%20session%20data.md) | Risk |
-| TD-04 | P2 | [FileProvider permits an unnecessarily broad external path](P2%20-%20FileProvider%20permits%20an%20unnecessarily%20broad%20external%20path.md) | Risk |
-| TD-05 | P2 | [Logging and cleartext policies need explicit boundaries](P2%20-%20Logging%20and%20cleartext%20policies%20need%20explicit%20boundaries.md) | Risk |
+| TD-01 | P1 | [Auth cookies are attached using URL substring matching](td-01-auth-cookies-are-attached-using-url-substring-matching.md) | Probe-confirmed |
+| TD-02 | P1 | [Credential storage silently falls back to plaintext](td-02-credential-storage-silently-falls-back-to-plaintext.md) | Confirmed |
+| TD-03 | P2 | [Backup rules omit encrypted credentials and session data](td-03-backup-rules-omit-encrypted-credentials-and-session-data.md) | Risk |
+| TD-04 | P2 | [FileProvider permits an unnecessarily broad external path](td-04-fileprovider-permits-an-unnecessarily-broad-external-path.md) | Risk |
+| TD-05 | P2 | [Logging and cleartext policies need explicit boundaries](td-05-logging-and-cleartext-policies-need-explicit-boundaries.md) | Risk |
 
 ### Correctness and user-visible behavior
 
 | ID | Severity | Finding | Evidence |
 | --- | --- | --- | --- |
-| TD-06 | P1 | [Saving an image writes extra bytes](P1%20-%20Saving%20an%20image%20writes%20extra%20bytes.md) | Probe-confirmed |
-| TD-07 | P2 | [EXIF normalization falls through switch cases](P2%20-%20EXIF%20normalization%20falls%20through%20switch%20cases.md) | Probe-confirmed |
-| TD-08 | P1 | [The report-post action does not submit a report](P1%20-%20The%20report-post%20action%20does%20not%20submit%20a%20report.md) | Confirmed |
-| TD-09 | P1 | [Every intercepted request pays a 500 ms delay](P1%20-%20Every%20intercepted%20request%20pays%20a%20500%20ms%20delay.md) | Probe-confirmed |
-| TD-10 | P2 | [HTTP error and early-return paths leave responses open](P2%20-%20HTTP%20error%20and%20early-return%20paths%20leave%20responses%20open.md) | Confirmed |
-| TD-11 | P2 | [ProfileComparator violates the comparator contract](P2%20-%20ProfileComparator%20violates%20the%20comparator%20contract.md) | Probe-confirmed |
-| TD-12 | P2 | [Thread parsing mixes node counts with element indexing](P2%20-%20Thread%20parsing%20mixes%20node%20counts%20with%20element%20indexing.md) | Probe-confirmed |
-| TD-13 | P2 | [Replacing a thread page can desynchronize RecyclerView counts](P2%20-%20Replacing%20a%20thread%20page%20can%20desynchronize%20RecyclerView%20counts.md) | Confirmed |
-| TD-14 | P2 | [Click handling uses positions cached at bind time](P2%20-%20Click%20handling%20uses%20positions%20cached%20at%20bind%20time.md) | Risk |
-| TD-15 | P2 | [Posting preflight failures can escape normal error reporting](P2%20-%20Posting%20preflight%20failures%20can%20escape%20normal%20error%20reporting.md) | Confirmed |
-| TD-16 | P2 | [Compressed uploads retain the source MIME type](P2%20-%20Compressed%20uploads%20retain%20the%20source%20MIME%20type.md) | Confirmed |
-| TD-17 | P2 | [Failed uploads bypass temporary-file cleanup](P2%20-%20Failed%20uploads%20bypass%20temporary-file%20cleanup.md) | Confirmed |
+| TD-06 | P1 | [Saving an image writes extra bytes](td-06-saving-an-image-writes-extra-bytes.md) | Probe-confirmed |
+| TD-07 | P1 | [EXIF normalization falls through switch cases](td-07-exif-normalization-falls-through-switch-cases.md) | Probe-confirmed |
+| TD-08 | P1 | [The report-post action does not submit a report](td-08-the-report-post-action-does-not-submit-a-report.md) | Confirmed |
+| TD-09 | P1 | [Every intercepted request pays a 500 ms delay](td-09-every-intercepted-request-pays-a-500-ms-delay.md) | Probe-confirmed |
+| TD-10 | P2 | [HTTP error and early-return paths leave responses open](td-10-http-error-and-early-return-paths-leave-responses-open.md) | Confirmed |
+| TD-11 | P2 | [ProfileComparator violates the comparator contract](td-11-profilecomparator-violates-the-comparator-contract.md) | Probe-confirmed |
+| TD-12 | P2 | [Thread parsing mixes node counts with element indexing](td-12-thread-parsing-mixes-node-counts-with-element-indexing.md) | Probe-confirmed |
+| TD-13 | P2 | [Replacing a thread page can desynchronize RecyclerView counts](td-13-replacing-a-thread-page-can-desynchronize-recyclerview-counts.md) | Confirmed |
+| TD-14 | P2 | [Click handling uses positions cached at bind time](td-14-click-handling-uses-positions-cached-at-bind-time.md) | Risk |
+| TD-15 | P2 | [Posting preflight failures can escape normal error reporting](td-15-posting-preflight-failures-can-escape-normal-error-reporting.md) | Confirmed |
+| TD-16 | P2 | [Compressed uploads retain the source MIME type](td-16-compressed-uploads-retain-the-source-mime-type.md) | Confirmed |
+| TD-17 | P2 | [Failed uploads bypass temporary-file cleanup](td-17-failed-uploads-bypass-temporary-file-cleanup.md) | Confirmed |
 
 ### Persistence and input validation
 
 | ID | Severity | Finding | Evidence |
 | --- | --- | --- | --- |
-| TD-18 | P2 | [Several 'background' database operations run on the UI thread](P2%20-%20Several%20%27background%27%20database%20operations%20run%20on%20the%20UI%20thread.md) | Confirmed |
-| TD-19 | P2 | [Database lifetime and migrations are not consistently owned](P2%20-%20Database%20lifetime%20and%20migrations%20are%20not%20consistently%20owned.md) | Risk |
-| TD-20 | P2 | [Settings mutate collections returned by SharedPreferences](P2%20-%20Settings%20mutate%20collections%20returned%20by%20SharedPreferences.md) | Confirmed |
-| TD-21 | P2 | [Numeric and imported input validation is incomplete](P2%20-%20Numeric%20and%20imported%20input%20validation%20is%20incomplete.md) | Confirmed |
+| TD-18 | P2 | [Several 'background' database operations run on the UI thread](td-18-several-background-database-operations-run-on-the-ui-thread.md) | Confirmed |
+| TD-19 | P2 | [Database lifetime and migrations are not consistently owned](td-19-database-lifetime-and-migrations-are-not-consistently-owned.md) | Risk |
+| TD-20 | P2 | [Settings mutate collections returned by SharedPreferences](td-20-settings-mutate-collections-returned-by-sharedpreferences.md) | Confirmed |
+| TD-21 | P2 | [Numeric and imported input validation is incomplete](td-21-numeric-and-imported-input-validation-is-incomplete.md) | Confirmed |
 
 ### Lifecycle and background work
 
 | ID | Severity | Finding | Evidence |
 | --- | --- | --- | --- |
-| TD-22 | P1 | [Jobs and caches are not scoped to an account generation](P1%20-%20Jobs%20and%20caches%20are%20not%20scoped%20to%20an%20account%20generation.md) | Risk |
-| TD-23 | P1 | [Posting has no durable outbox and draft recovery is incomplete](P1%20-%20Posting%20has%20no%20durable%20outbox%20and%20draft%20recovery%20is%20incomplete.md) | Risk |
-| TD-24 | P2 | [Upload completion events can disappear while another screen is visible](P2%20-%20Upload%20completion%20events%20can%20disappear%20while%20another%20screen%20is%20visible.md) | Confirmed |
-| TD-25 | P2 | [Retained fragments outlive their view and activity references](P2%20-%20Retained%20fragments%20outlive%20their%20view%20and%20activity%20references.md) | Risk |
-| TD-26 | P2 | [Network cancellation is mostly disconnected from lifecycle cleanup](P2%20-%20Network%20cancellation%20is%20mostly%20disconnected%20from%20lifecycle%20cleanup.md) | Confirmed |
-| TD-27 | P2 | [One-shot executors are created without shutdown](P2%20-%20One-shot%20executors%20are%20created%20without%20shutdown.md) | Confirmed |
-| TD-28 | P2 | [Notification work reports success regardless of failure](P2%20-%20Notification%20work%20reports%20success%20regardless%20of%20failure.md) | Confirmed |
+| TD-22 | P1 | [Jobs and caches are not scoped to an account generation](td-22-jobs-and-caches-are-not-scoped-to-an-account-generation.md) | Risk |
+| TD-23 | P1 | [Posting has no durable outbox and draft recovery is incomplete](td-23-posting-has-no-durable-outbox-and-draft-recovery-is-incomplete.md) | Risk |
+| TD-24 | P2 | [Upload completion events can disappear while another screen is visible](td-24-upload-completion-events-can-disappear-while-another-screen-is-visible.md) | Confirmed |
+| TD-25 | P2 | [Retained fragments outlive their view and activity references](td-25-retained-fragments-outlive-their-view-and-activity-references.md) | Risk |
+| TD-26 | P2 | [Network cancellation is mostly disconnected from lifecycle cleanup](td-26-network-cancellation-is-mostly-disconnected-from-lifecycle-cleanup.md) | Confirmed |
+| TD-27 | P3 | [One-shot executors are created without shutdown](td-27-one-shot-executors-are-created-without-shutdown.md) | Confirmed |
+| TD-28 | P2 | [Notification work reports success regardless of failure](td-28-notification-work-reports-success-regardless-of-failure.md) | Confirmed |
 
 ### Images, memory, and caching
 
 | ID | Severity | Finding | Evidence |
 | --- | --- | --- | --- |
-| TD-29 | P2 | [Avatar fetcher does not close the file streams it returns](P2%20-%20Avatar%20fetcher%20does%20not%20close%20the%20file%20streams%20it%20returns.md) | Confirmed |
-| TD-30 | P2 | [DNS cache is shared unsafely and has no expiry](P2%20-%20DNS%20cache%20is%20shared%20unsafely%20and%20has%20no%20expiry.md) | Risk |
-| TD-31 | P2 | [Image metadata cannot recover from a stale successful state](P2%20-%20Image%20metadata%20cannot%20recover%20from%20a%20stale%20successful%20state.md) | Probe-confirmed |
-| TD-32 | P2 | [Image upload decodes full-resolution images for thumbnails](P2%20-%20Image%20upload%20decodes%20full-resolution%20images%20for%20thumbnails.md) | Risk |
-| TD-33 | P2 | [Image geometry is cached as portrait-sized global state](P2%20-%20Image%20geometry%20is%20cached%20as%20portrait-sized%20global%20state.md) | Confirmed |
-| TD-34 | P2 | [Emoji thumbnail ownership is global across composers](P2%20-%20Emoji%20thumbnail%20ownership%20is%20global%20across%20composers.md) | Risk |
-| TD-35 | P3 | [Emoji rendering rescans the full draft on each edit](P3%20-%20Emoji%20rendering%20rescans%20the%20full%20draft%20on%20each%20edit.md) | Maintenance |
-| TD-36 | P2 | [Progress updates and animations lack lifecycle bounds](P2%20-%20Progress%20updates%20and%20animations%20lack%20lifecycle%20bounds.md) | Confirmed |
+| TD-29 | P2 | [Avatar fetcher does not close the file streams it returns](td-29-avatar-fetcher-does-not-close-the-file-streams-it-returns.md) | Confirmed |
+| TD-30 | P2 | [DNS cache is shared unsafely and has no expiry](td-30-dns-cache-is-shared-unsafely-and-has-no-expiry.md) | Risk |
+| TD-31 | P2 | [Image metadata cannot recover from a stale successful state](td-31-image-metadata-cannot-recover-from-a-stale-successful-state.md) | Probe-confirmed |
+| TD-32 | P2 | [Image upload decodes full-resolution images for thumbnails](td-32-image-upload-decodes-full-resolution-images-for-thumbnails.md) | Risk |
+| TD-33 | P2 | [Image geometry is cached as portrait-sized global state](td-33-image-geometry-is-cached-as-portrait-sized-global-state.md) | Confirmed |
+| TD-34 | P2 | [Emoji thumbnail ownership is global across composers](td-34-emoji-thumbnail-ownership-is-global-across-composers.md) | Risk |
+| TD-35 | P3 | [Emoji rendering rescans the full draft on each edit](td-35-emoji-rendering-rescans-the-full-draft-on-each-edit.md) | Maintenance |
+| TD-36 | P2 | [Progress updates and animations lack lifecycle bounds](td-36-progress-updates-and-animations-lack-lifecycle-bounds.md) | Confirmed |
 
 ### Storage, navigation, and platform compatibility
 
 | ID | Severity | Finding | Evidence |
 | --- | --- | --- | --- |
-| TD-37 | P2 | [Downloads depend on an obsolete storage permission](P2%20-%20Downloads%20depend%20on%20an%20obsolete%20storage%20permission.md) | Confirmed |
-| TD-38 | P2 | [MediaStore saves do not have a complete publication lifecycle](P2%20-%20MediaStore%20saves%20do%20not%20have%20a%20complete%20publication%20lifecycle.md) | Risk |
-| TD-39 | P2 | [Cache cleanup bypasses active resource ownership](P2%20-%20Cache%20cleanup%20bypasses%20active%20resource%20ownership.md) | Risk |
-| TD-40 | P1 | [The target-30 build needs a staged platform upgrade](P1%20-%20The%20target-30%20build%20needs%20a%20staged%20platform%20upgrade.md) | Migration |
+| TD-37 | P2 | [Downloads depend on an obsolete storage permission](td-37-downloads-depend-on-an-obsolete-storage-permission.md) | Confirmed |
+| TD-38 | P2 | [MediaStore saves do not have a complete publication lifecycle](td-38-mediastore-saves-do-not-have-a-complete-publication-lifecycle.md) | Risk |
+| TD-39 | P2 | [Cache cleanup bypasses active resource ownership](td-39-cache-cleanup-bypasses-active-resource-ownership.md) | Risk |
+| TD-40 | P1 | [The target-30 build needs a staged platform upgrade](td-40-the-target-30-build-needs-a-staged-platform-upgrade.md) | Migration |
 
 ### Build, architecture, and product quality
 
 | ID | Severity | Finding | Evidence |
 | --- | --- | --- | --- |
-| TD-41 | P1 | [There is no automated regression suite or CI](P1%20-%20There%20is%20no%20automated%20regression%20suite%20or%20CI.md) | Maintenance |
-| TD-42 | P2 | [Lint and release shrinking hide useful feedback](P2%20-%20Lint%20and%20release%20shrinking%20hide%20useful%20feedback.md) | Maintenance |
-| TD-43 | P2 | [Build reproducibility and dependency review need explicit support](P2%20-%20Build%20reproducibility%20and%20dependency%20review%20need%20explicit%20support.md) | Maintenance |
-| TD-44 | P3 | [UI, persistence, parsing, and account state are tightly coupled](P3%20-%20UI%2C%20persistence%2C%20parsing%2C%20and%20account%20state%20are%20tightly%20coupled.md) | Maintenance |
-| TD-45 | P2 | [Accessibility and UI text need a dedicated pass](P2%20-%20Accessibility%20and%20UI%20text%20need%20a%20dedicated%20pass.md) | Maintenance |
-| TD-46 | P3 | [Crash handling, obsolete code, and setup documentation need cleanup](P3%20-%20Crash%20handling%2C%20obsolete%20code%2C%20and%20setup%20documentation%20need%20cleanup.md) | Maintenance |
-| TD-47 | P2 | [Password representation is guessed from its length](P2%20-%20Password%20representation%20is%20guessed%20from%20its%20length.md) | Confirmed |
-| TD-48 | P2 | [Navigation and keyboard layout depend on legacy window behavior](P2%20-%20Navigation%20and%20keyboard%20layout%20depend%20on%20legacy%20window%20behavior.md) | Risk |
+| TD-41 | P1 | [There is no automated regression suite or CI](td-41-there-is-no-automated-regression-suite-or-ci.md) | Maintenance |
+| TD-42 | P2 | [Lint and release shrinking hide useful feedback](td-42-lint-and-release-shrinking-hide-useful-feedback.md) | Maintenance |
+| TD-43 | P2 | [Build reproducibility and dependency review need explicit support](td-43-build-reproducibility-and-dependency-review-need-explicit-support.md) | Maintenance |
+| TD-44 | P3 | [UI, persistence, parsing, and account state are tightly coupled](td-44-ui-persistence-parsing-and-account-state-are-tightly-coupled.md) | Maintenance |
+| TD-45 | P2 | [Accessibility and UI text need a dedicated pass](td-45-accessibility-and-ui-text-need-a-dedicated-pass.md) | Maintenance |
+| TD-46 | P3 | [Crash handling, obsolete code, and setup documentation need cleanup](td-46-crash-handling-obsolete-code-and-setup-documentation-need-cleanup.md) | Maintenance |
+| TD-47 | P2 | [Password representation is guessed from its length](td-47-password-representation-is-guessed-from-its-length.md) | Confirmed |
+| TD-48 | P2 | [Navigation and keyboard layout depend on legacy window behavior](td-48-navigation-and-keyboard-layout-depend-on-legacy-window-behavior.md) | Risk |
 
 ## Additional Follow-up Areas
 
