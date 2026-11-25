@@ -8,7 +8,7 @@ Done on branch `ccr-c3fe8892-s8q0cq`. Builds were verified only in CI (GitHub Ac
 
 | Area | Change | Verified |
 | --- | --- | --- |
-| Tooling | AGP 9.1.1, Gradle 9.3.1 wrapper, JDK 17; CI updated to match | CI build |
+| Tooling | AGP 9.1.1, Gradle 9.3.1 wrapper, JDK 21 pinned via Gradle daemon JVM criteria; CI updated to match | CI build |
 | SDK levels | `compileSdk` 37, `targetSdk` 37, `minSdk` 21 unchanged | CI build |
 | AGP 8/9 DSL | Namespaces in Gradle, version metadata moved from manifest, `buildConfig` enabled, `proguard-android-optimize.txt`, menu `switch` on resource IDs replaced with `if` chains | CI build |
 | Release shrinking | `-dontwarn` for absent optional OkHttp TLS providers and Tink's errorprone annotations | CI release build |

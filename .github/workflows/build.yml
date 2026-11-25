@@ -21,13 +21,13 @@ jobs:
       - name: Check out
         uses: actions/checkout@v7
 
-      # AGP 9.1 runs on JDK 17. Gradle installs the compile SDK platform and
+      # Gradle runs on JDK 21 (pinned in gradle/gradle-daemon-jvm.properties). Gradle installs the compile SDK platform and
       # build tools it needs on first use; the runner has accepted the licenses.
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
           cache: gradle
 
       - name: Build debug and release APKs

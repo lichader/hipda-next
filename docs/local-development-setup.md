@@ -1,6 +1,6 @@
 # Local Development Setup
 
-Status: draft. Updated on 2026-11-25 for the Android 17 toolchain (AGP 9.1.1, Gradle 9.3.1, JDK 17, compile SDK 37). The command-line build matches the CI workflow ([.github/workflows/build.yml](../.github/workflows/build.yml)), which builds debug and release APKs and runs lint on every push. Android Studio steps have not been tested end to end.
+Status: draft. Updated on 2026-11-25 for the Android 17 toolchain (AGP 9.1.1, Gradle 9.3.1, JDK 21, compile SDK 37). The command-line build matches the CI workflow ([.github/workflows/build.yml](../.github/workflows/build.yml)), which builds debug and release APKs and runs lint on every push. Android Studio steps have not been tested end to end.
 
 This guide covers building, installing, and checking HiPDA·NG on your own machine. For project layout and coding conventions, see [AGENTS.md](../AGENTS.md).
 
@@ -8,7 +8,7 @@ This guide covers building, installing, and checking HiPDA·NG on your own machi
 
 | Component | Version | Where it is set |
 | --- | --- | --- |
-| JDK | 17 | Required by AGP 9.1.1; CI uses Temurin 17 |
+| JDK | 21 | Pinned in [gradle/gradle-daemon-jvm.properties](../gradle/gradle-daemon-jvm.properties); CI uses Temurin 21 |
 | Gradle | 9.3.1 (via wrapper) | [gradle/wrapper/gradle-wrapper.properties](../gradle/wrapper/gradle-wrapper.properties) |
 | Android Gradle plugin (AGP) | 9.1.1 | [build.gradle](../build.gradle) |
 | Android SDK platform | API 37 (Android 17) | `compileSdkVersion` in [build.gradle](../build.gradle) |
@@ -19,22 +19,22 @@ This guide covers building, installing, and checking HiPDA·NG on your own machi
 
 Always use the wrapper (`./gradlew`, or `gradlew.bat` on Windows) rather than a system-installed Gradle.
 
-## 1. Install JDK 17
+## 1. Install JDK 21
 
-Install any JDK 17 distribution, such as Eclipse Temurin 17 (the one CI uses).
+Install any JDK 21 distribution, such as Eclipse Temurin 21 (the one CI uses). The project pins the Gradle daemon to Java 21 in `gradle/gradle-daemon-jvm.properties`, so the build stops with an error if no JDK 21 can be found.
 
-- macOS (Homebrew): `brew install --cask temurin@17`
-- Ubuntu/Debian: `sudo apt install openjdk-17-jdk`
-- Windows: download the Temurin 17 installer from adoptium.net.
+- macOS (Homebrew): `brew install --cask temurin@21`
+- Ubuntu/Debian: `sudo apt install openjdk-21-jdk`
+- Windows: download the Temurin 21 installer from adoptium.net.
 
 Point Gradle at it. Either set `JAVA_HOME` in your shell:
 
 ```sh
-export JAVA_HOME=/path/to/jdk-17
-java -version   # should report 17.x
+export JAVA_HOME=/path/to/jdk-21
+java -version   # should report 21.x
 ```
 
-or, if your default JDK must stay newer, pin it for this project only by adding `org.gradle.java.home=/path/to/jdk-17` to `~/.gradle/gradle.properties`. Do not add it to the tracked `gradle.properties`, because the path is machine-specific.
+If JDK 21 is installed somewhere Gradle does not look, add `org.gradle.java.installations.paths=/path/to/jdk-21` to `~/.gradle/gradle.properties`. Do not add it to the tracked `gradle.properties`, because the path is machine-specific.
 
 ## 2. Install the Android SDK
 
@@ -110,7 +110,7 @@ There are no automated tests yet. `./gradlew :hipda:testDebugUnitTest :emoji:tes
 
 Open the repository root with *File > Open*. Use an Android Studio release that supports AGP 9.1 and API 37; older releases will refuse to sync. If Studio offers a further AGP upgrade, treat it as a separate change.
 
-Set the Gradle JDK to 17 (or Studio's bundled JDK, if it is 17 or newer) under *Settings > Build, Execution, Deployment > Build Tools > Gradle > Gradle JDK*.
+Studio follows the project's Daemon JVM criteria (Java 21) when its Gradle JDK setting allows it; otherwise set *Settings > Build, Execution, Deployment > Build Tools > Gradle > Gradle JDK* to a JDK 21, such as Studio's bundled JDK if it is version 21.
 
 The repository tracks a few `.idea/` files (copyright, encodings, scopes, VCS); leave other generated IDE files untracked.
 
@@ -122,7 +122,7 @@ The repository tracks a few `.idea/` files (copyright, encodings, scopes, VCS); 
 
 | Symptom | Likely cause and fix |
 | --- | --- |
-| `Android Gradle plugin requires Java 17 to run` | Gradle is running on an older JDK. Switch `JAVA_HOME` or `org.gradle.java.home` to JDK 17. |
+| Gradle cannot find a Java 21 toolchain for the daemon | Install JDK 21, or point `org.gradle.java.installations.paths` in `~/.gradle/gradle.properties` at it. |
 | `SDK location not found` | Create `local.properties` with `sdk.dir`, or set `ANDROID_HOME`. |
 | `Failed to find target` for API 37, or missing build tools | Install the API 37 platform with `sdkmanager`, and accept licenses so Gradle can install build tools. |
 | Dependency resolution fails for `com.github.*` artifacts | JitPack (`jitpack.io`) is unreachable; check network or proxy settings. |

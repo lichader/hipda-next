@@ -11,7 +11,7 @@ HiPDA·NG is an unofficial Android client for the HiPDA forum, built with Java a
 
 ## Build, Test, and Development Commands
 
-Use JDK 17 and the Android SDK API 37 platform (compile and target SDK 37). The minimum supported Android API is 21. See `docs/local-development-setup.md`. Configure `sdk.dir` in an untracked `local.properties` file. Run commands from the repository root:
+Use JDK 21 (pinned in `gradle/gradle-daemon-jvm.properties`) and the Android SDK API 37 platform (compile and target SDK 37). The minimum supported Android API is 21. See `docs/local-development-setup.md`. Configure `sdk.dir` in an untracked `local.properties` file. Run commands from the repository root:
 
 - `./gradlew :hipda:assembleDebug`: build a debug APK under `hipda/build/outputs/apk/debug/`.
 - `./gradlew :hipda:installDebug`: install on a connected device or emulator; launch the app there.
