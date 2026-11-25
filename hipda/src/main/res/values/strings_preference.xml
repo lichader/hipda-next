@@ -219,7 +219,7 @@
     <string name="pref_title_freq_menus">展开常用菜单</string>
     <string name="pref_screen_orientation">屏幕方向</string>
     <string name="pref_error_report_mode">排错调试模式</string>
-    <string name="pref_title_about">关于HiPDA·NG</string>
+    <string name="pref_title_about">关于HiPDA Next</string>
     <string name="pref_title_check_update">检查更新</string>
     <string name="pref_title_support">客户端发布帖</string>
     <string name="pref_summary_support">反馈问题，最新动态，请来这里</string>

@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-HiPDA·NG is an unofficial Android client for the HiPDA forum, built with Java and Gradle.
+HiPDA Next is an unofficial Android client for the HiPDA forum, built with Java and Gradle.
 
 - `hipda/`: application module. Sources live in `src/main/java/com/lichader/hipdanext/`, grouped into `ui`, `bean`, `db`, `okhttp`, `glide`, `job`, `async`, `cache`, `service`, and `utils` packages.
 - `hipda/src/main/res/`: layouts, strings, themes, menus, and images; `src/main/assets/` contains release notes, licenses, and donor information.
