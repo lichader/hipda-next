@@ -7,11 +7,11 @@ HiPDA·NG is an unofficial Android client for the HiPDA forum, built with Java a
 - `hipda/`: application module. Sources live in `src/main/java/com/lichader/hipdanext/`, grouped into `ui`, `bean`, `db`, `okhttp`, `glide`, `job`, `async`, `cache`, `service`, and `utils` packages.
 - `hipda/src/main/res/`: layouts, strings, themes, menus, and images; `src/main/assets/` contains release notes, licenses, and donor information.
 - `emoji/`: local Android library, with Java sources under `src/main/java/com/vanniktech/emoji/` and emoji resources under `src/main/res/`.
-- Root Gradle files define shared SDK versions and repositories; `gradle/wrapper/` pins Gradle 7.3.3.
+- Root Gradle files define shared SDK versions and repositories; `gradle/wrapper/` pins Gradle 9.3.1 (AGP 9.1.1).
 
 ## Build, Test, and Development Commands
 
-Use JDK 11 and Android SDK 30. The minimum supported Android API is 21. Configure `sdk.dir` in an untracked `local.properties` file. Run commands from the repository root:
+Use JDK 21 (pinned in `gradle/gradle-daemon-jvm.properties`) and the Android SDK API 37 platform (compile and target SDK 37). The minimum supported Android API is 21. See `docs/local-development-setup.md`. Configure `sdk.dir` in an untracked `local.properties` file. Run commands from the repository root:
 
 - `./gradlew :hipda:assembleDebug`: build a debug APK under `hipda/build/outputs/apk/debug/`.
 - `./gradlew :hipda:installDebug`: install on a connected device or emulator; launch the app there.

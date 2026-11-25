@@ -17,6 +17,7 @@ import com.lichader.hipdanext.utils.Utils;
 
 import java.util.UUID;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -42,6 +43,7 @@ public class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         mSessionId = UUID.randomUUID().toString();
         UIUtils.setActivityTheme(this);
+        getOnBackPressedDispatcher().addCallback(this, mBackCallback);
 
         try {
             if (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT == HiSettingsHelper.getInstance().getScreenOrietation()) {
@@ -59,6 +61,7 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
+        UIUtils.applySystemBarInsets(this);
         if (mAppBarLayout != null) {
             if (UIUtils.isWhiteTheme(this)) {
                 mAppBarLayout.setStateListAnimator(null);
@@ -127,15 +130,39 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onBackPressed() {
+    private final OnBackPressedCallback mBackCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
+            handleBackPressed();
+        }
+    };
+
+    /**
+     * Back handling for this activity, dispatched through {@link androidx.activity.OnBackPressedDispatcher}
+     * so it keeps working when the system no longer calls {@code onBackPressed()} (target SDK 33+ with
+     * predictive back, enforced from target SDK 36).
+     */
+    protected void handleBackPressed() {
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.main_frame_container);
         if (fragment instanceof BaseFragment) {
             if (!((BaseFragment) fragment).onBackPressed()) {
                 finish();
             }
         } else {
-            super.onBackPressed();
+            dispatchDefaultBack();
+        }
+    }
+
+    /**
+     * Runs the default back behavior (fragment back stack, then finishing the activity),
+     * skipping this activity's own callback.
+     */
+    protected void dispatchDefaultBack() {
+        mBackCallback.setEnabled(false);
+        try {
+            getOnBackPressedDispatcher().onBackPressed();
+        } finally {
+            mBackCallback.setEnabled(true);
         }
     }
 

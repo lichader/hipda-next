@@ -1,6 +1,32 @@
 # Android 17 Migration Plan
 
-Status: planned. Repository and Android documentation reviewed on 2026-11-17.
+Status: in progress. The app compiles and targets API 37 as of 2026-11-25; device validation has not started. Repository and Android documentation reviewed on 2026-11-17.
+
+## Progress (2026-11-25)
+
+Done on branch `ccr-c3fe8892-s8q0cq`. Builds were verified only in CI (GitHub Actions), which builds debug and minified release APKs and runs lint; no Android SDK was available in the development environment, and nothing has been run on a device or emulator.
+
+| Area | Change | Verified |
+| --- | --- | --- |
+| Tooling | AGP 9.1.1, Gradle 9.3.1 wrapper, JDK 21 pinned via Gradle daemon JVM criteria; CI updated to match | CI build |
+| SDK levels | `compileSdk` 37, `targetSdk` 37, `minSdk` 21 unchanged | CI build |
+| AGP 8/9 DSL | Namespaces in Gradle, version metadata moved from manifest, `buildConfig` enabled, `proguard-android-optimize.txt`, menu `switch` on resource IDs replaced with `if` chains | CI build |
+| Release shrinking | `-dontwarn` for absent optional OkHttp TLS providers and Tink's errorprone annotations | CI release build |
+| APK name | Release APK rename dropped (old variant API removed in AGP 9); output is `hipda-release-unsigned.apk` | CI build |
+| Dependencies | AppCompat 1.7.0, Material 1.12.0, Preference 1.2.1, WorkManager 2.10.0 (`androidx.work`, last line supporting API 21), OkHttp 4.12.0, ViewPump 2.1.0 | CI build |
+| WorkManager | `WorkManager.getInstance(context)`; unique work name and worker class unchanged | Not verified on upgrade |
+| Manifest | Launcher activity and link alias exported; `IntentActivity` explicitly not exported; `POST_NOTIFICATIONS` declared; `WRITE_EXTERNAL_STORAGE` limited to API 28 | CI build |
+| Notifications | `PendingIntent` uses `FLAG_IMMUTABLE` on API 23+; permission requested on Android 13+ when notifications are enabled in settings, and once per process at launch if already enabled | Not verified on device |
+| Storage | No storage permission check on API 29+ for downloads, save and share; `saveImageQ()` copy bug fixed (writes only bytes read, closes streams, `IS_PENDING`, null-insert handling, cleanup on failure) | Not verified on device |
+| Back navigation | Activity back handling moved to `OnBackPressedDispatcher` callbacks (`BaseActivity`, `MainFrameActivity`, `ImageViewerActivity`); fragment `onBackPressed()` hooks unchanged | Not verified on device |
+| Edge-to-edge | On Android 15+, `BaseActivity` pads the content view with system bar, cutout and keyboard insets and paints the padding with `colorPrimaryDark` | Not verified on device |
+| Lint | Emoji module lint made nonfatal like the app (existing `ResourceName` errors) | CI lint |
+
+Note: the package rename on `master` changed the application ID to `com.lichader.hipdanext`, so installs of the original `net.jejer.hipda.ng` build cannot upgrade in place. The upgrade checks below apply only to earlier `com.lichader.hipdanext` builds, if any were distributed.
+
+Not yet done: unit tests and parser fixtures (Stage 0), SwipeBack reflection and predictive-Back animation review, `EmojiPopup` keyboard-height heuristics, deprecated system-UI flags in `UIUtils`, `FileProvider` path narrowing, `androidx.security` override review, large-screen orientation behavior, IME restoration after rotation, image memory profiling, and every device check in the release gate below. Edge-to-edge padding is a compatibility measure; per-screen inset handling may look better.
+
+
 
 ## Objective
 

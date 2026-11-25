@@ -22,6 +22,7 @@ import com.lichader.hipdanext.utils.Utils;
 
 import java.util.ArrayList;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.PagerAdapter;
@@ -47,6 +48,12 @@ public class ImageViewerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                handleBackPressed();
+            }
+        });
         setContentView(R.layout.activity_image_viewer);
 
         int imageIndex = -1;
@@ -207,8 +214,7 @@ public class ImageViewerActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    @Override
-    public void onBackPressed() {
+    private void handleBackPressed() {
         View view = mViewPager.findViewWithTag(mViewPager.getCurrentItem());
         if (view instanceof ImageViewerLayout) {
             animImageThenFinish((ImageViewerLayout) view);

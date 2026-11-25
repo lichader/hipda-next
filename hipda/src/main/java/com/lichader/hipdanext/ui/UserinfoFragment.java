@@ -239,22 +239,24 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                // Implemented in activity
-                return false;
-            case R.id.action_send_sms:
-                showSendSmsDialog(mUid, mUsername, this);
-                return true;
-            case R.id.action_blacklist:
-                BlacklistHelper.addBlacklist(mFormhash, mUsername);
-                return true;
-            case R.id.action_remove_blacklist:
-                BlacklistHelper.delBlacklist(mFormhash, mUsername);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        int itemId = item.getItemId();
+        if (itemId == android.R.id.home) {
+            // Implemented in activity
+            return false;
         }
+        if (itemId == R.id.action_send_sms) {
+            showSendSmsDialog(mUid, mUsername, this);
+            return true;
+        }
+        if (itemId == R.id.action_blacklist) {
+            BlacklistHelper.addBlacklist(mFormhash, mUsername);
+            return true;
+        }
+        if (itemId == R.id.action_remove_blacklist) {
+            BlacklistHelper.delBlacklist(mFormhash, mUsername);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
 
     }
 

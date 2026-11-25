@@ -1,13 +1,16 @@
 package com.lichader.hipdanext.ui.setting;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -28,6 +31,7 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.content.ContextCompat;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.preference.Preference;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -82,6 +86,7 @@ public class SettingNestedFragment extends BaseSettingFragment {
     private Preference ringtonePreference;
     private Preference mBlackListPreference;
     private ActivityResultLauncher<String> mGetFontFile;
+    private ActivityResultLauncher<String> mRequestNotiPermission;
     private Drawable mCheckDrawable;
 
     @Override
@@ -89,6 +94,16 @@ public class SettingNestedFragment extends BaseSettingFragment {
         super.onCreate(savedInstanceState);
         checkPreferenceResource();
 
+        mRequestNotiPermission = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                new ActivityResultCallback<Boolean>() {
+                    @Override
+                    public void onActivityResult(Boolean granted) {
+                        if (!Boolean.TRUE.equals(granted)) {
+                            UIUtils.toast("未授予通知权限，将无法显示新消息提醒");
+                        }
+                    }
+                });
         mGetFontFile = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
                 new ActivityResultCallback<Uri>() {
@@ -197,6 +212,8 @@ public class SettingNestedFragment extends BaseSettingFragment {
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         if (newValue instanceof Boolean) {
                             enableNotiItems(preference, (Boolean) newValue);
+                            if ((Boolean) newValue)
+                                requestNotificationPermission();
                         }
                         return true;
                     }
@@ -722,4 +739,12 @@ public class SettingNestedFragment extends BaseSettingFragment {
         }
     }
 
+
+    private void requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                && ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+            mRequestNotiPermission.launch(Manifest.permission.POST_NOTIFICATIONS);
+        }
+    }
 }
