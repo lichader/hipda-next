@@ -34,7 +34,7 @@ jobs:
         run: ./gradlew :hipda:assembleDebug :hipda:assembleRelease --stacktrace
 
       - name: Lint
-        run: ./gradlew :hipda:lintDebug :emoji:lintDebug
+        run: ./gradlew --continue :hipda:lintDebug :emoji:lintDebug
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v7

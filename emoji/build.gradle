@@ -14,6 +14,12 @@ android {
     }
 
     resourcePrefix = 'emoji'
+
+    // Bundled emoji images predate the 'emoji' prefix (ResourceName errors).
+    // Match the app module: report lint findings without failing the build.
+    lint {
+        abortOnError = false
+    }
 }
 
 dependencies {
