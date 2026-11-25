@@ -24,8 +24,10 @@ android {
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
             android.applicationVariants.all { variant ->
-                variant.outputs.all {
-                    outputFileName = "hipda-ng-release.apk"
+                if (variant.buildType.name == 'release') {
+                    variant.outputs.all {
+                        outputFileName = "hipda-ng-release.apk"
+                    }
                 }
             }
         }
