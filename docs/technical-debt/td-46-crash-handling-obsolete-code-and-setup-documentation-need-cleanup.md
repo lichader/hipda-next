@@ -11,7 +11,7 @@ The version comparison has a concrete trigger and should be fixed before the res
 
 Fix this before any release changes the version format; the [Android 17 migration plan](../android-17-migration.md) release gate tracks this.
 
-Source: [SimpleExceptionHandler.java:20](../../hipda/src/main/java/net/jejer/hipda/utils/SimpleExceptionHandler.java#L20), [Utils.java:286](../../hipda/src/main/java/net/jejer/hipda/utils/Utils.java#L286), [README.md](../../README.md), [UpdateHelper.java:164](../../hipda/src/main/java/net/jejer/hipda/async/UpdateHelper.java#L164), [UpdateHelper.java:182](../../hipda/src/main/java/net/jejer/hipda/async/UpdateHelper.java#L182).
+Source: [SimpleExceptionHandler.java:20](../../hipda/src/main/java/com/lichader/hipdanext/utils/SimpleExceptionHandler.java#L20), [Utils.java:286](../../hipda/src/main/java/com/lichader/hipdanext/utils/Utils.java#L286), [README.md](../../README.md), [UpdateHelper.java:164](../../hipda/src/main/java/com/lichader/hipdanext/async/UpdateHelper.java#L164), [UpdateHelper.java:182](../../hipda/src/main/java/com/lichader/hipdanext/async/UpdateHelper.java#L182).
 
 **Improve:** Compare versions by version code or by numeric segments. Use minimal crash logging with reliable delegation, recreate affected activities without process exit, verify unused code/resources before removal, and update build/release documentation. **Verify:** Test version comparisons including `5.0.05`, `5.1.0`, and `5.10.0`; force a controlled crash, test settings-triggered recreation, and follow setup instructions on a fresh machine.
 

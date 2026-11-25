@@ -73,7 +73,7 @@
         </LinearLayout>
     </ScrollView>
 
-    <net.jejer.hipda.ui.widget.XRecyclerView
+    <com.lichader.hipdanext.ui.widget.XRecyclerView
         android:id="@+id/rv_search_threads"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

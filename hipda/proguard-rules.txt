@@ -2,7 +2,7 @@
 -keepattributes EnclosingMethod
 -keepattributes *Annotation*
 
--keep class net.jejer.hipda.** { *; }
+-keep class com.lichader.hipdanext.** { *; }
 
 -dontwarn okio.**
 -dontwarn javax.annotation.Nullable

@@ -4,7 +4,7 @@
 
 HiPDA·NG is an unofficial Android client for the HiPDA forum, built with Java and Gradle.
 
-- `hipda/`: application module. Sources live in `src/main/java/net/jejer/hipda/`, grouped into `ui`, `bean`, `db`, `okhttp`, `glide`, `job`, `async`, `cache`, `service`, and `utils` packages.
+- `hipda/`: application module. Sources live in `src/main/java/com/lichader/hipdanext/`, grouped into `ui`, `bean`, `db`, `okhttp`, `glide`, `job`, `async`, `cache`, `service`, and `utils` packages.
 - `hipda/src/main/res/`: layouts, strings, themes, menus, and images; `src/main/assets/` contains release notes, licenses, and donor information.
 - `emoji/`: local Android library, with Java sources under `src/main/java/com/vanniktech/emoji/` and emoji resources under `src/main/res/`.
 - Root Gradle files define shared SDK versions and repositories; `gradle/wrapper/` pins Gradle 7.3.3.

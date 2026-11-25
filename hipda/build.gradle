@@ -13,7 +13,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "net.jejer.hipda.ng"
+        applicationId "com.lichader.hipdanext"
         minSdkVersion rootProject.ext.minSdkVersion as int
         targetSdkVersion rootProject.ext.targetSdkVersion as int
     }

@@ -37,7 +37,7 @@
             android:text="@string/sample_post_text" />
     </LinearLayout>
 
-    <net.jejer.hipda.ui.widget.ValueChagerView
+    <com.lichader.hipdanext.ui.widget.ValueChagerView
         android:id="@+id/title_size_value_changer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -45,7 +45,7 @@
         app:minValue="-3"
         app:title="@string/title_text_size_adjust" />
 
-    <net.jejer.hipda.ui.widget.ValueChagerView
+    <com.lichader.hipdanext.ui.widget.ValueChagerView
         android:id="@+id/post_size_value_changer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -53,7 +53,7 @@
         app:minValue="-3"
         app:title="@string/title_post_text_size_adjust" />
 
-    <net.jejer.hipda.ui.widget.ValueChagerView
+    <com.lichader.hipdanext.ui.widget.ValueChagerView
         android:id="@+id/post_spacing_value_changer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

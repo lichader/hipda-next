@@ -36,7 +36,7 @@
         app:layout_constraintBaseline_toBaselineOf="@id/quote_author"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <net.jejer.hipda.ui.widget.TextViewWithEmoticon
+    <com.lichader.hipdanext.ui.widget.TextViewWithEmoticon
         android:id="@+id/quote_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
