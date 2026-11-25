@@ -12,7 +12,7 @@ The larger effect is on direct upload. The probe covered the switch; the consequ
 
 Raised from P2 to P1 because GIF and original-image uploads are user-visible features.
 
-Source: [CursorUtils.java:38](../../hipda/src/main/java/net/jejer/hipda/utils/CursorUtils.java#L38), [CursorUtils.java:45](../../hipda/src/main/java/net/jejer/hipda/utils/CursorUtils.java#L45), [UploadImgHelper.java:256](../../hipda/src/main/java/net/jejer/hipda/async/UploadImgHelper.java#L256).
+Source: [CursorUtils.java:38](../../hipda/src/main/java/com/lichader/hipdanext/utils/CursorUtils.java#L38), [CursorUtils.java:45](../../hipda/src/main/java/com/lichader/hipdanext/utils/CursorUtils.java#L45), [UploadImgHelper.java:256](../../hipda/src/main/java/com/lichader/hipdanext/async/UploadImgHelper.java#L256).
 
 **Improve:** Define one orientation representation, return explicitly for each case, and handle mirrored EXIF orientations deliberately. Base pass-through on an explicit "no rotation needed" result, so normally oriented images, untagged images, and GIFs qualify. Fix together with TD-16. **Verify:** Use real normal/rotated/mirrored fixtures and verify uploaded pixels. Upload a GIF under the size limit and confirm it stays animated; upload with the original-image option and confirm the uploaded bytes match the source.
 

@@ -24,7 +24,7 @@
         app:fabSize="mini"
         app:layout_anchor="@id/main_frame_container"
         app:layout_anchorGravity="bottom|right|end"
-        app:layout_behavior="net.jejer.hipda.ui.widget.FABHideOnScrollBehavior"
+        app:layout_behavior="com.lichader.hipdanext.ui.widget.FABHideOnScrollBehavior"
         app:tint="@color/fab_icon_color" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -37,7 +37,7 @@
         app:fabSize="mini"
         app:layout_anchor="@id/main_frame_container"
         app:layout_anchorGravity="bottom|center|center_horizontal"
-        app:layout_behavior="net.jejer.hipda.ui.widget.FABHideOnScrollBehavior"
+        app:layout_behavior="com.lichader.hipdanext.ui.widget.FABHideOnScrollBehavior"
         app:tint="@color/white" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -32,11 +32,11 @@ These steps describe the user's report. The issue has not been reproduced from t
 
 The inspected thread-detail path uses `ThreadDetailActivity -> SwipeBaseActivity -> BaseActivity`. It uses the same custom swipe mechanism on tablets; the tablet check in `ThreadDetailActivity` adjusts the floating button size. Confirm the exact affected page before treating this as the reporter's runtime path.
 
-- [SwipeBaseActivity](../hipda/src/main/java/net/jejer/hipda/ui/SwipeBaseActivity.java) installs the swipe helper when `isGestureBack()` is enabled and makes the touch edge span the screen width.
-- [SwipeBackActivityHelper](../hipda/src/main/java/net/jejer/hipda/ui/widget/swipeback/SwipeBackActivityHelper.java) makes the window background transparent, clears the decor background, and requests translucency during edge interaction.
-- [SwipeBackLayout.attachToActivity()](../hipda/src/main/java/net/jejer/hipda/ui/widget/swipeback/SwipeBackLayout.java) reparents the window's decor child into the draggable layout and applies the theme background to that child.
+- [SwipeBaseActivity](../hipda/src/main/java/com/lichader/hipdanext/ui/SwipeBaseActivity.java) installs the swipe helper when `isGestureBack()` is enabled and makes the touch edge span the screen width.
+- [SwipeBackActivityHelper](../hipda/src/main/java/com/lichader/hipdanext/ui/widget/swipeback/SwipeBackActivityHelper.java) makes the window background transparent, clears the decor background, and requests translucency during edge interaction.
+- [SwipeBackLayout.attachToActivity()](../hipda/src/main/java/com/lichader/hipdanext/ui/widget/swipeback/SwipeBackLayout.java) reparents the window's decor child into the draggable layout and applies the theme background to that child.
 - `SwipeBackLayout.onViewPositionChanged()` calls `mActivity.finish()` when swipe progress reaches 1, then calls `overridePendingTransition(0, 0)`.
-- [BaseActivity.finish()](../hipda/src/main/java/net/jejer/hipda/ui/BaseActivity.java) first calls `super.finish()` and requests `slide_out_right` as the exit animation.
+- [BaseActivity.finish()](../hipda/src/main/java/com/lichader/hipdanext/ui/BaseActivity.java) first calls `super.finish()` and requests `slide_out_right` as the exit animation.
 
 For the inspected thread-detail path, the completion sequence is:
 
@@ -50,7 +50,7 @@ Swipe progress reaches 1
 
 The final override explicitly attempts to suppress the exit animation. This sequence does not prove that two animations actually play. Also, `BaseActivity.finishWithNoSlide()` still uses the animated `activity_close_exit` resource; it is not an animation-free alternative.
 
-[SwipeUtils](../hipda/src/main/java/net/jejer/hipda/ui/widget/swipeback/SwipeUtils.java) invokes hidden `getActivityOptions()` and `convertToTranslucent()` methods through reflection. It passes a null conversion callback and silently catches every `Throwable`, so failures cannot currently be diagnosed from its own logs. Whether reflection fails on the reported device is unknown.
+[SwipeUtils](../hipda/src/main/java/com/lichader/hipdanext/ui/widget/swipeback/SwipeUtils.java) invokes hidden `getActivityOptions()` and `convertToTranslucent()` methods through reflection. It passes a null conversion callback and silently catches every `Throwable`, so failures cannot currently be diagnosed from its own logs. Whether reflection fails on the reported device is unknown.
 
 ## Working Hypothesis
 

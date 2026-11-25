@@ -43,7 +43,7 @@
             android:text=""
             app:emojiSize="26sp" />
 
-        <net.jejer.hipda.ui.widget.CountdownButton
+        <com.lichader.hipdanext.ui.widget.CountdownButton
             android:id="@+id/countdown_button"
             android:layout_width="48dp"
             android:layout_height="48dp"
@@ -60,14 +60,14 @@
         android:layout_above="@+id/rl_input"
         android:background="@color/background_grey" />
 
-    <net.jejer.hipda.ui.widget.ContentLoadingView
+    <com.lichader.hipdanext.ui.widget.ContentLoadingView
         android:id="@+id/content_loading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:orientation="vertical" />
 
-    <net.jejer.hipda.ui.widget.XRecyclerView
+    <com.lichader.hipdanext.ui.widget.XRecyclerView
         android:id="@+id/rv_sms"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

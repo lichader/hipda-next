@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:background="@drawable/quote_background">
 
-    <net.jejer.hipda.ui.widget.TextViewWithEmoticon
+    <com.lichader.hipdanext.ui.widget.TextViewWithEmoticon
         android:id="@+id/quote_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

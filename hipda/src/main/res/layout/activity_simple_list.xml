@@ -23,6 +23,6 @@
         app:fabSize="mini"
         app:layout_anchor="@id/main_frame_container"
         app:layout_anchorGravity="bottom|right|end"
-        app:layout_behavior="net.jejer.hipda.ui.widget.FABHideOnScrollBehavior"/>
+        app:layout_behavior="com.lichader.hipdanext.ui.widget.FABHideOnScrollBehavior"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

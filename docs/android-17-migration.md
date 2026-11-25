@@ -16,8 +16,8 @@ Upgrade build tooling, dependencies, and target SDK behavior in separate, review
 | SDK levels | Minimum 21, compile 30, target 30 |
 | Build tooling | Android Gradle plugin (AGP) 7.2.2; Gradle wrapper 7.3.3 |
 | Java source compatibility | Java 8 in both modules |
-| Application ID | `net.jejer.hipda.ng` |
-| Source packages | `net.jejer.hipda` and `com.vanniktech.emoji` |
+| Application ID | `com.lichader.hipdanext` |
+| Source packages | `com.lichader.hipdanext` and `com.vanniktech.emoji` |
 | Background polling | WorkManager 1.0.1 via `android.arch.work:work-runtime` |
 | Validation | No test source sets or configured test framework; application lint errors are nonfatal |
 
@@ -47,7 +47,7 @@ Exit criterion: the existing app has a reproducible build and a recorded validat
 A documented API 37-compatible starting combination is **AGP 9.1.1, Gradle 9.3.1, and JDK 17**. These are compatible versions, not a requirement to use the newest release of every tool. See [API-level tool requirements](https://developer.android.com/build/releases/about-agp) and [AGP 9.1.1 compatibility](https://developer.android.com/build/releases/agp-9-1-0-release-notes).
 
 - [ ] Upgrade AGP and the wrapper together, using intermediate upgrades and the AGP Upgrade Assistant as needed. Keep each checkpoint buildable.
-- [ ] Add `namespace 'net.jejer.hipda'` to the app and `namespace 'com.vanniktech.emoji'` to the library. Move namespace ownership out of manifest `package` attributes and move app version metadata into Gradle.
+- [ ] Add `namespace 'com.lichader.hipdanext'` to the app and `namespace 'com.vanniktech.emoji'` to the library. Move namespace ownership out of manifest `package` attributes and move app version metadata into Gradle.
 - [ ] Enable app `buildFeatures { buildConfig true }`; existing code imports `BuildConfig`.
 - [ ] Replace menu `case R.id...` statements with comparisons compatible with non-final resource IDs.
 - [ ] Qualify or locally define dependency resources currently referenced through the app's `R`, such as `R.color.md_red_700`, when adopting non-transitive `R` classes.
@@ -63,7 +63,7 @@ Exit criterion: debug and minified release builds succeed with the selected tool
 ## Stage 2: Update Dependencies
 
 - [ ] Replace `android.arch.work:work-runtime:1.0.1` with an `androidx.work:work-runtime` version compatible with the agreed minimum SDK.
-- [ ] Update [NotiWorker](../hipda/src/main/java/net/jejer/hipda/service/NotiWorker.java) to use `WorkManager.getInstance(context)`. Verify existing unique work named `noti_work` survives an app upgrade without duplicate scheduling.
+- [ ] Update [NotiWorker](../hipda/src/main/java/com/lichader/hipdanext/service/NotiWorker.java) to use `WorkManager.getInstance(context)`. Verify existing unique work named `noti_work` survives an app upgrade without duplicate scheduling.
 - [ ] Update AppCompat, Activity/Fragment, Preference, and Material together where version compatibility requires it, including AppCompat in the emoji module.
 - [ ] Update OkHttp and its cookie-store integration together; verify session persistence, authenticated requests, and downloads. Update Glide and its integration/compiler artifacts together.
 - [ ] Update Jsoup, Gson, and remaining UI/image libraries in separate groups, testing affected behavior after each group.
@@ -74,7 +74,7 @@ Exit criterion: dependencies resolve reproducibly and login, parsing, posting, b
 
 ## Stage 3: Fix Manifest and Notifications
 
-The [application manifest](../hipda/src/main/AndroidManifest.xml) omits exported declarations for its launcher and public link alias. [NotiHelper](../hipda/src/main/java/net/jejer/hipda/service/NotiHelper.java) creates its notification `PendingIntent` with only `FLAG_UPDATE_CURRENT`.
+The [application manifest](../hipda/src/main/AndroidManifest.xml) omits exported declarations for its launcher and public link alias. [NotiHelper](../hipda/src/main/java/com/lichader/hipdanext/service/NotiHelper.java) creates its notification `PendingIntent` with only `FLAG_UPDATE_CURRENT`.
 
 - [ ] Explicitly export the launcher activity and public link alias. Keep internal components private and verify the merged manifest, including library components.
 - [ ] Add `FLAG_IMMUTABLE` to the notification intent, with appropriate API handling if API 21–22 remain supported.
@@ -86,23 +86,23 @@ These requirements start with [Android 12 component exporting and pending intent
 
 ## Stage 4: Repair Storage and Image Handling
 
-- [ ] Remove the unconditional storage-permission gate in [Utils.download()](../hipda/src/main/java/net/jejer/hipda/utils/Utils.java) on modern Android. Retain legacy permission checks only for operations and OS versions that require them.
+- [ ] Remove the unconditional storage-permission gate in [Utils.download()](../hipda/src/main/java/com/lichader/hipdanext/utils/Utils.java) on modern Android. Retain legacy permission checks only for operations and OS versions that require them.
 - [ ] Limit `WRITE_EXTERNAL_STORAGE` to API 28 if older-device public-storage writes are retained. Verify authenticated attachment downloads to Downloads without requesting storage access on newer devices.
-- [ ] Preserve content-URI handling in [PostFragment](../hipda/src/main/java/net/jejer/hipda/ui/PostFragment.java) and [UploadImgHelper](../hipda/src/main/java/net/jejer/hipda/async/UploadImgHelper.java); consider the system photo-picker contract when updating Activity libraries. Test cloud-backed selections and cancellation.
+- [ ] Preserve content-URI handling in [PostFragment](../hipda/src/main/java/com/lichader/hipdanext/ui/PostFragment.java) and [UploadImgHelper](../hipda/src/main/java/com/lichader/hipdanext/async/UploadImgHelper.java); consider the system photo-picker contract when updating Activity libraries. Test cloud-backed selections and cancellation.
 - [ ] Fix the existing byte-copy bug in `UIUtils.saveImageQ()`: write only the bytes actually read, stop before EOF, and close both streams. Add byte-for-byte regression cases with sizes that are not multiples of 1 KB.
 - [ ] Handle null MediaStore results, publish completed writes using `IS_PENDING`, and clean up failed inserts.
 - [ ] Narrow [FileProvider paths](../hipda/src/main/res/xml/provider_paths.xml) to the directories actually shared and verify URI grants in receiving apps.
 
-The byte-copy bug is an existing defect, independent of target SDK. The modern save path already uses MediaStore in [UIUtils](../hipda/src/main/java/net/jejer/hipda/utils/UIUtils.java). Consult the [shared-media guidance](https://developer.android.com/training/data-storage/shared/media) for permission boundaries.
+The byte-copy bug is an existing defect, independent of target SDK. The modern save path already uses MediaStore in [UIUtils](../hipda/src/main/java/com/lichader/hipdanext/utils/UIUtils.java). Consult the [shared-media guidance](https://developer.android.com/training/data-storage/shared/media) for permission boundaries.
 
 Exit criterion: selection, upload, save, share, and download work on the oldest retained OS and Android 17; saved files match their source bytes.
 
 ## Stage 5: Migrate Navigation and Layout Behavior
 
-- [ ] Move activity Back handling to AndroidX `OnBackPressedDispatcher` callbacks. Preserve fragment behavior, drawer dismissal, draft confirmation, and image-viewer transitions in [BaseActivity](../hipda/src/main/java/net/jejer/hipda/ui/BaseActivity.java), [MainFrameActivity](../hipda/src/main/java/net/jejer/hipda/ui/MainFrameActivity.java), and [ImageViewerActivity](../hipda/src/main/java/net/jejer/hipda/ui/ImageViewerActivity.java).
-- [ ] Retire hidden activity-method reflection in [SwipeUtils](../hipda/src/main/java/net/jejer/hipda/ui/widget/swipeback/SwipeUtils.java) and reconcile custom swipe gestures with system Back navigation.
+- [ ] Move activity Back handling to AndroidX `OnBackPressedDispatcher` callbacks. Preserve fragment behavior, drawer dismissal, draft confirmation, and image-viewer transitions in [BaseActivity](../hipda/src/main/java/com/lichader/hipdanext/ui/BaseActivity.java), [MainFrameActivity](../hipda/src/main/java/com/lichader/hipdanext/ui/MainFrameActivity.java), and [ImageViewerActivity](../hipda/src/main/java/com/lichader/hipdanext/ui/ImageViewerActivity.java).
+- [ ] Retire hidden activity-method reflection in [SwipeUtils](../hipda/src/main/java/com/lichader/hipdanext/ui/widget/swipeback/SwipeUtils.java) and reconcile custom swipe gestures with system Back navigation.
 - [ ] Apply system-bar, display-cutout, and keyboard insets through AndroidX window APIs. Replace deprecated system-UI flag handling in `UIUtils`.
-- [ ] Replace screen-height and status-bar heuristics in [EmojiPopup](../emoji/src/main/java/com/vanniktech/emoji/EmojiPopup.java) and [AndroidBug5497Workaround](../hipda/src/main/java/net/jejer/hipda/ui/widget/swipeback/AndroidBug5497Workaround.java) with inset-aware sizing.
+- [ ] Replace screen-height and status-bar heuristics in [EmojiPopup](../emoji/src/main/java/com/vanniktech/emoji/EmojiPopup.java) and [AndroidBug5497Workaround](../hipda/src/main/java/com/lichader/hipdanext/ui/widget/swipeback/AndroidBug5497Workaround.java) with inset-aware sizing.
 - [ ] Check toolbars, lists, floating buttons, dialogs, image fullscreen mode, and emoji/composer placement with gesture and three-button navigation.
 
 Android 16 enables predictive Back by default, changes legacy Back dispatch, and removes the edge-to-edge opt-out for apps targeting API 36 on Android 16+. See [Android 16 behavior changes](https://developer.android.com/about/versions/16/behavior-changes-16).
