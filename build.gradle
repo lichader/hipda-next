@@ -5,7 +5,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.2.2'
+        classpath 'com.android.tools.build:gradle:9.1.1'
     }
 }
 
@@ -13,15 +13,12 @@ allprojects {
     repositories {
         mavenCentral()
         google()
-        maven { url 'https://jitpack.io' }
-        flatDir {
-            dirs 'libs'
-        }
+        maven { url = 'https://jitpack.io' }
     }
 }
 
 ext {
     minSdkVersion = 21
-    compileSdkVersion = 30
+    compileSdkVersion = 37
     targetSdkVersion = 30
 }

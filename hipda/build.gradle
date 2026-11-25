@@ -1,40 +1,36 @@
-buildscript {
-    repositories {
-    }
-}
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion as int
+    namespace = 'com.lichader.hipdanext'
+    compileSdk = rootProject.ext.compileSdkVersion as int
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 
     defaultConfig {
-        applicationId "com.lichader.hipdanext"
-        minSdkVersion rootProject.ext.minSdkVersion as int
-        targetSdkVersion rootProject.ext.targetSdkVersion as int
+        applicationId = "com.lichader.hipdanext"
+        minSdk = rootProject.ext.minSdkVersion as int
+        targetSdk = rootProject.ext.targetSdkVersion as int
+        versionCode = 5005
+        versionName = "5.0.05"
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-            android.applicationVariants.all { variant ->
-                if (variant.buildType.name == 'release') {
-                    variant.outputs.all {
-                        outputFileName = "hipda-ng-release.apk"
-                    }
-                }
-            }
+            minifyEnabled = true
+            shrinkResources = false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.txt'
         }
     }
     lint {
-        abortOnError false
-        checkReleaseBuilds false
+        abortOnError = false
+        checkReleaseBuilds = false
     }
 
 }

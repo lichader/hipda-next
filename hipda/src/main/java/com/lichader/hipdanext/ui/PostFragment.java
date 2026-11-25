@@ -385,28 +385,30 @@ public class PostFragment extends BaseFragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                // Implemented in activity
-                return false;
-            case R.id.action_upload_img:
-                if (mPrePostInfo == null) {
-                    fetchPrePostInfo(false);
-                    UIUtils.toast("请等待信息收集结束再选择图片");
-                } else {
-                    showImageSelector();
-                }
-                return true;
-            case R.id.action_restore_content:
-                mEtContent.requestFocus();
-                showRestoreContentDialog();
-                return true;
-            case R.id.action_delete_post:
-                showDeletePostDialog();
-                return true;
-            default:
-                return false;
+        int itemId = item.getItemId();
+        if (itemId == android.R.id.home) {
+            // Implemented in activity
+            return false;
         }
+        if (itemId == R.id.action_upload_img) {
+            if (mPrePostInfo == null) {
+                fetchPrePostInfo(false);
+                UIUtils.toast("请等待信息收集结束再选择图片");
+            } else {
+                showImageSelector();
+            }
+            return true;
+        }
+        if (itemId == R.id.action_restore_content) {
+            mEtContent.requestFocus();
+            showRestoreContentDialog();
+            return true;
+        }
+        if (itemId == R.id.action_delete_post) {
+            showDeletePostDialog();
+            return true;
+        }
+        return false;
     }
 
     protected void showImageSelector() {

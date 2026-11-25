@@ -1,19 +1,19 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion as int
+    namespace = 'com.vanniktech.emoji'
+    compileSdk = rootProject.ext.compileSdkVersion as int
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 
     defaultConfig {
-        minSdkVersion rootProject.ext.minSdkVersion as int
-        targetSdkVersion rootProject.ext.targetSdkVersion as int
+        minSdk = rootProject.ext.minSdkVersion as int
     }
 
-    resourcePrefix 'emoji'
+    resourcePrefix = 'emoji'
 }
 
 dependencies {
