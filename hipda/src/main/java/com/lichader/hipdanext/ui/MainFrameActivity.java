@@ -6,6 +6,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.activity.result.ActivityResultLauncher;
+import android.os.Build;
+import android.Manifest;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
@@ -105,6 +109,14 @@ public class MainFrameActivity extends BaseActivity {
     private LoginDialog mLoginDialog;
     private HiProgressDialog mLoginProgressDialog;
 
+    // Asked at most once per process; the system stops showing the prompt after repeated denials.
+    private static boolean sNotiPermissionAsked;
+    private final ActivityResultLauncher<String> mRequestNotiPermission =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
+                if (!Boolean.TRUE.equals(granted))
+                    UIUtils.toast("未授予通知权限，将无法显示新消息提醒");
+            });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -166,6 +178,7 @@ public class MainFrameActivity extends BaseActivity {
 
             TaskHelper.runDailyTask(false);
             NotiWorker.scheduleOrCancelWork();
+            requestNotificationPermissionIfNeeded();
 
             if (HiApplication.isUpdated()) {
                 HiApplication.setUpdated(false);
@@ -458,7 +471,7 @@ public class MainFrameActivity extends BaseActivity {
     }
 
     @Override
-    public void onBackPressed() {
+    protected void handleBackPressed() {
         if (mDrawer.isDrawerOpen()) {
             mDrawer.closeDrawer();
             return;
@@ -819,6 +832,17 @@ public class MainFrameActivity extends BaseActivity {
                 }
                 break;
             }
+        }
+    }
+
+    private void requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                && !sNotiPermissionAsked
+                && HiSettingsHelper.getInstance().isNotiTaskEnabled()
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+            sNotiPermissionAsked = true;
+            mRequestNotiPermission.launch(Manifest.permission.POST_NOTIFICATIONS);
         }
     }
 

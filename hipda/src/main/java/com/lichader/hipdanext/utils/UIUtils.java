@@ -28,6 +28,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -49,7 +50,7 @@ import com.lichader.hipdanext.ui.MainFrameActivity;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -155,6 +156,10 @@ public class UIUtils {
     }
 
     public static boolean askForStoragePermission(Context ctx) {
+        // Scoped storage (API 29+): MediaStore and DownloadManager writes need no permission,
+        // and WRITE_EXTERNAL_STORAGE is not requested there (maxSdkVersion 28).
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+            return false;
         if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             UIUtils.toast("需要授予 \"存储空间\" 权限");
@@ -297,41 +302,45 @@ public class UIUtils {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     private static void saveImageQ(final Activity activity, final View view, ImageInfo imageInfo) {
+        ContentResolver resolver = activity.getContentResolver();
+        Uri destUri = null;
         try {
             String filename = Utils.getImageFileName("Hi_IMG", imageInfo.getMime());
-            FileInputStream fis = new FileInputStream(imageInfo.getPath());
-            final File destFile;
-            final Uri destUri;
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, filename);
+            contentValues.put(MediaStore.MediaColumns.MIME_TYPE, imageInfo.getMime());
+            contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/" + IMAGES_DIR);
+            contentValues.put(MediaStore.MediaColumns.IS_PENDING, 1);
+            destUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+            if (destUri == null)
+                throw new IOException("无法创建图片文件");
 
-            OutputStream fos;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                ContentResolver resolver = activity.getContentResolver();
-                ContentValues contentValues = new ContentValues();
-                contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, filename);
-                contentValues.put(MediaStore.MediaColumns.MIME_TYPE, imageInfo.getMime());
-                contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/" + IMAGES_DIR);
-                destUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
-                fos = resolver.openOutputStream(destUri);
-            } else {
-                String imagesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString();
-                destFile = new File(imagesDir, filename);
-                fos = new FileOutputStream(destFile);
-                destUri = Uri.fromFile(destFile);
+            try (InputStream fis = new FileInputStream(imageInfo.getPath());
+                 OutputStream fos = resolver.openOutputStream(destUri)) {
+                if (fos == null)
+                    throw new IOException("无法写入图片文件");
+                byte[] buf = new byte[8192];
+                int len;
+                while ((len = fis.read(buf)) != -1) {
+                    fos.write(buf, 0, len);
+                }
             }
 
-            int i;
-            do {
-                byte[] buf = new byte[1024];
-                i = fis.read(buf);
-                fos.write(buf);
-            } while (i != -1);
-
-            fos.close();
+            ContentValues published = new ContentValues();
+            published.put(MediaStore.MediaColumns.IS_PENDING, 0);
+            resolver.update(destUri, published, null, null);
 
             snackViewSaveImage(activity, view, destUri, imageInfo.getMime());
         } catch (Exception e) {
             Logger.e(e);
+            if (destUri != null) {
+                try {
+                    resolver.delete(destUri, null, null);
+                } catch (Exception ignored) {
+                }
+            }
             errorSnack(view, "保存文件时发生错误", e.getMessage());
         }
     }

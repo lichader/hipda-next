@@ -56,3 +56,11 @@
 #Matisse
 -dontwarn com.squareup.picasso.**
 -dontwarn com.zhihu.matisse.**
+# Optional compile-time references that are absent on Android. R8 in AGP 8+
+# fails on missing classes instead of warning.
+# Tink (via androidx.security:security-crypto)
+-dontwarn com.google.errorprone.annotations.**
+# OkHttp 4.9 optional TLS providers
+-dontwarn org.bouncycastle.jsse.**
+-dontwarn org.conscrypt.**
+-dontwarn org.openjsse.**

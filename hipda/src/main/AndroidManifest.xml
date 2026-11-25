@@ -10,7 +10,11 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Only needed for public-storage writes before scoped storage (API 28 and lower). -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
 
     <application
         android:name=".ui.HiApplication"
@@ -24,6 +28,7 @@
 
         <activity
             android:name=".ui.MainFrameActivity"
+            android:exported="true"
             android:icon="@mipmap/ic_launcher"
             android:theme="@style/AppTheme.Launcher">
             <intent-filter>
@@ -37,10 +42,12 @@
 
         <activity
             android:name=".ui.IntentActivity"
+            android:exported="false"
             android:noHistory="true" />
 
         <activity-alias
             android:name=".ng.IntentActivity"
+            android:exported="true"
             android:label="@string/app_name"
             android:targetActivity=".ui.IntentActivity">
             <intent-filter android:label="@string/app_name">
