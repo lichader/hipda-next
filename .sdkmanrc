@@ -1,0 +1,4 @@
+# SDKMAN! environment for HiPDA Next. Run `sdk env install` in the repository root.
+# Gradle runs its daemon on JDK 21 (gradle/gradle-daemon-jvm.properties); CI uses Temurin 21.
+# Gradle itself comes from the wrapper (./gradlew), so it is not listed here.
+java=21.0.13.1+2-tem
