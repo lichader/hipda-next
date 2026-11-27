@@ -13,6 +13,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.lichader.hipdanext.async.FavoriteHelper;
 import com.lichader.hipdanext.bean.HiSettingsHelper;
+import com.lichader.hipdanext.di.SingletonEntryPoint;
 import com.lichader.hipdanext.okhttp.CachedDns;
 import com.lichader.hipdanext.okhttp.OkHttpHelper;
 import com.lichader.hipdanext.okhttp.RetryIntercepter;
@@ -60,6 +61,14 @@ public class AppStartupTest {
         assertSame(CachedDns.getInstance(), CachedDns.getInstance());
         assertSame(HiSettingsHelper.getInstance(), HiSettingsHelper.getInstance());
         assertSame(FavoriteHelper.getInstance(), FavoriteHelper.getInstance());
+    }
+
+    @Test
+    public void networkServicesComeFromHilt() {
+        SingletonEntryPoint hilt = SingletonEntryPoint.get();
+        assertSame(hilt.okHttpHelper(), OkHttpHelper.getInstance());
+        assertSame(hilt.cachedDns(), CachedDns.getInstance());
+        assertSame(hilt.okHttpHelper(), hilt.okHttpHelper());
     }
 
     @Test

@@ -4,11 +4,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 
-import com.bumptech.glide.Glide;
-
-import net.gotev.cookiestore.SharedPreferencesCookieStore;
-import net.gotev.cookiestore.okhttp.JavaNetCookieJar;
 import com.lichader.hipdanext.bean.HiSettingsHelper;
+import com.lichader.hipdanext.di.SingletonEntryPoint;
 import com.lichader.hipdanext.ui.HiApplication;
 import com.lichader.hipdanext.utils.Connectivity;
 import com.lichader.hipdanext.utils.HiUtils;
@@ -17,8 +14,6 @@ import com.lichader.hipdanext.utils.Utils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
 import java.net.CookieStore;
 import java.net.HttpCookie;
 import java.net.SocketTimeoutException;
@@ -28,11 +23,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import okhttp3.Cache;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import okhttp3.CacheControl;
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.CookieJar;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -43,6 +39,7 @@ import okhttp3.Response;
  * helper class for okhttp
  * Created by GreenSkinMonster on 2015-10-22.
  */
+@Singleton
 public class OkHttpHelper {
 
     public final static int CONNECT_TIMEOUT_SECS = 10;
@@ -66,28 +63,10 @@ public class OkHttpHelper {
             .maxStale(3 * 60, TimeUnit.SECONDS)
             .build();
 
-    private OkHttpHelper() {
-        mCookiestore = new SharedPreferencesCookieStore(HiApplication.getAppContext(), "cookie");
-        CookieManager cookieManager = new CookieManager(mCookiestore, CookiePolicy.ACCEPT_ALL);
-        CookieJar cookieJar = new JavaNetCookieJar(cookieManager);
-
-        Cache cache = new Cache(Glide.getPhotoCacheDir(HiApplication.getAppContext(), CACHE_DIR_NAME), 10 * 1024 * 1024);
-
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        builder.connectTimeout(OkHttpHelper.CONNECT_TIMEOUT_SECS, TimeUnit.SECONDS)
-                .readTimeout(OkHttpHelper.READ_TIMEOUT_SECS, TimeUnit.SECONDS)
-                .writeTimeout(OkHttpHelper.WRITE_TIMEOUT_SECS, TimeUnit.SECONDS)
-                .dns(CachedDns.getInstance())
-                .cache(cache)
-                .cookieJar(cookieJar);
-
-        if (Logger.isDebug()) {
-            builder.addInterceptor(new LoggingInterceptor());
-//            builder.eventListener(new PrintingEventListener());
-        }
-        builder.addInterceptor(new RetryIntercepter());
-
-        mClient = builder.build();
+    @Inject
+    public OkHttpHelper(OkHttpClient client, CookieStore cookieStore) {
+        mClient = client;
+        mCookiestore = cookieStore;
         handler = new Handler(Looper.getMainLooper());
     }
 
@@ -95,12 +74,12 @@ public class OkHttpHelper {
         return mClient;
     }
 
-    private static class SingletonHolder {
-        static final OkHttpHelper INSTANCE = new OkHttpHelper();
-    }
-
+    /**
+     * @deprecated inject {@link OkHttpHelper} instead.
+     */
+    @Deprecated
     public static OkHttpHelper getInstance() {
-        return SingletonHolder.INSTANCE;
+        return SingletonEntryPoint.get().okHttpHelper();
     }
 
     private Request buildGetRequest(String url, Object tag, CacheControl cacheControl) {
