@@ -72,6 +72,32 @@ public class AppStartupTest {
     }
 
     @Test
+    public void settingsAndFavoritesComeFromHilt() {
+        SingletonEntryPoint hilt = SingletonEntryPoint.get();
+        assertSame(hilt.settings(), HiSettingsHelper.getInstance());
+        assertSame(hilt.favorites(), FavoriteHelper.getInstance());
+    }
+
+    @Test
+    public void favoritesCacheRoundTrip() {
+        FavoriteHelper favorites = FavoriteHelper.getInstance();
+        favorites.addToCahce(FavoriteHelper.TYPE_FAVORITE, "12345");
+        assertTrue(favorites.isInFavorite("12345"));
+        favorites.removeFromCahce(FavoriteHelper.TYPE_FAVORITE, "12345");
+        assertFalse(favorites.isInFavorite("12345"));
+    }
+
+    @Test
+    public void settingsKeepTextSizeAdjustment() {
+        HiSettingsHelper settings = HiSettingsHelper.getInstance();
+        int base = settings.getPostTextSize() - settings.getPostTextSizeAdj();
+        int old = settings.getPostTextSizeAdj();
+        settings.setPostTextSizeAdj(old + 2);
+        assertEquals(base + old + 2, settings.getPostTextSize());
+        settings.setPostTextSizeAdj(old);
+    }
+
+    @Test
     public void httpClientIsConfigured() {
         OkHttpClient client = OkHttpHelper.getInstance().getClient();
         assertSame(CachedDns.getInstance(), client.dns());

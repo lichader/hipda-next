@@ -15,7 +15,7 @@ import com.google.gson.reflect.TypeToken;
 
 import com.lichader.hipdanext.R;
 import com.lichader.hipdanext.service.NotiHelper;
-import com.lichader.hipdanext.ui.HiApplication;
+import com.lichader.hipdanext.di.SingletonEntryPoint;
 import com.lichader.hipdanext.utils.Connectivity;
 import com.lichader.hipdanext.utils.Constants;
 import com.lichader.hipdanext.utils.HiUtils;
@@ -31,6 +31,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import dagger.hilt.android.qualifiers.ApplicationContext;
+
+@Singleton
 public class HiSettingsHelper {
 
     /* begin of encrypted user info */
@@ -108,7 +114,7 @@ public class HiSettingsHelper {
     public static final String IMAGE_POLICY_THUMB = "prefer_thumb";
     public static final String IMAGE_POLICY_ORIGINAL = "prefer_original";
 
-    private Context mCtx;
+    private final Context mCtx;
     private SharedPreferences mSharedPref;
     private SharedPreferences mEncrytedSharedPref;
 
@@ -217,8 +223,9 @@ public class HiSettingsHelper {
 
     // --------------- THIS IS NOT IN PERF -----------
 
-    private HiSettingsHelper() {
-        mCtx = HiApplication.getAppContext();
+    @Inject
+    public HiSettingsHelper(@ApplicationContext Context context) {
+        mCtx = context;
         mSharedPref = PreferenceManager.getDefaultSharedPreferences(mCtx);
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -273,12 +280,12 @@ public class HiSettingsHelper {
         return mSharedPref;
     }
 
-    private static class SingletonHolder {
-        public static final HiSettingsHelper INSTANCE = new HiSettingsHelper();
-    }
-
+    /**
+     * @deprecated inject {@link HiSettingsHelper} instead.
+     */
+    @Deprecated
     public static HiSettingsHelper getInstance() {
-        return SingletonHolder.INSTANCE;
+        return SingletonEntryPoint.get().settings();
     }
 
     public void reload() {
@@ -967,7 +974,7 @@ public class HiSettingsHelper {
     public boolean isAutoUpdateCheckable() {
         if (!isAutoUpdateCheck() || Utils.isFromGooglePlay(mCtx))
             return false;
-        Date lastCheck = HiSettingsHelper.getInstance().getLastUpdateCheckTime();
+        Date lastCheck = getLastUpdateCheckTime();
         //check update if last check is older than 12 hours
         return lastCheck == null
                 || System.currentTimeMillis() > lastCheck.getTime() + 12 * 60 * 60 * 1000;
@@ -985,13 +992,13 @@ public class HiSettingsHelper {
     public int getPostTextSize() {
         if (mBasePostTextSize <= 0)
             mBasePostTextSize = mCtx.getResources().getInteger(R.integer.post_text_size);
-        return mBasePostTextSize + getInstance().getPostTextSizeAdj();
+        return mBasePostTextSize + getPostTextSizeAdj();
     }
 
     public int getTitleTextSize() {
         if (mBaseTitleTextSize <= 0)
             mBaseTitleTextSize = mCtx.getResources().getInteger(R.integer.title_text_size);
-        return mBaseTitleTextSize + getInstance().getTitleTextSizeAdj();
+        return mBaseTitleTextSize + getTitleTextSizeAdj();
     }
 
 

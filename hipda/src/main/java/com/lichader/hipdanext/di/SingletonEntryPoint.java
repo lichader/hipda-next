@@ -1,5 +1,7 @@
 package com.lichader.hipdanext.di;
 
+import com.lichader.hipdanext.async.FavoriteHelper;
+import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.okhttp.CachedDns;
 import com.lichader.hipdanext.okhttp.OkHttpHelper;
 import com.lichader.hipdanext.ui.HiApplication;
@@ -20,6 +22,10 @@ public interface SingletonEntryPoint {
     OkHttpHelper okHttpHelper();
 
     CachedDns cachedDns();
+
+    HiSettingsHelper settings();
+
+    FavoriteHelper favorites();
 
     static SingletonEntryPoint get() {
         return EntryPointAccessors.fromApplication(HiApplication.getAppContext(), SingletonEntryPoint.class);
