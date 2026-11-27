@@ -133,7 +133,7 @@ Open the repository root with *File > Open*. Use an Android Studio release that 
 
 Studio follows the project's Daemon JVM criteria (Java 21) when its Gradle JDK setting allows it; otherwise set *Settings > Build, Execution, Deployment > Build Tools > Gradle > Gradle JDK* to a JDK 21, such as Studio's bundled JDK if it is version 21.
 
-The repository tracks a few `.idea/` files (copyright, encodings, scopes, VCS); leave other generated IDE files untracked.
+The repository does not track `.idea/`; Android Studio rebuilds it from the Gradle files on import. Shared editor settings (UTF-8, line endings, indentation) are in [.editorconfig](../.editorconfig), which Android Studio reads.
 
 ## Release Builds
 
