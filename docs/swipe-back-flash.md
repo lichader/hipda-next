@@ -76,4 +76,4 @@ Android's [Activity API documentation](https://developer.android.com/reference/a
 
 Confirm a root cause only after a controlled change removes a reproducible flash, with evidence identifying the responsible path. Verify normal Back navigation, swipe cancellation, repeated open/close cycles, both display states, and light/dark themes before marking the issue resolved.
 
-Related work: [Android 17 migration plan](android-17-migration.md), especially navigation and layout behavior.
+Related work: [Android 17 migration](android-17-migration.md), especially its swipe-back and inset follow-ups.
