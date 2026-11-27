@@ -114,8 +114,6 @@ public class ThreadDetailFragment extends BaseFragment {
     @Inject
     HistoryDao mHistoryDao;
 
-    @Inject
-    OkHttpHelper mOkHttpHelper;
 
     @Inject
     FavoriteHelper mFavoriteHelper;
@@ -370,7 +368,7 @@ public class ThreadDetailFragment extends BaseFragment {
 
         mShowAllMenuItem = menu.findItem(R.id.action_show_all);
         mShowAllMenuItem.setIcon(new IconicsDrawable(getActivity(), GoogleMaterial.Icon.gmd_eject)
-                .color(UIUtils.getToolbarTextColor(getActivity())).sizeDp(16));
+                .color(UIUtils.getToolbarTextColor(getActivity(), mSettings)).sizeDp(16));
 
         super.onCreateOptionsMenu(menu, inflater);
     }

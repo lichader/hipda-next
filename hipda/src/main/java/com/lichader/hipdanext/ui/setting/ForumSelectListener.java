@@ -115,7 +115,7 @@ public class ForumSelectListener extends OnPreferenceClickListener {
                 }
                 if (forums.size() > 0) {
                     mSettings.setForums(forums);
-                    preference.setSummary(HiUtils.getForumsSummary());
+                    preference.setSummary(HiUtils.getForumsSummary(mSettings));
                 } else {
                     UIUtils.toast("至少选择一个版面");
                 }

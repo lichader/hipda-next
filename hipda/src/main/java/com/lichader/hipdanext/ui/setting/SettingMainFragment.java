@@ -96,7 +96,7 @@ public class SettingMainFragment extends BaseSettingFragment {
         mSettings.reload();
 
         if (mSettings.isCircleAvatar() != mCircleAvatar)
-            GlideHelper.initDefaultFiles();
+            GlideHelper.initDefaultFiles(mSettings);
 
         if (mNotiTaskEnabled != mSettings.isNotiTaskEnabled()) {
             NotiWorker.scheduleOrCancelWork(requireContext().getApplicationContext(), mSettings);

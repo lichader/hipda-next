@@ -9,7 +9,6 @@ import com.lichader.hipdanext.bean.SearchBean;
 import com.lichader.hipdanext.bean.SimpleListBean;
 import com.lichader.hipdanext.bean.SimpleListItemBean;
 import com.lichader.hipdanext.db.History;
-import com.lichader.hipdanext.db.HistoryDao;
 import com.lichader.hipdanext.okhttp.NetworkError;
 import com.lichader.hipdanext.okhttp.OkHttpHelper;
 import com.lichader.hipdanext.utils.Constants;

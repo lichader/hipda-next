@@ -97,11 +97,11 @@ public class PostHelper {
         String subject = postBean.getSubject();
         String typeid = postBean.getTypeid();
 
-        mPrePostAsyncTask = new PrePostAsyncTask(mCtx, null, mMode);
+        mPrePostAsyncTask = new PrePostAsyncTask(mCtx, mSettings, mOkHttpHelper, null, mMode);
         int count = 0;
         while (mInfo == null && count < 3) {
             count++;
-            mInfo = new PrePostAsyncTask(mCtx, null, mMode).doInBackground(postBean);
+            mInfo = new PrePostAsyncTask(mCtx, mSettings, mOkHttpHelper, null, mMode).doInBackground(postBean);
         }
 
         mFloor = floor;
@@ -219,7 +219,7 @@ public class PostHelper {
         Exception exception = null;
         try {
             Response response = mOkHttpHelper.postAsResponse(url, params);
-            resp = OkHttpHelper.getResponseBody(response);
+            resp = mOkHttpHelper.getResponseBody(response);
             requestUrl = response.request().url().toString();
         } catch (Exception e1) {
             exception = e1;

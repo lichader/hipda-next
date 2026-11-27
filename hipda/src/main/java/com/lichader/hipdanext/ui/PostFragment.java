@@ -78,6 +78,7 @@ import javax.inject.Inject;
 @AndroidEntryPoint
 public class PostFragment extends BaseFragment {
 
+
     @Inject
     JobMgr mJobMgr;
     @Inject
@@ -205,7 +206,7 @@ public class PostFragment extends BaseFragment {
 
         mEtSubject = view.findViewById(R.id.et_subject);
         mEtContent.setTextSize(mSettings.getPostTextSize());
-        UIUtils.setLineSpacing(mEtContent);
+        UIUtils.setLineSpacing(mEtContent, mSettings);
 
         mEtContent.addTextChangedListener(new TextWatcher() {
             @Override
@@ -373,7 +374,7 @@ public class PostFragment extends BaseFragment {
 
         menu.findItem(R.id.action_upload_img).setIcon(new IconicsDrawable(getActivity(),
                 GoogleMaterial.Icon.gmd_add_a_photo).actionBar()
-                .color(UIUtils.getToolbarTextColor(getActivity())));
+                .color(UIUtils.getToolbarTextColor(getActivity(), mSettings)));
 
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -677,7 +678,7 @@ public class PostFragment extends BaseFragment {
                 mProgressBar.showNow();
             else
                 mProgressBar.show();
-            mPrePostAsyncTask = new PrePostAsyncTask(getActivity(), mPrePostListener, mMode);
+            mPrePostAsyncTask = new PrePostAsyncTask(getActivity(), mSettings, mOkHttpHelper, mPrePostListener, mMode);
             PostBean postBean = new PostBean();
             postBean.setTid(mTid);
             postBean.setPage(mPage);
@@ -717,7 +718,7 @@ public class PostFragment extends BaseFragment {
 
         if (mMode == PostHelper.MODE_QUOTE_POST || mMode == PostHelper.MODE_REPLY_POST) {
             mTvQuoteText.setTextSize(mSettings.getPostTextSize());
-            UIUtils.setLineSpacing(mTvQuoteText);
+            UIUtils.setLineSpacing(mTvQuoteText, mSettings);
             mTvQuoteText.setText(mQuoteText);
             mTvQuoteText.setVisibility(View.VISIBLE);
             mTvQuoteText.setOnClickListener(new View.OnClickListener() {

@@ -114,8 +114,8 @@ public class HiParserThreadList {
                 continue;
             }
             String author = authorciteAES.first().text();
-            if (!thread.setAuthor(author)) {
-                //author in blacklist
+            thread.setAuthor(author);
+            if (settings.isInBlacklist(author)) {
                 continue;
             }
 

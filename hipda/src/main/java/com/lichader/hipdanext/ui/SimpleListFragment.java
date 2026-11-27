@@ -186,7 +186,7 @@ public class SimpleListFragment extends BaseFragment
                 inflater.inflate(R.menu.menu_sms_list, menu);
                 menu.findItem(R.id.action_send_sms).setIcon(new IconicsDrawable(getActivity(),
                         GoogleMaterial.Icon.gmd_insert_comment).actionBar()
-                        .color(UIUtils.getToolbarTextColor(getActivity())));
+                        .color(UIUtils.getToolbarTextColor(getActivity(), mSettings)));
                 break;
             case SimpleListJob.TYPE_THREAD_NOTIFY:
                 setActionBarTitle(R.string.title_drawer_notify);

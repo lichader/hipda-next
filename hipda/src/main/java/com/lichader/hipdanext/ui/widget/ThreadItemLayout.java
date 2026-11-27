@@ -99,7 +99,7 @@ public class ThreadItemLayout extends ConstraintLayout {
 
         if (mSettings.isLoadAvatar()) {
             mAvatar.setVisibility(View.VISIBLE);
-            GlideHelper.loadAvatar(mGlide, mAvatar, thread.getAvatarUrl());
+            GlideHelper.loadAvatar(mGlide, mAvatar, thread.getAvatarUrl(), mSettings);
         } else {
             mAvatar.setVisibility(View.GONE);
         }

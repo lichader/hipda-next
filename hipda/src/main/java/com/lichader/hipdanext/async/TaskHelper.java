@@ -141,7 +141,7 @@ public class TaskHelper {
         Map<String, String> map = gson.fromJson(response, stringStringMap);
         String imageHost = map.get("CDN");
         mSettings.setImageHost(imageHost);
-        HiUtils.updateBaseUrls();
+        HiUtils.updateBaseUrls(mSettings);
         mSettings.setLongValue(HiSettingsHelper.PERF_IMAGE_HOST_UPDATE_TIME, System.currentTimeMillis());
     }
 

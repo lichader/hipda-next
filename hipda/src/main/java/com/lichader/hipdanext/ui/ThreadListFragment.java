@@ -239,12 +239,12 @@ public class ThreadListFragment extends BaseFragment
             int typeIdIndex = HiUtils.getBSTypeIndexByFid(typeId);
             if (typeIdIndex == -1) typeIdIndex = 0;
             mForumTypeMenuItem.setIcon(new IconicsDrawable(getActivity(), HiUtils.BS_TYPE_ICONS[typeIdIndex])
-                    .color(UIUtils.getToolbarTextColor(getActivity())).sizeDp(18));
+                    .color(UIUtils.getToolbarTextColor(getActivity(), mSettings)).sizeDp(18));
         }
 
         mSearchMenuItem = menu.findItem(R.id.action_search);
         mSearchMenuItem.setIcon(new IconicsDrawable(getActivity(), GoogleMaterial.Icon.gmd_search)
-                .color(UIUtils.getToolbarTextColor(getActivity())).sizeDp(18));
+                .color(UIUtils.getToolbarTextColor(getActivity(), mSettings)).sizeDp(18));
 
         MenuItem showStickItem = menu.findItem(R.id.action_show_stick_threads);
         showStickItem.setChecked(mSettings.isShowStickThreads());
@@ -465,7 +465,7 @@ public class ThreadListFragment extends BaseFragment
                     mSettings.setBSTypeId(HiUtils.BS_TYPE_IDS[position]);
                     if (mForumTypeMenuItem != null) {
                         mForumTypeMenuItem.setIcon(new IconicsDrawable(getActivity(), HiUtils.BS_TYPE_ICONS[position])
-                                .color(UIUtils.getToolbarTextColor(getActivity())).actionBar());
+                                .color(UIUtils.getToolbarTextColor(getActivity(), mSettings)).actionBar());
                     }
                     refresh();
                 }
@@ -597,7 +597,7 @@ public class ThreadListFragment extends BaseFragment
                     && !TextUtils.isEmpty(threads.getUid())) {
                 mSettings.setUid(threads.getUid());
                 mSettings.saveCurrentProfile();
-                GlideHelper.refreshUserIcon(getActivity());
+                GlideHelper.refreshUserIcon(getActivity(), mSettings);
                 if (getActivity() != null)
                     ((MainFrameActivity) getActivity()).updateAccountHeader();
             }

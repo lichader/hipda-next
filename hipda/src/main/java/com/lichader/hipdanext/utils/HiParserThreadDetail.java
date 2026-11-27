@@ -165,7 +165,8 @@ public class HiParserThreadDetail {
             }
 
             String author = postauthorAES.first().text();
-            if (!detail.setAuthor(author)) {
+            detail.setAuthor(author);
+            if (settings.isInBlacklist(author)) {
                 detail.setAuthor("[[黑名单用户]]");
                 details.add(detail);
                 continue;

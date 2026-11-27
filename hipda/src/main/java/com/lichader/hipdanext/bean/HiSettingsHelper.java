@@ -15,7 +15,6 @@ import com.google.gson.reflect.TypeToken;
 
 import com.lichader.hipdanext.R;
 import com.lichader.hipdanext.service.NotiHelper;
-import com.lichader.hipdanext.di.SingletonEntryPoint;
 import com.lichader.hipdanext.utils.Connectivity;
 import com.lichader.hipdanext.utils.Constants;
 import com.lichader.hipdanext.utils.HiUtils;
@@ -278,14 +277,6 @@ public class HiSettingsHelper {
 
     public SharedPreferences getSharedPref() {
         return mSharedPref;
-    }
-
-    /**
-     * @deprecated inject {@link HiSettingsHelper} instead.
-     */
-    @Deprecated
-    public static HiSettingsHelper getInstance() {
-        return SingletonEntryPoint.get().settings();
     }
 
     public void reload() {

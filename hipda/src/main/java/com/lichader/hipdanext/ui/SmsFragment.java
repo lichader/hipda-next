@@ -66,8 +66,6 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
     @Inject
     JobMgr mJobMgr;
 
-    @Inject
-    OkHttpHelper mOkHttpHelper;
 
     public static final String ARG_AUTHOR = "AUTHOR";
     public static final String ARG_UID = "UID";
@@ -147,7 +145,7 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
 
     private void sendSms(String replyText) {
         mSending = true;
-        new PostSmsAsyncTask(mUid, null, SmsFragment.this, null).execute(replyText);
+        new PostSmsAsyncTask(mOkHttpHelper, mUid, null, SmsFragment.this, null).execute(replyText);
         mEtSms.setText("");
         mCountdownButton.setEnabled(false);
         SimpleListItemBean bean = new SimpleListItemBean();
@@ -212,7 +210,7 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
         inflater.inflate(R.menu.menu_sms_detail, menu);
         menu.findItem(R.id.action_clear_sms)
                 .setIcon(new IconicsDrawable(getActivity(), FontAwesome.Icon.faw_trash).actionBar()
-                        .color(UIUtils.getToolbarTextColor(getActivity())));
+                        .color(UIUtils.getToolbarTextColor(getActivity(), mSettings)));
 
         setActionBarTitle(mAuthor);
         mEtSms.setHint(getString(R.string.txt_quick_hint) + " · " + mAuthor);

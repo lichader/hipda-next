@@ -67,8 +67,6 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
     @Inject
     BlacklistHelper mBlacklistHelper;
 
-    @Inject
-    OkHttpHelper mOkHttpHelper;
 
     public static final String ARG_USERNAME = "USERNAME";
     public static final String ARG_UID = "UID";
@@ -132,7 +130,7 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
                 public void onSingleClick(View v) {
                     if (!TextUtils.isEmpty(mAvatarUrl)) {
                         GlideHelper.clearAvatarCache(mAvatarUrl);
-                        GlideHelper.loadAvatar(UserinfoFragment.this, mAvatarView, mAvatarUrl);
+                        GlideHelper.loadAvatar(UserinfoFragment.this, mAvatarView, mAvatarUrl, mSettings);
                         UIUtils.toast("头像已经刷新");
                     } else {
                         UIUtils.toast("用户未设置头像");
@@ -231,7 +229,7 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
         inflater.inflate(R.menu.menu_userinfo, menu);
         menu.findItem(R.id.action_send_sms).setIcon(new IconicsDrawable(getActivity(),
                 GoogleMaterial.Icon.gmd_insert_comment).actionBar()
-                .color(UIUtils.getToolbarTextColor(getActivity())));
+                .color(UIUtils.getToolbarTextColor(getActivity(), mSettings)));
 
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -284,7 +282,7 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
             if (info != null) {
                 if (mSettings.isLoadAvatar()) {
                     mAvatarView.setVisibility(View.VISIBLE);
-                    GlideHelper.loadAvatar(UserinfoFragment.this, mAvatarView, info.getAvatarUrl());
+                    GlideHelper.loadAvatar(UserinfoFragment.this, mAvatarView, info.getAvatarUrl(), mSettings);
                     mAvatarUrl = info.getAvatarUrl();
                 } else {
                     mAvatarView.setVisibility(View.GONE);

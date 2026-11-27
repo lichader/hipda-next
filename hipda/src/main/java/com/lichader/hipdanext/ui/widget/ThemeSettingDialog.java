@@ -104,7 +104,7 @@ public class ThemeSettingDialog extends BottomDialog {
             if (otherChanged) {
                 mActivity.recreateActivity();
             } else if (themeModeChanged) {
-                UIUtils.setLightDarkThemeMode();
+                UIUtils.setLightDarkThemeMode(mSettings);
             }
             dismiss();
         });

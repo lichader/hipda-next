@@ -317,7 +317,7 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
             tv.setText(detail.getContents().getCopyText());
             tv.setTextSize(mSettings.getPostTextSize());
             tv.setPadding(8, 8, 8, 8);
-            UIUtils.setLineSpacing(tv);
+            UIUtils.setLineSpacing(tv, mSettings);
             tv.setTextIsSelectable(true);
 
             contentView.addView(tv);
@@ -628,7 +628,7 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
     }
 
     private void loadAvatar(final String avatarUrl, final ImageView imageView) {
-        GlideHelper.loadAvatar(mDetailFragment, imageView, avatarUrl);
+        GlideHelper.loadAvatar(mDetailFragment, imageView, avatarUrl, mSettings);
     }
 
     private static class ViewHolderImpl extends RecyclerView.ViewHolder {

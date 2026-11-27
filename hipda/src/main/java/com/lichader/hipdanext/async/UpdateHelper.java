@@ -142,7 +142,7 @@ public class UpdateHelper {
                             .setPositiveButton("下载",
                                     (dialog1, which) -> {
                                         try {
-                                            Utils.download(mCtx, url, filename);
+                                            Utils.download(mCtx, mOkHttpHelper, url, filename);
                                         } catch (Exception e) {
                                             Logger.e(e);
                                             UIUtils.toast("下载出现错误，请到客户端发布帖中手动下载。\n" + e.getMessage());

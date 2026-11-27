@@ -159,7 +159,7 @@ public class SettingNestedFragment extends BaseSettingFragment {
 
                 Preference forumsPreference = findPreference(HiSettingsHelper.PERF_FORUMS);
                 forumsPreference.setOnPreferenceClickListener(new ForumSelectListener(getActivity(), mSettings));
-                forumsPreference.setSummary(HiUtils.getForumsSummary());
+                forumsPreference.setSummary(HiUtils.getForumsSummary(mSettings));
 
                 final Preference tailTextPreference = findPreference(HiSettingsHelper.PERF_TAILTEXT);
                 tailTextPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {

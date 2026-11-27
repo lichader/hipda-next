@@ -64,11 +64,8 @@ public class ThreadBean {
         return mAuthor;
     }
 
-    // return false if author is in blacklist
-    public boolean setAuthor(String mAuthor) {
+    public void setAuthor(String mAuthor) {
         this.mAuthor = mAuthor;
-
-        return !HiSettingsHelper.getInstance().isInBlacklist(mAuthor);
     }
 
     public String getAuthorId() {

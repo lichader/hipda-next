@@ -39,6 +39,7 @@ import com.vanniktech.emoji.listeners.OnSoftKeyboardCloseListener;
 import com.lichader.hipdanext.R;
 import com.lichader.hipdanext.async.PostSmsAsyncTask;
 import com.lichader.hipdanext.glide.GlideHelper;
+import com.lichader.hipdanext.okhttp.OkHttpHelper;
 import com.lichader.hipdanext.ui.widget.OnSingleClickListener;
 import com.lichader.hipdanext.utils.UIUtils;
 import com.lichader.hipdanext.utils.Utils;
@@ -55,6 +56,8 @@ public abstract class BaseFragment extends Fragment {
 
     @Inject
     protected HiSettingsHelper mSettings;
+    @Inject
+    protected OkHttpHelper mOkHttpHelper;
 
     public String mSessionId;
     protected EmojiPopup mEmojiPopup;
@@ -242,7 +245,7 @@ public abstract class BaseFragment extends Fragment {
                     UIUtils.toast("请填写内容");
                     return;
                 }
-                new PostSmsAsyncTask(uid, recipient, listener, dialog).execute(content);
+                new PostSmsAsyncTask(mOkHttpHelper, uid, recipient, listener, dialog).execute(content);
                 UIUtils.hideSoftKeyboard(getActivity());
             }
         });
@@ -259,10 +262,10 @@ public abstract class BaseFragment extends Fragment {
             mKeyboardDrawable = ContextCompat.getDrawable(getActivity(), R.drawable.outline_keyboard_alt_24);
             mKeyboardDrawable.setTint(Color.GRAY);
         }
-        if (GlideHelper.getCurrentUserIcon() == null) {
+        if (GlideHelper.getCurrentUserIcon(mSettings) == null) {
             mKeyboardDrawable = new IconicsDrawable(getActivity(), GoogleMaterial.Icon.gmd_tag_faces).sizeDp(28).color(Color.GRAY);
         } else {
-            mFaceDrawable = GlideHelper.getCurrentUserIcon();
+            mFaceDrawable = GlideHelper.getCurrentUserIcon(mSettings);
         }
 
         mIbEmojiSwitch.setImageDrawable(mFaceDrawable);

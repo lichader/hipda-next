@@ -48,7 +48,7 @@ public class PostJob extends BaseJob {
         long start = System.currentTimeMillis();
 
         if (mMode == PostHelper.MODE_QUICK_DELETE) {
-            PrePostAsyncTask prePostAsyncTask = new PrePostAsyncTask(HiApplication.getAppContext(), null, PostHelper.MODE_EDIT_POST);
+            PrePostAsyncTask prePostAsyncTask = new PrePostAsyncTask(HiApplication.getAppContext(), mSettings, mOkHttpHelper, null, PostHelper.MODE_EDIT_POST);
             PostBean postBean = new PostBean();
             postBean.setTid(mPostArg.getTid());
             postBean.setPid(mPostArg.getPid());

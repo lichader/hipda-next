@@ -50,15 +50,17 @@ public class GlideHelper {
     final static long AVATAR_CACHE_MILLS = 3 * 24 * 60 * 60 * 1000;
     final static long AVATAR_404_CACHE_MILLS = 24 * 60 * 60 * 1000;
 
-    public static void loadAvatar(BaseFragment fragment, ImageView view, String avatarUrl) {
+    public static void loadAvatar(BaseFragment fragment, ImageView view, String avatarUrl,
+                                  HiSettingsHelper settings) {
         if (isOkToLoad(fragment)) {
-            loadAvatar(Glide.with(fragment.getActivity()), view, avatarUrl);
+            loadAvatar(Glide.with(fragment.getActivity()), view, avatarUrl, settings);
         }
     }
 
-    public static void loadAvatar(RequestManager glide, ImageView view, String avatarUrl) {
+    public static void loadAvatar(RequestManager glide, ImageView view, String avatarUrl,
+                                  HiSettingsHelper settings) {
         avatarUrl = Utils.nullToText(avatarUrl);
-        if (HiSettingsHelper.getInstance().isCircleAvatar()) {
+        if (settings.isCircleAvatar()) {
             glide.load(new AvatarModel(avatarUrl))
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .circleCrop()
@@ -127,7 +129,7 @@ public class GlideHelper {
         return fragment != null && fragment.getActivity() != null && !fragment.isDetached();
     }
 
-    public static void initDefaultFiles() {
+    public static void initDefaultFiles(HiSettingsHelper settings) {
         AVATAR_CACHE_DIR = Glide.getPhotoCacheDir(HiApplication.getAppContext(), "avatar");
 
         HashMap<String, Drawable> avatars = new HashMap<>();
@@ -149,7 +151,7 @@ public class GlideHelper {
             }
         }
 
-        if (HiSettingsHelper.getInstance().isCircleAvatar()) {
+        if (settings.isCircleAvatar()) {
             DEFAULT_USER_ICON = avatars.get("circle");
             DEFAULT_AVATAR_FILE = new File(AVATAR_CACHE_DIR, "circle.png");
         } else {
@@ -172,15 +174,15 @@ public class GlideHelper {
         return bitmap;
     }
 
-    public static Drawable getCurrentUserIcon() {
+    public static Drawable getCurrentUserIcon(HiSettingsHelper settings) {
         if (CURRENT_USER_ICON == null)
-            refreshUserIcon(HiApplication.getAppContext());
+            refreshUserIcon(HiApplication.getAppContext(), settings);
         return CURRENT_USER_ICON;
     }
 
-    public static void refreshUserIcon(Context context) {
+    public static void refreshUserIcon(Context context, HiSettingsHelper settings) {
         CURRENT_USER_ICON = null;
-        String avatarUrl = HiUtils.getAvatarUrlByUid(HiSettingsHelper.getInstance().getUid());
+        String avatarUrl = HiUtils.getAvatarUrlByUid(settings.getUid());
         if (TextUtils.isEmpty(avatarUrl))
             return;
         Glide.with(context)

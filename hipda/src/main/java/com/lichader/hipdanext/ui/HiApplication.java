@@ -54,6 +54,8 @@ public class HiApplication extends Application
     @Inject
     Lazy<OkHttpHelper> mOkHttpHelper;
     @Inject
+    Lazy<HiSettingsHelper> mSettings;
+    @Inject
     Lazy<CachedDns> mCachedDns;
     @Inject
     Lazy<UpdateHelper> mUpdateHelper;
@@ -66,19 +68,19 @@ public class HiApplication extends Application
         context = getApplicationContext();
         registerActivityLifecycleCallbacks(this);
 
-//        if (HiSettingsHelper.getInstance().isErrorReportMode()) {
+//        if (mSettings.get().isErrorReportMode()) {
         Thread.setDefaultUncaughtExceptionHandler(new SimpleExceptionHandler());
 //        }
 
-        UIUtils.setLightDarkThemeMode();
+        UIUtils.setLightDarkThemeMode(mSettings.get());
         updated = mUpdateHelper.get().updateApp();
 
-        if (!HiSettingsHelper.getInstance().isLoginInfoValid()) {
+        if (!mSettings.get().isLoginInfoValid()) {
             mOkHttpHelper.get().clearCookies();
         }
 
         try {
-            String font = HiSettingsHelper.getInstance().getFont();
+            String font = mSettings.get().getFont();
             if (!TextUtils.isEmpty(font)) {
                 File fontFile = new File(Utils.getFontsDir(), font);
                 if (fontFile.exists()) {
@@ -91,14 +93,14 @@ public class HiApplication extends Application
                                             .build()))
                             .build());
                 } else {
-                    HiSettingsHelper.getInstance().setFont("");
+                    mSettings.get().setFont("");
                 }
             }
         } catch (Exception e) {
-            HiSettingsHelper.getInstance().setFont("");
+            mSettings.get().setFont("");
             Logger.e(e);
         }
-        HiUtils.updateBaseUrls();
+        HiUtils.updateBaseUrls(mSettings.get());
     }
 
     /** WorkManager is initialized on first use with this configuration, see the manifest. */

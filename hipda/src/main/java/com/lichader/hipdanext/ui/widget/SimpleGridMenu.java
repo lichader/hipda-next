@@ -77,7 +77,7 @@ public class SimpleGridMenu {
         ImageView reportView = view.findViewById(R.id.iv_report);
 
         if (mSettings.isLoadAvatar()) {
-            GlideHelper.loadAvatar(mFragment, avatarView, HiUtils.getAvatarUrlByUid(mDetailBean.getUid()));
+            GlideHelper.loadAvatar(mFragment, avatarView, HiUtils.getAvatarUrlByUid(mDetailBean.getUid()), mSettings);
         } else {
             avatarView.setVisibility(View.GONE);
         }

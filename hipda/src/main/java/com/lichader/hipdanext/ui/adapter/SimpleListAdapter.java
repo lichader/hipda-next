@@ -94,7 +94,7 @@ public class SimpleListAdapter extends BaseRvAdapter<SimpleListItemBean> {
                 && mType != SimpleListJob.TYPE_MYPOST
                 && mType != SimpleListJob.TYPE_MYREPLY) {
             holder.iv_avatar.setVisibility(View.VISIBLE);
-            GlideHelper.loadAvatar(mFragment, holder.iv_avatar, item.getAvatarUrl());
+            GlideHelper.loadAvatar(mFragment, holder.iv_avatar, item.getAvatarUrl(), mSettings);
         } else {
             holder.iv_avatar.setVisibility(View.GONE);
         }

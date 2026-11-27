@@ -17,8 +17,8 @@ import dagger.hilt.android.EntryPointAccessors;
 import dagger.hilt.components.SingletonComponent;
 
 /**
- * Access to app-wide Hilt bindings from code that Hilt cannot inject, such as the
- * legacy {@code getInstance()} methods kept while callers move to injection.
+ * Access to app-wide Hilt bindings from code that Hilt cannot inject: jobs, views
+ * inflated from layouts and static helpers. Prefer injection or passing a service in.
  */
 @EntryPoint
 @InstallIn(SingletonComponent.class)

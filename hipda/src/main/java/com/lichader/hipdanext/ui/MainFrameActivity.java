@@ -79,7 +79,6 @@ import com.lichader.hipdanext.ui.widget.ThemeSettingDialog;
 import com.lichader.hipdanext.ui.widget.ValueChagerView;
 import com.lichader.hipdanext.utils.Constants;
 import com.lichader.hipdanext.utils.DrawerHelper;
-import com.lichader.hipdanext.utils.HiParserThreadList;
 import com.lichader.hipdanext.utils.HiUtils;
 import com.lichader.hipdanext.utils.UIUtils;
 import com.lichader.hipdanext.utils.Utils;
@@ -139,8 +138,8 @@ public class MainFrameActivity extends BaseActivity {
         mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
 
-        GlideHelper.initDefaultFiles();
-        GlideHelper.refreshUserIcon(MainFrameActivity.this);
+        GlideHelper.initDefaultFiles(mSettings);
+        GlideHelper.refreshUserIcon(MainFrameActivity.this, mSettings);
         EmojiHandler.init(UIUtils.isInLightThemeMode(MainFrameActivity.this));
         mNotiHelper.initNotificationChannel();
 
@@ -218,7 +217,7 @@ public class MainFrameActivity extends BaseActivity {
         DrawerImageLoader.init(new AbstractDrawerImageLoader() {
             @Override
             public void set(ImageView imageView, Uri uri, Drawable placeholder) {
-                GlideHelper.loadAvatar(Glide.with(MainFrameActivity.this), imageView, uri.toString());
+                GlideHelper.loadAvatar(Glide.with(MainFrameActivity.this), imageView, uri.toString(), mSettings);
             }
 
             @Override
@@ -335,7 +334,7 @@ public class MainFrameActivity extends BaseActivity {
                                 @Override
                                 public void onDrawerClosed(View drawerView) {
                                     mDrawer.getDrawerLayout().removeDrawerListener(this);
-                                    UIUtils.setLightDarkThemeMode();
+                                    UIUtils.setLightDarkThemeMode(mSettings);
                                 }
                             };
                             mSettings.setTheme(UIUtils.isInLightThemeMode(MainFrameActivity.this) ? HiSettingsHelper.THEME_MODE_DARK : HiSettingsHelper.THEME_MODE_LIGHT);
@@ -765,13 +764,13 @@ public class MainFrameActivity extends BaseActivity {
     }
 
     public void recreateActivity() {
-        HiUtils.updateBaseUrls();
+        HiUtils.updateBaseUrls(mSettings);
         //avoid “RuntimeException: Performing pause of activity that is not resumed”
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 try {
-                    UIUtils.setLightDarkThemeMode();
+                    UIUtils.setLightDarkThemeMode(mSettings);
                     getWindow().setWindowAnimations(R.style.ThemeTransitionAnimation);
                     recreate();
                 } catch (Exception e) {
@@ -945,7 +944,7 @@ public class MainFrameActivity extends BaseActivity {
 
         sampleTitleTextView.setTextSize(mSettings.getTitleTextSize());
         samplePostTextView.setTextSize(mSettings.getPostTextSize());
-        UIUtils.setLineSpacing(samplePostTextView);
+        UIUtils.setLineSpacing(samplePostTextView, mSettings);
 
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.main_frame_container);
 
@@ -966,7 +965,7 @@ public class MainFrameActivity extends BaseActivity {
             public void onChange(int currentValue) {
                 mSettings.setPostTextSizeAdj(currentValue);
                 samplePostTextView.setTextSize(mSettings.getPostTextSize());
-                UIUtils.setLineSpacing(samplePostTextView);
+                UIUtils.setLineSpacing(samplePostTextView, mSettings);
                 if (fragment instanceof ThreadListFragment)
                     ((ThreadListFragment) fragment).notifyDataChanged();
             }
@@ -977,7 +976,7 @@ public class MainFrameActivity extends BaseActivity {
             @Override
             public void onChange(int currentValue) {
                 mSettings.setPostLineSpacing(currentValue);
-                UIUtils.setLineSpacing(samplePostTextView);
+                UIUtils.setLineSpacing(samplePostTextView, mSettings);
                 if (fragment instanceof ThreadListFragment)
                     ((ThreadListFragment) fragment).notifyDataChanged();
             }
