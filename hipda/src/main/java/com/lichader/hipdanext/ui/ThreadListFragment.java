@@ -73,10 +73,16 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 import dagger.hilt.android.AndroidEntryPoint;
+import javax.inject.Inject;
 
 @AndroidEntryPoint
 public class ThreadListFragment extends BaseFragment
         implements SwipeRefreshLayout.OnRefreshListener {
+
+    @Inject
+    LoginHelper mLoginHelper;
+    @Inject
+    NotiHelper mNotiHelper;
 
     private final static int MIN_TREADS_IN_PAGE = 10;
     public static final String ARG_FID_KEY = "fid";
@@ -119,7 +125,7 @@ public class ThreadListFragment extends BaseFragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
-        setHasOptionsMenu(LoginHelper.isLoggedIn());
+        setHasOptionsMenu(mLoginHelper.isLoggedIn());
 
         View view = inflater.inflate(R.layout.fragment_thread_list, parent, false);
         mRecyclerView = view.findViewById(R.id.rv_threads);
@@ -201,7 +207,7 @@ public class ThreadListFragment extends BaseFragment
         if (getActivity() != null && getActivity() instanceof MainFrameActivity) {
             ((MainFrameActivity) getActivity()).setDrawerSelection(mForumId);
         }
-        if (LoginHelper.isLoggedIn()) {
+        if (mLoginHelper.isLoggedIn()) {
             showNotification();
         }
     }
@@ -318,18 +324,18 @@ public class ThreadListFragment extends BaseFragment
             mNotificationFab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    NotificationBean bean = NotiHelper.getCurrentNotification();
+                    NotificationBean bean = mNotiHelper.getCurrentNotification();
                     if (bean.getSmsCount() == 1
                             && bean.getThreadCount() == 0
                             && HiUtils.isValidId(bean.getUid())
                             && !TextUtils.isEmpty(bean.getUsername())) {
                         FragmentUtils.showSmsActivity(getActivity(), false, bean.getUid(), bean.getUsername());
-                        NotiHelper.getCurrentNotification().clearSmsCount();
+                        mNotiHelper.getCurrentNotification().clearSmsCount();
                         showNotification();
                     } else if (bean.getSmsCount() > 0) {
                         FragmentUtils.showSimpleListActivity(getActivity(), false, SimpleListJob.TYPE_SMS);
                     } else if (bean.getThreadCount() > 0) {
-                        NotiHelper.getCurrentNotification().setThreadCount(0);
+                        mNotiHelper.getCurrentNotification().setThreadCount(0);
                         FragmentUtils.showSimpleListActivity(getActivity(), false, SimpleListJob.TYPE_THREAD_NOTIFY);
                         showNotification();
                     } else {
@@ -517,8 +523,8 @@ public class ThreadListFragment extends BaseFragment
 
     public void showNotification() {
         if (mNotificationFab != null) {
-            int smsCount = NotiHelper.getCurrentNotification().getSmsCount();
-            int threadCount = NotiHelper.getCurrentNotification().getThreadCount();
+            int smsCount = mNotiHelper.getCurrentNotification().getSmsCount();
+            int threadCount = mNotiHelper.getCurrentNotification().getThreadCount();
             if (smsCount > 0) {
                 mNotificationFab.hide(); //avoid desgin lib bug cause image lost
                 mNotificationFab.setImageResource(R.drawable.ic_mail_white_24dp);

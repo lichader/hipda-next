@@ -79,6 +79,9 @@ import io.github.inflationx.calligraphy3.TypefaceUtils;
 public class SettingNestedFragment extends BaseSettingFragment {
 
     @Inject
+    TaskHelper mTaskHelper;
+
+    @Inject
     OkHttpHelper mOkHttpHelper;
 
     public static final int SCREEN_TAIL = 1;
@@ -288,7 +291,7 @@ public class SettingNestedFragment extends BaseSettingFragment {
                 forumServerPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        TaskHelper.updateImageHost(getActivity(), preference);
+                        mTaskHelper.updateImageHost(getActivity(), preference);
                         return true;
                     }
                 });

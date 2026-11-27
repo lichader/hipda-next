@@ -37,6 +37,7 @@ import java.util.List;
 
 import okhttp3.Request;
 import dagger.hilt.android.AndroidEntryPoint;
+import javax.inject.Inject;
 
 /**
  * Created by GreenSkinMonster on 2017-07-15.
@@ -44,6 +45,9 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class BlacklistFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
+
+    @Inject
+    BlacklistHelper mBlacklistHelper;
 
     public static final String TAG_KEY = "BLACKLIST_KEY";
 
@@ -102,7 +106,7 @@ public class BlacklistFragment extends BaseFragment implements SwipeRefreshLayou
             mSwipeLayout.setRefreshing(true);
 
         mRemoving.clear();
-        BlacklistHelper.getBlacklists(new OkHttpHelper.ResultCallback() {
+        mBlacklistHelper.getBlacklists(new OkHttpHelper.ResultCallback() {
             @Override
             public void onError(Request request, Exception e) {
                 UIUtils.toast("获取黑名单发生错误 : " + OkHttpHelper.getErrorMessage(e).getMessage());
@@ -142,7 +146,7 @@ public class BlacklistFragment extends BaseFragment implements SwipeRefreshLayou
 
     private void removeFromBlacklist(final String username) {
         mRemoving.add(username);
-        BlacklistHelper.delBlacklist(mFormhash, username, new OkHttpHelper.ResultCallback() {
+        mBlacklistHelper.delBlacklist(mFormhash, username, new OkHttpHelper.ResultCallback() {
             @Override
             public void onError(Request request, Exception e) {
                 UIUtils.toast(OkHttpHelper.getErrorMessage(e).getMessage());

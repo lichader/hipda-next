@@ -25,15 +25,17 @@ import com.lichader.hipdanext.utils.UIUtils;
 public class LoginDialog extends Dialog {
 
     private MainFrameActivity mActivity;
+    private final LoginHelper mLoginHelper;
 
     private String mUsername = "";
     private String mPassword = "";
     private String mSecQuestion = "";
     private String mSecAnswer = "";
 
-    public LoginDialog(MainFrameActivity activity) {
+    public LoginDialog(MainFrameActivity activity, LoginHelper loginHelper) {
         super(activity);
         mActivity = activity;
+        mLoginHelper = loginHelper;
     }
 
     @Override
@@ -80,8 +82,8 @@ public class LoginDialog extends Dialog {
                 mSecQuestion = adapter.getEntryValue(spSecQuestion.getSelectedItemPosition());
                 mSecAnswer = etSecAnswer.getText().toString();
 
-                if (LoginHelper.isLoggedIn())
-                    LoginHelper.logout();
+                if (mLoginHelper.isLoggedIn())
+                    mLoginHelper.logout();
 
                 HiSettingsHelper.getInstance().setUsername(mUsername);
                 HiSettingsHelper.getInstance().setPassword(mPassword);

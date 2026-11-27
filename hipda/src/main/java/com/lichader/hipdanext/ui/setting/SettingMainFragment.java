@@ -135,7 +135,7 @@ public class SettingMainFragment extends BaseSettingFragment {
         checkPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
                 //checkPreference.setSummary("上次检查 ：" + Utils.shortyTime(new Date()));
-                //new UpdateHelper(getActivity(), false).check();
+                //mUpdateHelper.check(getActivity(), false);
                 return true;
             }
         });

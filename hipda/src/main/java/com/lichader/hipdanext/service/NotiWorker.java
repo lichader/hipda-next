@@ -2,7 +2,6 @@ package com.lichader.hipdanext.service;
 
 import android.content.Context;
 
-import com.lichader.hipdanext.async.LoginHelper;
 import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.ui.HiApplication;
 import com.lichader.hipdanext.utils.Logger;
@@ -17,6 +16,7 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+import com.lichader.hipdanext.di.SingletonEntryPoint;
 
 /**
  * Created by GreenSkinMonster on 2019-03-16.
@@ -39,11 +39,11 @@ public class NotiWorker extends Worker {
     public Result doWork() {
         try {
             if (!HiApplication.isAppVisible()
-                    && LoginHelper.isLoggedIn()
+                    && SingletonEntryPoint.get().loginHelper().isLoggedIn()
                     && !HiSettingsHelper.getInstance().isInSilentMode()) {
                 HiSettingsHelper.getInstance().setNotiJobLastRunTime();
-                NotiHelper.fetchNotification(null);
-                NotiHelper.showNotification(HiApplication.getAppContext());
+                SingletonEntryPoint.get().notiHelper().fetchNotification(null);
+                SingletonEntryPoint.get().notiHelper().showNotification(HiApplication.getAppContext());
             }
         } catch (Exception e) {
             Logger.e(e);

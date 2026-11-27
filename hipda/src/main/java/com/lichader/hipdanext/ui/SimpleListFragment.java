@@ -60,6 +60,9 @@ public class SimpleListFragment extends BaseFragment
         implements SwipeRefreshLayout.OnRefreshListener, PostSmsAsyncTask.SmsPostListener {
 
     @Inject
+    NotiHelper mNotiHelper;
+
+    @Inject
     FavoriteHelper mFavoriteHelper;
 
     public static final String ARG_TYPE = "type";
@@ -478,9 +481,9 @@ public class SimpleListFragment extends BaseFragment
             }
 
             if (mType == SimpleListJob.TYPE_SMS)
-                NotiHelper.getCurrentNotification().clearSmsCount();
+                mNotiHelper.getCurrentNotification().clearSmsCount();
             if (mType == SimpleListJob.TYPE_THREAD_NOTIFY)
-                NotiHelper.getCurrentNotification().setThreadCount(0);
+                mNotiHelper.getCurrentNotification().setThreadCount(0);
             if (mType == SimpleListJob.TYPE_NEW_POSTS)
                 mSearchId = list.getSearchId();
 

@@ -15,6 +15,7 @@ import com.lichader.hipdanext.utils.HiUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import com.lichader.hipdanext.di.SingletonEntryPoint;
 
 /**
  * Created by GreenSkinMonster on 2016-11-16.
@@ -57,7 +58,7 @@ public class ThreadListJob extends BaseJob {
             Document doc = Jsoup.parse(fetchForumList());
             boolean loggedin = LoginHelper.checkLoggedin(doc);
             if (!loggedin) {
-                int status = new LoginHelper().login();
+                int status = SingletonEntryPoint.get().loginHelper().login();
                 if (status == Constants.STATUS_FAIL_ABORT) {
                     eventStatus = Constants.STATUS_FAIL_RELOGIN;
                     eventMessage = "请重新登录";

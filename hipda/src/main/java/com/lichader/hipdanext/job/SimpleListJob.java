@@ -24,6 +24,7 @@ import org.jsoup.nodes.Document;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
+import com.lichader.hipdanext.di.SingletonEntryPoint;
 
 /**
  * Created by GreenSkinMonster on 2016-11-16.
@@ -116,7 +117,7 @@ public class SimpleListJob extends BaseJob {
                 Document doc = Jsoup.parse(fetchSimpleList(mType));
                 boolean loggedin = LoginHelper.checkLoggedin(doc);
                 if (!loggedin) {
-                    int status = new LoginHelper().login();
+                    int status = SingletonEntryPoint.get().loginHelper().login();
                     if (status == Constants.STATUS_FAIL_ABORT) {
                         eventStatus = Constants.STATUS_FAIL_RELOGIN;
                         eventMessage = "请重新登录";

@@ -3,6 +3,8 @@ package com.lichader.hipdanext.async;
 import android.content.Context;
 import android.text.TextUtils;
 
+import androidx.annotation.Nullable;
+
 import com.vdurmont.emoji.EmojiParser;
 
 import com.lichader.hipdanext.bean.DetailListBean;
@@ -24,6 +26,10 @@ import org.jsoup.select.Elements;
 import java.util.Collections;
 import java.util.List;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import okhttp3.Response;
 
 public class PostHelper {
@@ -44,7 +50,9 @@ public class PostHelper {
     private String mResult;
     private int mStatus = Constants.STATUS_FAIL;
     private DetailListBean mDetailListBean;
-    private Context mCtx;
+    private final Context mCtx;
+    private final HiSettingsHelper mSettings;
+    private final OkHttpHelper mOkHttpHelper;
     private PrePostInfoBean mInfo;
     private PrePostAsyncTask mPrePostAsyncTask;
     private PostBean mPostArg;
@@ -53,8 +61,22 @@ public class PostHelper {
     private String mTitle;
     private int mFloor;
 
-    public PostHelper(Context ctx, int mode, PrePostInfoBean info, PostBean postArg) {
+    /** Creates a {@link PostHelper} for one post. */
+    @AssistedFactory
+    public interface Factory {
+        PostHelper create(int mode, @Nullable PrePostInfoBean info, PostBean postArg);
+    }
+
+    @AssistedInject
+    public PostHelper(@ApplicationContext Context ctx,
+                      HiSettingsHelper settings,
+                      OkHttpHelper okHttpHelper,
+                      @Assisted int mode,
+                      @Assisted @Nullable PrePostInfoBean info,
+                      @Assisted PostBean postArg) {
         mCtx = ctx;
+        mSettings = settings;
+        mOkHttpHelper = okHttpHelper;
         mMode = mode;
         mInfo = info;
         mPostArg = postArg;
@@ -86,8 +108,8 @@ public class PostHelper {
             subject = EmojiParser.parseToHtmlDecimal(subject);
 
         if (mMode != MODE_EDIT_POST) {
-            String tailStr = HiSettingsHelper.getInstance().getTailStr();
-            if (!TextUtils.isEmpty(tailStr) && HiSettingsHelper.getInstance().isAddTail()) {
+            String tailStr = mSettings.getTailStr();
+            if (!TextUtils.isEmpty(tailStr) && mSettings.isAddTail()) {
                 if (!replyText.trim().endsWith(tailStr))
                     replyText += "  " + tailStr;
             }
@@ -192,7 +214,7 @@ public class PostHelper {
         String requestUrl = null;
         Exception exception = null;
         try {
-            Response response = OkHttpHelper.getInstance().postAsResponse(url, params);
+            Response response = mOkHttpHelper.postAsResponse(url, params);
             resp = OkHttpHelper.getResponseBody(response);
             requestUrl = response.request().url().toString();
         } catch (Exception e1) {

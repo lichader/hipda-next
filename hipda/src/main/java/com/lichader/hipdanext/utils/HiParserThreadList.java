@@ -13,6 +13,7 @@ import com.lichader.hipdanext.service.NotiHelper;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import com.lichader.hipdanext.di.SingletonEntryPoint;
 
 public class HiParserThreadList {
 
@@ -214,8 +215,9 @@ public class HiParserThreadList {
         @Override
         public void run() {
             if (System.currentTimeMillis() > HOLD_FETCH_NOTIFY + 10 * 1000) {
-                NotiHelper.fetchNotification(mDoc);
-                NotiHelper.showNotification(mCtx);
+                NotiHelper notiHelper = SingletonEntryPoint.get().notiHelper();
+                notiHelper.fetchNotification(mDoc);
+                notiHelper.showNotification(mCtx);
             }
         }
     }

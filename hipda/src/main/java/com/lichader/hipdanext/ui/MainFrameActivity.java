@@ -97,9 +97,17 @@ import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import dagger.hilt.android.AndroidEntryPoint;
+import javax.inject.Inject;
 
 @AndroidEntryPoint
 public class MainFrameActivity extends BaseActivity {
+
+    @Inject
+    LoginHelper mLoginHelper;
+    @Inject
+    NotiHelper mNotiHelper;
+    @Inject
+    TaskHelper mTaskHelper;
 
     public final static int PERMISSIONS_REQUEST_CODE_STORAGE = 200;
     private final static int DRAG_SENSITIVITY = Utils.dpToPx(32);
@@ -134,7 +142,7 @@ public class MainFrameActivity extends BaseActivity {
         GlideHelper.initDefaultFiles();
         GlideHelper.refreshUserIcon(MainFrameActivity.this);
         EmojiHandler.init(UIUtils.isInLightThemeMode(MainFrameActivity.this));
-        NotiHelper.initNotificationChannel();
+        mNotiHelper.initNotificationChannel();
 
         EventBus.getDefault().register(this);
         setupDrawer();
@@ -161,7 +169,7 @@ public class MainFrameActivity extends BaseActivity {
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
         if (savedInstanceState == null) {
-            TaskHelper.updateImageHost();
+            mTaskHelper.updateImageHost();
 
             int fid = mSettings.getLastForumId();
             FragmentArgs args = FragmentUtils.parse(getIntent());
@@ -178,7 +186,7 @@ public class MainFrameActivity extends BaseActivity {
                 FragmentUtils.show(this, args);
             }
 
-            TaskHelper.runDailyTask(false);
+            mTaskHelper.runDailyTask(false);
             NotiWorker.scheduleOrCancelWork();
             requestNotificationPermissionIfNeeded();
 
@@ -187,7 +195,7 @@ public class MainFrameActivity extends BaseActivity {
                 UIUtils.showReleaseNotesDialog(this);
             } else {
                 if (mSettings.isAutoUpdateCheckable()) {
-                    //new UpdateHelper(this, true).check();
+                    //mUpdateHelper.check(this, true);
                 }
             }
         }
@@ -253,7 +261,7 @@ public class MainFrameActivity extends BaseActivity {
             @Override
             public void onSingleClick(View v) {
                 closeDrawer();
-                if (LoginHelper.isLoggedIn()) {
+                if (mLoginHelper.isLoggedIn()) {
                     showLogoutDialog();
                 }
             }
@@ -411,7 +419,7 @@ public class MainFrameActivity extends BaseActivity {
 
             ImageView logoutImageView = mAccountHeader.getView().findViewById(R.id.material_drawer_account_logout);
             if (logoutImageView != null) {
-                if (LoginHelper.isLoggedIn()) {
+                if (mLoginHelper.isLoggedIn()) {
                     logoutImageView.setVisibility(View.VISIBLE);
                 } else {
                     logoutImageView.setVisibility(View.INVISIBLE);
@@ -439,7 +447,7 @@ public class MainFrameActivity extends BaseActivity {
                 ((ThreadListFragment) fg).notifyDataSetChanged();
             }
         } else {
-//            if (!LoginHelper.isLoggedIn())
+//            if (!mLoginHelper.isLoggedIn())
 //                showLoginDialog();
         }
     }
@@ -568,13 +576,13 @@ public class MainFrameActivity extends BaseActivity {
             String username = item.getName().toString();
             Profile profile = mSettings.getProfile(username);
             if (current) {
-                if (LoginHelper.isLoggedIn()) {
+                if (mLoginHelper.isLoggedIn()) {
                     UIUtils.toast("长按头像退出登录");
                 } else {
                     showLoginDialog();
                 }
             } else if (profile != null) {
-                LoginHelper.logout();
+                mLoginHelper.logout();
                 if (mNotiificationFab != null)
                     mNotiificationFab.hide();
 
@@ -595,7 +603,7 @@ public class MainFrameActivity extends BaseActivity {
         public boolean onProfileImageLongClick(View view, IProfile drawerProfile, boolean current) {
             ProfileDrawerItem item = (ProfileDrawerItem) drawerProfile;
             final String username = item.getName().toString();
-            if (LoginHelper.isLoggedIn() && username.equalsIgnoreCase(mSettings.getUsername())) {
+            if (mLoginHelper.isLoggedIn() && username.equalsIgnoreCase(mSettings.getUsername())) {
                 showLogoutDialog();
             } else if (!current) {
                 showRemoveProfileDialog(username);
@@ -610,8 +618,7 @@ public class MainFrameActivity extends BaseActivity {
     public void doLoginProgress() {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            final LoginHelper loginHelper = new LoginHelper();
-            loginHelper.login(true);
+            mLoginHelper.login(true);
         });
     }
 
@@ -666,7 +673,7 @@ public class MainFrameActivity extends BaseActivity {
 
     private void logout(final String username, boolean removeProfile) {
         HiProgressDialog progressDialog = HiProgressDialog.show(MainFrameActivity.this, "正在退出...");
-        LoginHelper.logout();
+        mLoginHelper.logout();
         if (mNotiificationFab != null)
             mNotiificationFab.hide();
 
@@ -701,8 +708,8 @@ public class MainFrameActivity extends BaseActivity {
     }
 
     public void updateDrawerBadge() {
-        int smsCount = NotiHelper.getCurrentNotification().getSmsCount();
-        int threadCount = NotiHelper.getCurrentNotification().getThreadCount();
+        int smsCount = mNotiHelper.getCurrentNotification().getSmsCount();
+        int threadCount = mNotiHelper.getCurrentNotification().getThreadCount();
         int threadNotifyIndex = mDrawer.getPosition(Constants.DRAWER_THREADNOTIFY);
         if (threadNotifyIndex != -1) {
             PrimaryDrawerItem drawerItem = (PrimaryDrawerItem) mDrawer.getDrawerItem(Constants.DRAWER_THREADNOTIFY);
@@ -802,7 +809,7 @@ public class MainFrameActivity extends BaseActivity {
             if (mLoginProgressDialog != null && mLoginProgressDialog.isShowing()) {
                 mLoginProgressDialog.dismiss();
             }
-            TaskHelper.runDailyTask(true);
+            mTaskHelper.runDailyTask(true);
         } else {
             String username = mSettings.getUsername();
             if (event.mStatus == Constants.STATUS_FAIL_ABORT) {
@@ -850,7 +857,7 @@ public class MainFrameActivity extends BaseActivity {
 
     public void showLoginDialog() {
         if (mLoginDialog == null || !mLoginDialog.isShowing()) {
-            mLoginDialog = new LoginDialog(this);
+            mLoginDialog = new LoginDialog(this, mLoginHelper);
             mLoginDialog.setTitle("用户登录");
             mLoginDialog.show();
         }
@@ -867,7 +874,7 @@ public class MainFrameActivity extends BaseActivity {
     private ProfileDrawerItem[] getProfileDrawerItems() {
         List<ProfileDrawerItem> profileDrawerItems = new ArrayList<>();
         Profile activeProfile;
-        if (LoginHelper.isLoggedIn()) {
+        if (mLoginHelper.isLoggedIn()) {
             String username = mSettings.getUsername();
             activeProfile = mSettings.getProfile(username);
             if (activeProfile == null) {

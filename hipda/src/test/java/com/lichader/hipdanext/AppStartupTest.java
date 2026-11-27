@@ -12,6 +12,8 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.lichader.hipdanext.async.FavoriteHelper;
+import com.lichader.hipdanext.async.LoginHelper;
+import com.lichader.hipdanext.bean.PostBean;
 import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.di.SingletonEntryPoint;
 import com.lichader.hipdanext.okhttp.CachedDns;
@@ -76,6 +78,28 @@ public class AppStartupTest {
         SingletonEntryPoint hilt = SingletonEntryPoint.get();
         assertSame(hilt.settings(), HiSettingsHelper.getInstance());
         assertSame(hilt.favorites(), FavoriteHelper.getInstance());
+    }
+
+    @Test
+    public void asyncHelpersComeFromHilt() {
+        SingletonEntryPoint hilt = SingletonEntryPoint.get();
+        assertSame(hilt.loginHelper(), hilt.loginHelper());
+        assertSame(hilt.notiHelper(), hilt.notiHelper());
+        PostBean post = new PostBean();
+        post.setTid("1");
+        assertNotNull(hilt.postHelperFactory().create(0, null, post));
+    }
+
+    @Test
+    public void logoutClearsLoginState() {
+        SingletonEntryPoint hilt = SingletonEntryPoint.get();
+        LoginHelper login = hilt.loginHelper();
+        hilt.settings().setUsername("someone");
+        hilt.notiHelper().getCurrentNotification().setSmsCount(3);
+        login.logout();
+        assertFalse(login.isLoggedIn());
+        assertEquals("", hilt.settings().getUsername());
+        assertEquals(0, hilt.notiHelper().getCurrentNotification().getSmsCount());
     }
 
     @Test

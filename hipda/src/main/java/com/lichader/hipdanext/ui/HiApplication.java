@@ -50,6 +50,8 @@ public class HiApplication extends Application implements Application.ActivityLi
     Lazy<OkHttpHelper> mOkHttpHelper;
     @Inject
     Lazy<CachedDns> mCachedDns;
+    @Inject
+    Lazy<UpdateHelper> mUpdateHelper;
 
     @Override
     public void onCreate() {
@@ -62,7 +64,7 @@ public class HiApplication extends Application implements Application.ActivityLi
 //        }
 
         UIUtils.setLightDarkThemeMode();
-        updated = UpdateHelper.updateApp();
+        updated = mUpdateHelper.get().updateApp();
 
         if (!HiSettingsHelper.getInstance().isLoginInfoValid()) {
             mOkHttpHelper.get().clearCookies();

@@ -18,20 +18,32 @@ import org.jsoup.select.Elements;
 import java.util.Collections;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import okhttp3.Request;
 
 /**
  * Created by GreenSkinMonster on 2017-07-14.
  */
-
+@Singleton
 public class BlacklistHelper {
 
-    public static void addBlacklist(String formhash, final String username) {
+    private final HiSettingsHelper mSettings;
+    private final OkHttpHelper mOkHttpHelper;
+
+    @Inject
+    public BlacklistHelper(HiSettingsHelper settings, OkHttpHelper okHttpHelper) {
+        mSettings = settings;
+        mOkHttpHelper = okHttpHelper;
+    }
+
+    public void addBlacklist(String formhash, final String username) {
         ParamsMap params = new ParamsMap();
         params.put("formhash", formhash);
         params.put("user", username);
         try {
-            OkHttpHelper.getInstance().asyncPost(HiUtils.AddBlackUrl, params, new OkHttpHelper.ResultCallback() {
+            mOkHttpHelper.asyncPost(HiUtils.AddBlackUrl, params, new OkHttpHelper.ResultCallback() {
                 @Override
                 public void onError(Request request, Exception e) {
                     UIUtils.toast(OkHttpHelper.getErrorMessage(e).getMessage());
@@ -47,7 +59,7 @@ public class BlacklistHelper {
                             el.select("a").remove();
                             UIUtils.toast(el.text());
                         } else {
-                            HiSettingsHelper.getInstance().addToBlacklist(username);
+                            mSettings.addToBlacklist(username);
                             UIUtils.toast("已经将用户 <" + username + "> 添加至黑名单");
                         }
                     } catch (Exception e) {
@@ -60,8 +72,8 @@ public class BlacklistHelper {
         }
     }
 
-    public static void delBlacklist(final String formhash, final String username) {
-        BlacklistHelper.delBlacklist(formhash, username, new OkHttpHelper.ResultCallback() {
+    public void delBlacklist(final String formhash, final String username) {
+        delBlacklist(formhash, username, new OkHttpHelper.ResultCallback() {
             @Override
             public void onError(Request request, Exception e) {
                 UIUtils.toast(OkHttpHelper.getErrorMessage(e).getMessage());
@@ -75,7 +87,7 @@ public class BlacklistHelper {
                     if (!TextUtils.isEmpty(errorMsg)) {
                         UIUtils.toast(errorMsg);
                     } else {
-                        HiSettingsHelper.getInstance().removeFromBlacklist(username);
+                        mSettings.removeFromBlacklist(username);
                         UIUtils.toast("已经将用户 <" + username + "> 从黑名单移除");
                     }
                 } catch (Exception e) {
@@ -85,23 +97,23 @@ public class BlacklistHelper {
         });
     }
 
-    public static void delBlacklist(final String formhash, final String username, OkHttpHelper.ResultCallback callback) {
+    public void delBlacklist(final String formhash, final String username, OkHttpHelper.ResultCallback callback) {
         ParamsMap params = new ParamsMap();
         params.put("formhash", formhash);
         params.put("user", username);
         try {
-            OkHttpHelper.getInstance().asyncPost(HiUtils.DelBlackUrl, params, callback);
+            mOkHttpHelper.asyncPost(HiUtils.DelBlackUrl, params, callback);
         } catch (Exception e) {
             callback.onError(null, e);
         }
     }
 
-    public static void getBlacklists(OkHttpHelper.ResultCallback callback) {
-        OkHttpHelper.getInstance().asyncGet(HiUtils.ViewBlackUrl, callback);
+    public void getBlacklists(OkHttpHelper.ResultCallback callback) {
+        mOkHttpHelper.asyncGet(HiUtils.ViewBlackUrl, callback);
     }
 
-    public static void syncBlacklists() {
-        BlacklistHelper.getBlacklists(new OkHttpHelper.ResultCallback() {
+    public void syncBlacklists() {
+        getBlacklists(new OkHttpHelper.ResultCallback() {
             @Override
             public void onError(Request request, Exception e) {
             }
@@ -114,8 +126,8 @@ public class BlacklistHelper {
                     if (TextUtils.isEmpty(errorMsg)) {
                         List<String> list = HiParser.parseBlacklist(doc);
                         Collections.sort(list);
-                        HiSettingsHelper.getInstance().setBlacklists(list);
-                        HiSettingsHelper.getInstance().setBlacklistSyncTime();
+                        mSettings.setBlacklists(list);
+                        mSettings.setBlacklistSyncTime();
                     }
                 } catch (Exception e) {
                     Logger.e(e);
@@ -124,11 +136,11 @@ public class BlacklistHelper {
         });
     }
 
-    public static String addBlacklist2(String formhash, String username) throws Exception {
+    public String addBlacklist2(String formhash, String username) throws Exception {
         ParamsMap params = new ParamsMap();
         params.put("formhash", formhash);
         params.put("user", username);
-        String response = OkHttpHelper.getInstance().post(HiUtils.AddBlackUrl, params);
+        String response = mOkHttpHelper.post(HiUtils.AddBlackUrl, params);
         Document doc = Jsoup.parse(response);
         Elements errors = doc.select("div.alert_error");
         if (errors.size() > 0) {
@@ -136,7 +148,7 @@ public class BlacklistHelper {
             el.select("a").remove();
             return el.text();
         } else {
-            HiSettingsHelper.getInstance().addToBlacklist(username);
+            mSettings.addToBlacklist(username);
         }
         return "";
     }

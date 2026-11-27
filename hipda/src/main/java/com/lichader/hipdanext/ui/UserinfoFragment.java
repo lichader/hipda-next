@@ -62,6 +62,9 @@ import javax.inject.Inject;
 public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.SmsPostListener {
 
     @Inject
+    BlacklistHelper mBlacklistHelper;
+
+    @Inject
     OkHttpHelper mOkHttpHelper;
 
     public static final String ARG_USERNAME = "USERNAME";
@@ -254,11 +257,11 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
             return true;
         }
         if (itemId == R.id.action_blacklist) {
-            BlacklistHelper.addBlacklist(mFormhash, mUsername);
+            mBlacklistHelper.addBlacklist(mFormhash, mUsername);
             return true;
         }
         if (itemId == R.id.action_remove_blacklist) {
-            BlacklistHelper.delBlacklist(mFormhash, mUsername);
+            mBlacklistHelper.delBlacklist(mFormhash, mUsername);
             return true;
         }
         return super.onOptionsItemSelected(item);
