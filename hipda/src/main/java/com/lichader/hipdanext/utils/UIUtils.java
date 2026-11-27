@@ -7,6 +7,7 @@ import android.content.ClipboardManager;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -159,6 +160,19 @@ public class UIUtils {
         showMessageDialog(activity, "更新记录", info + releaseNotes, false);
     }
 
+    /**
+     * The Activity behind a context, unwrapping {@link ContextWrapper}s such as the one
+     * Hilt gives {@code @AndroidEntryPoint} fragments and their views; null if none.
+     */
+    public static Activity findActivity(Context context) {
+        while (context instanceof ContextWrapper) {
+            if (context instanceof Activity)
+                return (Activity) context;
+            context = ((ContextWrapper) context).getBaseContext();
+        }
+        return null;
+    }
+
     public static boolean askForStoragePermission(Context ctx) {
         // Scoped storage (API 29+): MediaStore and DownloadManager writes need no permission,
         // and WRITE_EXTERNAL_STORAGE is not requested there (maxSdkVersion 28).
@@ -167,8 +181,9 @@ public class UIUtils {
         if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             UIUtils.toast("需要授予 \"存储空间\" 权限");
-            if (ctx instanceof Activity)
-                ActivityCompat.requestPermissions((Activity) ctx,
+            Activity activity = findActivity(ctx);
+            if (activity != null)
+                ActivityCompat.requestPermissions(activity,
                         new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         MainFrameActivity.PERMISSIONS_REQUEST_CODE_STORAGE);
             return true;
