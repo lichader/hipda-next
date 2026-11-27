@@ -56,6 +56,7 @@ public class OkHttpHelper {
 
     private final OkHttpClient mClient;
     private final CookieStore mCookiestore;
+    private final HiSettingsHelper mSettings;
 
     private final Handler handler;
 
@@ -64,9 +65,10 @@ public class OkHttpHelper {
             .build();
 
     @Inject
-    public OkHttpHelper(OkHttpClient client, CookieStore cookieStore) {
+    public OkHttpHelper(OkHttpClient client, CookieStore cookieStore, HiSettingsHelper settings) {
         mClient = client;
         mCookiestore = cookieStore;
+        mSettings = settings;
         handler = new Handler(Looper.getMainLooper());
     }
 
@@ -104,7 +106,7 @@ public class OkHttpHelper {
             for (Map.Entry<String, List<String>> entry : params.entrySet()) {
                 for (String value : entry.getValue()) {
                     builder.addEncoded(entry.getKey(),
-                            URLEncoder.encode(value, HiSettingsHelper.getInstance().getEncode()));
+                            URLEncoder.encode(value, mSettings.getEncode()));
                 }
             }
         }
