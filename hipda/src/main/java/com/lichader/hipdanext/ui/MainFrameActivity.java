@@ -96,7 +96,9 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import dagger.hilt.android.AndroidEntryPoint;
 
+@AndroidEntryPoint
 public class MainFrameActivity extends BaseActivity {
 
     public final static int PERMISSIONS_REQUEST_CODE_STORAGE = 200;
@@ -161,7 +163,7 @@ public class MainFrameActivity extends BaseActivity {
         if (savedInstanceState == null) {
             TaskHelper.updateImageHost();
 
-            int fid = HiSettingsHelper.getInstance().getLastForumId();
+            int fid = mSettings.getLastForumId();
             FragmentArgs args = FragmentUtils.parse(getIntent());
             if (args != null && args.getType() == FragmentArgs.TYPE_FORUM) {
                 fid = args.getFid();
@@ -184,7 +186,7 @@ public class MainFrameActivity extends BaseActivity {
                 HiApplication.setUpdated(false);
                 UIUtils.showReleaseNotesDialog(this);
             } else {
-                if (HiSettingsHelper.getInstance().isAutoUpdateCheckable()) {
+                if (mSettings.isAutoUpdateCheckable()) {
                     //new UpdateHelper(this, true).check();
                 }
             }
@@ -281,7 +283,7 @@ public class MainFrameActivity extends BaseActivity {
         drawerItems.add(DrawerHelper.getPrimaryMenuItem(DrawerHelper.DrawerItem.HISTORIES));
         drawerItems.add(DrawerHelper.getPrimaryMenuItem(DrawerHelper.DrawerItem.NEW_POSTS));
 
-        Set<String> freqMenuIds = HiSettingsHelper.getInstance().getFreqMenus();
+        Set<String> freqMenuIds = mSettings.getFreqMenus();
         Collection<IDrawerItem> subItems = new ArrayList<>();
         if (freqMenuIds.contains("" + DrawerHelper.DrawerItem.MY_POST.id))
             drawerItems.add(DrawerHelper.getPrimaryMenuItem(DrawerHelper.DrawerItem.MY_POST));
@@ -310,7 +312,7 @@ public class MainFrameActivity extends BaseActivity {
                             ));
 
         drawerItems.add(new DividerDrawerItem());
-        if (HiSettingsHelper.THEME_MODE_AUTO.equals(HiSettingsHelper.getInstance().getTheme())) {
+        if (HiSettingsHelper.THEME_MODE_AUTO.equals(mSettings.getTheme())) {
             drawerItems.add(DrawerHelper.getPrimaryMenuItem(DrawerHelper.DrawerItem.SETTINGS));
         } else {
             drawerItems.add(new SettingSwitchDrawerItem()
@@ -328,14 +330,14 @@ public class MainFrameActivity extends BaseActivity {
                                     UIUtils.setLightDarkThemeMode();
                                 }
                             };
-                            HiSettingsHelper.getInstance().setTheme(UIUtils.isInLightThemeMode(MainFrameActivity.this) ? HiSettingsHelper.THEME_MODE_DARK : HiSettingsHelper.THEME_MODE_LIGHT);
+                            mSettings.setTheme(UIUtils.isInLightThemeMode(MainFrameActivity.this) ? HiSettingsHelper.THEME_MODE_DARK : HiSettingsHelper.THEME_MODE_LIGHT);
                             mDrawer.getDrawerLayout().addDrawerListener(nightModeDrawerListener);
                             mDrawer.closeDrawer();
                         }
                     }));
         }
         drawerItems.add(new DividerDrawerItem());
-        List<Integer> forums = HiSettingsHelper.getInstance().getForums();
+        List<Integer> forums = mSettings.getForums();
         for (int fid : forums) {
             Forum forum = HiUtils.getForumByFid(fid);
             if (forum != null)
@@ -383,12 +385,12 @@ public class MainFrameActivity extends BaseActivity {
     public void updateFabGravity() {
         CoordinatorLayout.LayoutParams mainFabParams = (CoordinatorLayout.LayoutParams) mMainFab.getLayoutParams();
         CoordinatorLayout.LayoutParams notiFabParams = (CoordinatorLayout.LayoutParams) mNotiificationFab.getLayoutParams();
-        if (HiSettingsHelper.getInstance().isFabLeftSide()) {
+        if (mSettings.isFabLeftSide()) {
             mainFabParams.anchorGravity = Gravity.BOTTOM | Gravity.LEFT | Gravity.END;
         } else {
             mainFabParams.anchorGravity = Gravity.BOTTOM | Gravity.RIGHT | Gravity.END;
         }
-        if (HiSettingsHelper.getInstance().isFabAutoHide()) {
+        if (mSettings.isFabAutoHide()) {
             mainFabParams.setBehavior(new FABHideOnScrollBehavior());
             notiFabParams.setBehavior(new FABHideOnScrollBehavior());
         } else {
@@ -564,7 +566,7 @@ public class MainFrameActivity extends BaseActivity {
         public boolean onProfileImageClick(View view, IProfile drawerProfile, boolean current) {
             ProfileDrawerItem item = (ProfileDrawerItem) drawerProfile;
             String username = item.getName().toString();
-            Profile profile = HiSettingsHelper.getInstance().getProfile(username);
+            Profile profile = mSettings.getProfile(username);
             if (current) {
                 if (LoginHelper.isLoggedIn()) {
                     UIUtils.toast("长按头像退出登录");
@@ -576,11 +578,11 @@ public class MainFrameActivity extends BaseActivity {
                 if (mNotiificationFab != null)
                     mNotiificationFab.hide();
 
-                HiSettingsHelper.getInstance().setUsername(profile.getUsername());
-                HiSettingsHelper.getInstance().setPassword(profile.getPassword());
-                HiSettingsHelper.getInstance().setSecQuestion(profile.getSecQuestion());
-                HiSettingsHelper.getInstance().setSecAnswer(profile.getSecAnswer());
-                HiSettingsHelper.getInstance().setUid("");
+                mSettings.setUsername(profile.getUsername());
+                mSettings.setPassword(profile.getPassword());
+                mSettings.setSecQuestion(profile.getSecQuestion());
+                mSettings.setSecAnswer(profile.getSecAnswer());
+                mSettings.setUid("");
 
                 doLoginProgress();
             }
@@ -593,7 +595,7 @@ public class MainFrameActivity extends BaseActivity {
         public boolean onProfileImageLongClick(View view, IProfile drawerProfile, boolean current) {
             ProfileDrawerItem item = (ProfileDrawerItem) drawerProfile;
             final String username = item.getName().toString();
-            if (LoginHelper.isLoggedIn() && username.equalsIgnoreCase(HiSettingsHelper.getInstance().getUsername())) {
+            if (LoginHelper.isLoggedIn() && username.equalsIgnoreCase(mSettings.getUsername())) {
                 showLogoutDialog();
             } else if (!current) {
                 showRemoveProfileDialog(username);
@@ -621,7 +623,7 @@ public class MainFrameActivity extends BaseActivity {
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                HiSettingsHelper.getInstance().removeProfile(username);
+                                mSettings.removeProfile(username);
                                 updateAccountHeader();
                                 UIUtils.toast("<" + username + "> 登录信息已经清除");
                             }
@@ -639,12 +641,12 @@ public class MainFrameActivity extends BaseActivity {
     private void showLogoutDialog() {
         AlertDialog dialog = new AlertDialog.Builder(MainFrameActivity.this)
                 .setTitle("退出登录？")
-                .setMessage("退出当前登录用户 <" + HiSettingsHelper.getInstance().getUsername() + "> ？\n")
+                .setMessage("退出当前登录用户 <" + mSettings.getUsername() + "> ？\n")
                 .setPositiveButton("退出",
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                logout(HiSettingsHelper.getInstance().getUsername(), false);
+                                logout(mSettings.getUsername(), false);
                             }
                         })
                 .setNegativeButton("取消",
@@ -656,7 +658,7 @@ public class MainFrameActivity extends BaseActivity {
                 .setNeutralButton("退出并清除登录信息", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        logout(HiSettingsHelper.getInstance().getUsername(), true);
+                        logout(mSettings.getUsername(), true);
                     }
                 }).create();
         dialog.show();
@@ -670,7 +672,7 @@ public class MainFrameActivity extends BaseActivity {
 
         String message = "已退出登录";
         if (removeProfile) {
-            HiSettingsHelper.getInstance().removeProfile(username);
+            mSettings.removeProfile(username);
             message += "并清除登录信息";
         }
 
@@ -781,7 +783,7 @@ public class MainFrameActivity extends BaseActivity {
         if (event.mStatus == Constants.STATUS_IN_PROGRESS) {
             if (event.mManual) {
                 if (mLoginProgressDialog == null || !mLoginProgressDialog.isShowing()) {
-                    final String username = HiSettingsHelper.getInstance().getUsername();
+                    final String username = mSettings.getUsername();
                     mLoginProgressDialog = HiProgressDialog.show(this, "<" + username + "> 正在登录...");
                 }
             }
@@ -802,13 +804,13 @@ public class MainFrameActivity extends BaseActivity {
             }
             TaskHelper.runDailyTask(true);
         } else {
-            String username = HiSettingsHelper.getInstance().getUsername();
+            String username = mSettings.getUsername();
             if (event.mStatus == Constants.STATUS_FAIL_ABORT) {
-                HiSettingsHelper.getInstance().removeProfile(username);
-                HiSettingsHelper.getInstance().setUsername("");
-                HiSettingsHelper.getInstance().setPassword("");
-                HiSettingsHelper.getInstance().setSecQuestion("");
-                HiSettingsHelper.getInstance().setSecAnswer("");
+                mSettings.removeProfile(username);
+                mSettings.setUsername("");
+                mSettings.setPassword("");
+                mSettings.setSecQuestion("");
+                mSettings.setSecAnswer("");
             }
             updateAccountHeader();
             if (mLoginProgressDialog != null && mLoginProgressDialog.isShowing()) {
@@ -838,7 +840,7 @@ public class MainFrameActivity extends BaseActivity {
     private void requestNotificationPermissionIfNeeded() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && !sNotiPermissionAsked
-                && HiSettingsHelper.getInstance().isNotiTaskEnabled()
+                && mSettings.isNotiTaskEnabled()
                 && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED) {
             sNotiPermissionAsked = true;
@@ -866,11 +868,11 @@ public class MainFrameActivity extends BaseActivity {
         List<ProfileDrawerItem> profileDrawerItems = new ArrayList<>();
         Profile activeProfile;
         if (LoginHelper.isLoggedIn()) {
-            String username = HiSettingsHelper.getInstance().getUsername();
-            activeProfile = HiSettingsHelper.getInstance().getProfile(username);
+            String username = mSettings.getUsername();
+            activeProfile = mSettings.getProfile(username);
             if (activeProfile == null) {
-                HiSettingsHelper.getInstance().saveCurrentProfile();
-                activeProfile = HiSettingsHelper.getInstance().getProfile(username);
+                mSettings.saveCurrentProfile();
+                activeProfile = mSettings.getProfile(username);
             }
             if (activeProfile != null) {
                 profileDrawerItems.add(
@@ -883,9 +885,9 @@ public class MainFrameActivity extends BaseActivity {
                 //shouldn't happend
                 profileDrawerItems.add(
                         new ProfileDrawerItem()
-                                .withName(HiSettingsHelper.getInstance().getUsername())
-                                .withEmail("UID:" + HiSettingsHelper.getInstance().getUid())
-                                .withIcon(HiUtils.getAvatarUrlByUid(HiSettingsHelper.getInstance().getUid()))
+                                .withName(mSettings.getUsername())
+                                .withEmail("UID:" + mSettings.getUid())
+                                .withIcon(HiUtils.getAvatarUrlByUid(mSettings.getUid()))
                 );
             }
         } else {
@@ -896,12 +898,12 @@ public class MainFrameActivity extends BaseActivity {
                             .withIcon(GlideHelper.DEFAULT_AVATAR_FILE != null ? GlideHelper.DEFAULT_AVATAR_FILE.getAbsolutePath() : "")
             );
         }
-        Map<String, Profile> profiles = HiSettingsHelper.getInstance().getProfiles();
-        ProfileComparator comparator = new ProfileComparator(HiSettingsHelper.getInstance().getProfiles());
+        Map<String, Profile> profiles = mSettings.getProfiles();
+        ProfileComparator comparator = new ProfileComparator(mSettings.getProfiles());
         TreeMap<String, Profile> sortedProfiles = new TreeMap<>(comparator);
         sortedProfiles.putAll(profiles);
         for (Profile profile : sortedProfiles.values()) {
-            if (!profile.getUsername().equalsIgnoreCase(HiSettingsHelper.getInstance().getUsername())) {
+            if (!profile.getUsername().equalsIgnoreCase(mSettings.getUsername())) {
                 profileDrawerItems.add(
                         new ProfileDrawerItem()
                                 .withName(profile.getUsername())
@@ -934,40 +936,40 @@ public class MainFrameActivity extends BaseActivity {
         final TextView sampleTitleTextView = view.findViewById(R.id.tv_sample_title_text);
         final TextView samplePostTextView = view.findViewById(R.id.tv_sample_post_text);
 
-        sampleTitleTextView.setTextSize(HiSettingsHelper.getInstance().getTitleTextSize());
-        samplePostTextView.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
+        sampleTitleTextView.setTextSize(mSettings.getTitleTextSize());
+        samplePostTextView.setTextSize(mSettings.getPostTextSize());
         UIUtils.setLineSpacing(samplePostTextView);
 
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.main_frame_container);
 
-        titleSizeValueChanger.setCurrentValue(HiSettingsHelper.getInstance().getTitleTextSizeAdj());
+        titleSizeValueChanger.setCurrentValue(mSettings.getTitleTextSizeAdj());
         titleSizeValueChanger.setOnChangeListener(new ValueChagerView.OnChangeListener() {
             @Override
             public void onChange(int currentValue) {
-                HiSettingsHelper.getInstance().setTitleTextSizeAdj(currentValue);
-                sampleTitleTextView.setTextSize(HiSettingsHelper.getInstance().getTitleTextSize());
+                mSettings.setTitleTextSizeAdj(currentValue);
+                sampleTitleTextView.setTextSize(mSettings.getTitleTextSize());
                 if (fragment instanceof ThreadListFragment)
                     ((ThreadListFragment) fragment).notifyDataChanged();
             }
         });
 
-        postSizeValueChanger.setCurrentValue(HiSettingsHelper.getInstance().getPostTextSizeAdj());
+        postSizeValueChanger.setCurrentValue(mSettings.getPostTextSizeAdj());
         postSizeValueChanger.setOnChangeListener(new ValueChagerView.OnChangeListener() {
             @Override
             public void onChange(int currentValue) {
-                HiSettingsHelper.getInstance().setPostTextSizeAdj(currentValue);
-                samplePostTextView.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
+                mSettings.setPostTextSizeAdj(currentValue);
+                samplePostTextView.setTextSize(mSettings.getPostTextSize());
                 UIUtils.setLineSpacing(samplePostTextView);
                 if (fragment instanceof ThreadListFragment)
                     ((ThreadListFragment) fragment).notifyDataChanged();
             }
         });
 
-        postSpacingValueChanger.setCurrentValue(HiSettingsHelper.getInstance().getPostLineSpacing());
+        postSpacingValueChanger.setCurrentValue(mSettings.getPostLineSpacing());
         postSpacingValueChanger.setOnChangeListener(new ValueChagerView.OnChangeListener() {
             @Override
             public void onChange(int currentValue) {
-                HiSettingsHelper.getInstance().setPostLineSpacing(currentValue);
+                mSettings.setPostLineSpacing(currentValue);
                 UIUtils.setLineSpacing(samplePostTextView);
                 if (fragment instanceof ThreadListFragment)
                     ((ThreadListFragment) fragment).notifyDataChanged();

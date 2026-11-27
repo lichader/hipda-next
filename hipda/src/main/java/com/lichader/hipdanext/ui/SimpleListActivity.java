@@ -13,11 +13,13 @@ import com.lichader.hipdanext.ui.widget.OnSingleClickListener;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import dagger.hilt.android.AndroidEntryPoint;
 
 /**
  * Created by GreenSkinMonster on 2017-06-16.
  */
 
+@AndroidEntryPoint
 public class SimpleListActivity extends SwipeBaseActivity {
 
     @Override

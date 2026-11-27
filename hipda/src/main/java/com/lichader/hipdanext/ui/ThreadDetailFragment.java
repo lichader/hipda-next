@@ -47,7 +47,6 @@ import com.lichader.hipdanext.async.PostHelper;
 import com.lichader.hipdanext.bean.ContentImg;
 import com.lichader.hipdanext.bean.DetailBean;
 import com.lichader.hipdanext.bean.DetailListBean;
-import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.bean.PollBean;
 import com.lichader.hipdanext.bean.PostBean;
 import com.lichader.hipdanext.bean.PrePostInfoBean;
@@ -102,8 +101,18 @@ import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import okhttp3.Request;
+import dagger.hilt.android.AndroidEntryPoint;
+import javax.inject.Inject;
 
+@AndroidEntryPoint
 public class ThreadDetailFragment extends BaseFragment {
+
+    @Inject
+    OkHttpHelper mOkHttpHelper;
+
+    @Inject
+    FavoriteHelper mFavoriteHelper;
+
     public static final String ARG_TID_KEY = "tid";
     public static final String ARG_PID_KEY = "pid";
     public static final String ARG_AUTHOR_ID_KEY = "author_id";
@@ -135,7 +144,7 @@ public class ThreadDetailFragment extends BaseFragment {
     final private ThreadDetailCache mCache = new ThreadDetailCache();
 
     private int mMaxPage = 0;
-    private int mMaxPostInPage = HiSettingsHelper.getInstance().getMaxPostsInPage();    // user can configure max posts per page in forum setting
+    private int mMaxPostInPage;    // user can configure max posts per page in forum setting
 
     private int mGotoPage = 1;
     private int mGotoFloor = -1;    // actual floor number in thread, start from 1
@@ -186,6 +195,7 @@ public class ThreadDetailFragment extends BaseFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mMaxPostInPage = mSettings.getMaxPostsInPage();
 
         setHasOptionsMenu(true);
 
@@ -278,7 +288,7 @@ public class ThreadDetailFragment extends BaseFragment {
 
         mQuickReply = ((ThreadDetailActivity) getActivity()).getQuickReplyView();
         mEtReply = mQuickReply.findViewById(R.id.tv_reply_text);
-        mEtReply.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
+        mEtReply.setTextSize(mSettings.getPostTextSize());
         mPageLabel = view.findViewById(R.id.tv_page_label);
 
         mCountdownButton = mQuickReply.findViewById(R.id.countdown_button);
@@ -361,7 +371,7 @@ public class ThreadDetailFragment extends BaseFragment {
         super.onPrepareOptionsMenu(menu);
         MenuItem favoritesMenuItem = menu.findItem(R.id.action_add_favorite);
         if (favoritesMenuItem != null) {
-            if (FavoriteHelper.getInstance().isInFavorite(mTid)) {
+            if (mFavoriteHelper.isInFavorite(mTid)) {
                 favoritesMenuItem.setTitle(R.string.action_remove_favorite);
             } else {
                 favoritesMenuItem.setTitle(R.string.action_add_favorite);
@@ -370,7 +380,7 @@ public class ThreadDetailFragment extends BaseFragment {
 
         MenuItem attentionMenuItem = menu.findItem(R.id.action_add_attention);
         if (attentionMenuItem != null) {
-            if (FavoriteHelper.getInstance().isInAttention(mTid)) {
+            if (mFavoriteHelper.isInAttention(mTid)) {
                 attentionMenuItem.setTitle(R.string.action_remove_attention);
             } else {
                 attentionMenuItem.setTitle(R.string.action_add_attention);
@@ -459,17 +469,17 @@ public class ThreadDetailFragment extends BaseFragment {
             return true;
         }
         if (itemId == R.id.action_add_favorite) {
-            if (FavoriteHelper.getInstance().isInFavorite(mTid))
-                FavoriteHelper.getInstance().removeFavorite(getActivity(), FavoriteHelper.TYPE_FAVORITE, mTid);
+            if (mFavoriteHelper.isInFavorite(mTid))
+                mFavoriteHelper.removeFavorite(getActivity(), FavoriteHelper.TYPE_FAVORITE, mTid);
             else
-                FavoriteHelper.getInstance().addFavorite(getActivity(), FavoriteHelper.TYPE_FAVORITE, mTid);
+                mFavoriteHelper.addFavorite(getActivity(), FavoriteHelper.TYPE_FAVORITE, mTid);
             return true;
         }
         if (itemId == R.id.action_add_attention) {
-            if (FavoriteHelper.getInstance().isInAttention(mTid))
-                FavoriteHelper.getInstance().removeFavorite(getActivity(), FavoriteHelper.TYPE_ATTENTION, mTid);
+            if (mFavoriteHelper.isInAttention(mTid))
+                mFavoriteHelper.removeFavorite(getActivity(), FavoriteHelper.TYPE_ATTENTION, mTid);
             else
-                FavoriteHelper.getInstance().addFavorite(getActivity(), FavoriteHelper.TYPE_ATTENTION, mTid);
+                mFavoriteHelper.addFavorite(getActivity(), FavoriteHelper.TYPE_ATTENTION, mTid);
             return true;
         }
         if (itemId == R.id.action_show_all) {
@@ -718,8 +728,8 @@ public class ThreadDetailFragment extends BaseFragment {
                         hideQuickReply(true);
                     }
                 });
-        if (HiSettingsHelper.getInstance().getUsername().equalsIgnoreCase(detailBean.getAuthor())
-                || HiSettingsHelper.getInstance().getUid().equals(detailBean.getUid())) {
+        if (mSettings.getUsername().equalsIgnoreCase(detailBean.getAuthor())
+                || mSettings.getUid().equals(detailBean.getUid())) {
             mGridMenu.add("delete", "快速删除",
                     new AdapterView.OnItemClickListener() {
                         @Override
@@ -791,7 +801,7 @@ public class ThreadDetailFragment extends BaseFragment {
     }
 
     public void scrollToBottom() {
-        if (HiSettingsHelper.getInstance().isAppBarCollapsible()) {
+        if (mSettings.isAppBarCollapsible()) {
             ((BaseActivity) getActivity()).mAppBarLayout.setExpanded(false, true);
         }
         mRecyclerView.scrollToBottom();
@@ -966,7 +976,7 @@ public class ThreadDetailFragment extends BaseFragment {
         mMainFab.setVisibility(View.GONE);
         showSoftKeyboard();
 
-        if (HiSettingsHelper.getInstance().isGestureBack())
+        if (mSettings.isGestureBack())
             ((ThreadDetailActivity) getActivity()).setSwipeBackEnable(false);
 
         if (mode != PostHelper.MODE_NEW_THREAD && mQuickReplyToPost != null) {
@@ -989,7 +999,7 @@ public class ThreadDetailFragment extends BaseFragment {
     }
 
     public boolean hideQuickReply(boolean clearReplyTo) {
-        if (HiSettingsHelper.getInstance().isGestureBack())
+        if (mSettings.isGestureBack())
             ((ThreadDetailActivity) getActivity()).setSwipeBackEnable(true);
 
         if (clearReplyTo) {
@@ -1230,7 +1240,7 @@ public class ThreadDetailFragment extends BaseFragment {
         @Override
         public void onSingleClick(View view) {
             if (view.getTag() != null && HiUtils.isValidId(view.getTag().toString())) {
-                OkHttpHelper.getInstance().asyncGet(
+                mOkHttpHelper.asyncGet(
                         HiUtils.UserWarningUrl.replace("{tid}", mTid).replace("{uid}", view.getTag().toString()),
                         new OkHttpHelper.ResultCallback() {
                             @Override
@@ -1331,7 +1341,7 @@ public class ThreadDetailFragment extends BaseFragment {
         public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
             super.onScrollStateChanged(recyclerView, newState);
             if (newState == RecyclerView.SCROLL_STATE_IDLE
-                    && HiSettingsHelper.getInstance().isFabAutoHide()
+                    && mSettings.isFabAutoHide()
                     && mRecyclerView.isNearBottom()) {
                 showMainFab();
             }
@@ -1427,7 +1437,7 @@ public class ThreadDetailFragment extends BaseFragment {
         public void onSuccess(ThreadDetailEvent event) {
             DetailListBean details = event.mData;
 
-            mMaxPostInPage = HiSettingsHelper.getInstance().getMaxPostsInPage();
+            mMaxPostInPage = mSettings.getMaxPostsInPage();
             if (ThreadDetailJob.FIND_AUTHOR_ID.equals(mAuthorId))
                 mAuthorId = event.mAuthorId;
 
@@ -1546,7 +1556,7 @@ public class ThreadDetailFragment extends BaseFragment {
                     mDetailAdapter.clear();
                     if (mGotoFloor > 1) {
                         mGotoFloor--;
-                        mGotoPage = mGotoFloor / HiSettingsHelper.getInstance().getMaxPostsInPage() + 1;
+                        mGotoPage = mGotoFloor / mSettings.getMaxPostsInPage() + 1;
                     }
                     showOrLoadPage(true);
                 }

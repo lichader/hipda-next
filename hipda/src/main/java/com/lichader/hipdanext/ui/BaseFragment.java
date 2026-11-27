@@ -44,12 +44,17 @@ import com.lichader.hipdanext.utils.UIUtils;
 import com.lichader.hipdanext.utils.Utils;
 
 import java.util.UUID;
+import javax.inject.Inject;
+import com.lichader.hipdanext.bean.HiSettingsHelper;
 
 /**
  * a base fragment
  * Created by GreenSkinMonster on 2015-05-09.
  */
 public abstract class BaseFragment extends Fragment {
+
+    @Inject
+    protected HiSettingsHelper mSettings;
 
     public String mSessionId;
     protected EmojiPopup mEmojiPopup;

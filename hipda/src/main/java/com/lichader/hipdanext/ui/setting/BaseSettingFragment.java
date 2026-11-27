@@ -22,12 +22,17 @@ import com.lichader.hipdanext.utils.Utils;
 
 import java.util.HashSet;
 import java.util.Set;
+import javax.inject.Inject;
+import com.lichader.hipdanext.bean.HiSettingsHelper;
 
 /**
  * base setting fragment
  * Created by GreenSkinMonster on 2015-09-11.
  */
 public class BaseSettingFragment extends PreferenceFragmentCompat {
+
+    @Inject
+    protected HiSettingsHelper mSettings;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {

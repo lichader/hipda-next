@@ -136,9 +136,9 @@ public class SettingNestedFragment extends BaseSettingFragment {
     public void onResume() {
         super.onResume();
         if (mBlackListPreference != null) {
-            Date bSyncDate = HiSettingsHelper.getInstance().getBlacklistSyncTime();
+            Date bSyncDate = mSettings.getBlacklistSyncTime();
             mBlackListPreference.setSummary(
-                    "黑名单用户 : " + HiSettingsHelper.getInstance().getBlacklists().size() + "，上次同步 : "
+                    "黑名单用户 : " + mSettings.getBlacklists().size() + "，上次同步 : "
                             + Utils.shortyTime(bSyncDate));
         }
     }
@@ -171,7 +171,7 @@ public class SettingNestedFragment extends BaseSettingFragment {
                         return true;
                     }
                 });
-                tailTextPreference.setSummary(HiSettingsHelper.getInstance().getTailText());
+                tailTextPreference.setSummary(mSettings.getTailText());
 
                 mBlackListPreference = findPreference(HiSettingsHelper.PERF_BLACKLIST);
                 mBlackListPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -237,7 +237,7 @@ public class SettingNestedFragment extends BaseSettingFragment {
                         intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, true);
                         intent.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI, Settings.System.DEFAULT_NOTIFICATION_URI);
 
-                        String existingValue = HiSettingsHelper.getInstance().getStringValue(HiSettingsHelper.PERF_NOTI_SOUND, "");
+                        String existingValue = mSettings.getStringValue(HiSettingsHelper.PERF_NOTI_SOUND, "");
                         if (existingValue != null) {
                             if (existingValue.length() == 0) {
                                 // Select "Silent"
@@ -254,20 +254,20 @@ public class SettingNestedFragment extends BaseSettingFragment {
                         return true;
                     }
                 });
-                ringtonePreference.setSummary(Utils.getRingtoneTitle(getActivity(), Uri.parse(HiSettingsHelper.getInstance().getStringValue(HiSettingsHelper.PERF_NOTI_SOUND, ""))));
+                ringtonePreference.setSummary(Utils.getRingtoneTitle(getActivity(), Uri.parse(mSettings.getStringValue(HiSettingsHelper.PERF_NOTI_SOUND, ""))));
 
                 final Preference silentBeginPreference = findPreference(HiSettingsHelper.PERF_NOTI_SILENT_BEGIN);
                 final Preference silentEndPreference = findPreference(HiSettingsHelper.PERF_NOTI_SILENT_END);
 
                 silentBeginPreference.setOnPreferenceClickListener(
-                        new TimePickerListener(HiSettingsHelper.getInstance().getSilentBegin()));
-                silentBeginPreference.setSummary(HiSettingsHelper.getInstance().getSilentBegin());
+                        new TimePickerListener(mSettings.getSilentBegin()));
+                silentBeginPreference.setSummary(mSettings.getSilentBegin());
 
                 silentEndPreference.setOnPreferenceClickListener(
-                        new TimePickerListener(HiSettingsHelper.getInstance().getSilentEnd()));
-                silentEndPreference.setSummary(HiSettingsHelper.getInstance().getSilentEnd());
+                        new TimePickerListener(mSettings.getSilentEnd()));
+                silentEndPreference.setSummary(mSettings.getSilentEnd());
 
-                enableNotiItems(notiEnablePreference, HiSettingsHelper.getInstance().isNotiTaskEnabled());
+                enableNotiItems(notiEnablePreference, mSettings.isNotiTaskEnabled());
                 break;
 
             case SCREEN_NETWORK:
@@ -326,7 +326,7 @@ public class SettingNestedFragment extends BaseSettingFragment {
 
     private void enableNotiItems(Preference preference, boolean isNotiTaskEnabled) {
         if (isNotiTaskEnabled) {
-            preference.setSummary("上次检查 : " + Utils.shortyTime(HiSettingsHelper.getInstance().getNotiJobLastRunTime()));
+            preference.setSummary("上次检查 : " + Utils.shortyTime(mSettings.getNotiJobLastRunTime()));
         } else {
             preference.setSummary("已停用");
         }
@@ -340,10 +340,10 @@ public class SettingNestedFragment extends BaseSettingFragment {
         if (requestCode == REQUEST_CODE_ALERT_RINGTONE && data != null) {
             Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
             if (uri == null) {
-                HiSettingsHelper.getInstance().setStringValue(HiSettingsHelper.PERF_NOTI_SOUND, "");
+                mSettings.setStringValue(HiSettingsHelper.PERF_NOTI_SOUND, "");
                 ringtonePreference.setSummary("无");
             } else {
-                HiSettingsHelper.getInstance().setStringValue(HiSettingsHelper.PERF_NOTI_SOUND, uri.toString());
+                mSettings.setStringValue(HiSettingsHelper.PERF_NOTI_SOUND, uri.toString());
                 ringtonePreference.setSummary(Utils.getRingtoneTitle(getActivity(), uri));
             }
         } else {
@@ -461,7 +461,7 @@ public class SettingNestedFragment extends BaseSettingFragment {
 
         final AppCompatButton btnNoFont = viewlayout.findViewById(R.id.btn_no_font);
         btnNoFont.setTag("");
-        if (TextUtils.isEmpty(HiSettingsHelper.getInstance().getFont()))
+        if (TextUtils.isEmpty(mSettings.getFont()))
             btnNoFont.setCompoundDrawablesRelative(mCheckDrawable, null, null, null);
 
         ItemTouchHelper.SimpleCallback simpleItemTouchCallback
@@ -482,8 +482,8 @@ public class SettingNestedFragment extends BaseSettingFragment {
                         UIUtils.toast(font.getName() + " 已经删除");
                         fonts.remove(position);
                         fontsAdapter.notifyItemRemoved(position);
-                        if (font.getName().equals(HiSettingsHelper.getInstance().getFont())) {
-                            HiSettingsHelper.getInstance().setFont("");
+                        if (font.getName().equals(mSettings.getFont())) {
+                            mSettings.setFont("");
                             bindPreferenceSummaryToValue(findPreference(HiSettingsHelper.PERF_FONT));
                             btnNoFont.setCompoundDrawablesRelative(mCheckDrawable, null, null, null);
                         }
@@ -525,7 +525,7 @@ public class SettingNestedFragment extends BaseSettingFragment {
             @Override
             public void onClick(View view) {
                 String fontName = view.getTag().toString();
-                HiSettingsHelper.getInstance().setFont(fontName);
+                mSettings.setFont(fontName);
                 bindPreferenceSummaryToValue(findPreference(HiSettingsHelper.PERF_FONT));
                 dialog.dismiss();
             }
@@ -609,7 +609,7 @@ public class SettingNestedFragment extends BaseSettingFragment {
             sBuilder.setSpan(typefaceSpan, 0, font.getName().length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
             holder.btnFont.setText(sBuilder, TextView.BufferType.SPANNABLE);
-            if (font.getName().equals(HiSettingsHelper.getInstance().getFont())) {
+            if (font.getName().equals(mSettings.getFont())) {
                 holder.btnFont.setCompoundDrawables(mCheckDrawable, null, null, null);
             } else {
                 holder.btnFont.setCompoundDrawables(null, null, null, null);
