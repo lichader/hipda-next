@@ -57,7 +57,11 @@ public class NotiHelper {
     public final static String CHANNEL_ID = "HIPDA_NOTI";
     public final static String CHANNEL_NAME = "论坛通知";
 
+    private final static long HOLD_FETCH_MILLIS = 10 * 1000;
+
     private final NotificationBean mCurrentBean = new NotificationBean();
+
+    private volatile long mHoldFetchUntil = 0;
 
     private final Context mContext;
     private final HiSettingsHelper mSettings;
@@ -171,6 +175,24 @@ public class NotiHelper {
             sb.append("， ");
         sb.append(threadCount > 0 ? threadCount + " 条新的帖子通知" : "");
         return sb.toString();
+    }
+
+    /**
+     * Reads the notification counts from a page the app has just loaded, and shows a
+     * notification if the app is in the background. Runs on a new thread.
+     */
+    public void fetchNotificationAsync(final Context context, final Document doc) {
+        new Thread(() -> {
+            if (System.currentTimeMillis() > mHoldFetchUntil) {
+                fetchNotification(doc);
+                showNotification(context);
+            }
+        }).start();
+    }
+
+    /** Skips {@link #fetchNotificationAsync} for the next ten seconds. */
+    public void holdFetchNotify() {
+        mHoldFetchUntil = System.currentTimeMillis() + HOLD_FETCH_MILLIS;
     }
 
     public void sendNotification(final Context context, final int threadCount, final int smsCount, final String username, final String uid, final String smsContent) {

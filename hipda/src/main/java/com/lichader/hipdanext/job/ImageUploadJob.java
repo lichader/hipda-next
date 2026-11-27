@@ -10,7 +10,6 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import com.lichader.hipdanext.di.SingletonEntryPoint;
 
 /**
  * Created by GreenSkinMonster on 2016-04-01.
@@ -38,7 +37,7 @@ public class ImageUploadJob extends BaseJob implements UploadImgHelper.UploadImg
 
     @Override
     public void onRun() throws Throwable {
-        SingletonEntryPoint.get().uploadImgHelperFactory().create(this, mUid, mHash, mUris, mOriginal).upload();
+        mServices.uploadImgHelperFactory().create(this, mUid, mHash, mUris, mOriginal).upload();
 
         ImageUploadEvent event = new ImageUploadEvent();
         event.mSessionId = mSessionId;

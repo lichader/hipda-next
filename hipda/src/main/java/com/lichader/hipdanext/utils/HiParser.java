@@ -8,6 +8,7 @@ import com.lichader.hipdanext.bean.SimpleListItemBean;
 import com.lichader.hipdanext.bean.UserInfoBean;
 import com.lichader.hipdanext.glide.GlideHelper;
 import com.lichader.hipdanext.job.SimpleListJob;
+import com.lichader.hipdanext.service.NotiHelper;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -20,9 +21,10 @@ import java.util.List;
 
 public class HiParser {
 
-    public static SimpleListBean parseSimpleList(Context context, int type, Document doc, boolean isFullTextSearch) {
+    public static SimpleListBean parseSimpleList(Context context, NotiHelper notiHelper, int type,
+                                                 Document doc, boolean isFullTextSearch) {
 
-        new Thread(new HiParserThreadList.ParseNotifyRunnable(context, doc)).start();
+        notiHelper.fetchNotificationAsync(context, doc);
 
         switch (type) {
             case SimpleListJob.TYPE_MYREPLY:

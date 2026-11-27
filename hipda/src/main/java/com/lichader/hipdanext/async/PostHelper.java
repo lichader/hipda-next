@@ -13,6 +13,7 @@ import com.lichader.hipdanext.bean.PostBean;
 import com.lichader.hipdanext.bean.PrePostInfoBean;
 import com.lichader.hipdanext.okhttp.OkHttpHelper;
 import com.lichader.hipdanext.okhttp.ParamsMap;
+import com.lichader.hipdanext.service.NotiHelper;
 import com.lichader.hipdanext.utils.Constants;
 import com.lichader.hipdanext.utils.HiParserThreadDetail;
 import com.lichader.hipdanext.utils.HiUtils;
@@ -53,6 +54,7 @@ public class PostHelper {
     private final Context mCtx;
     private final HiSettingsHelper mSettings;
     private final OkHttpHelper mOkHttpHelper;
+    private final NotiHelper mNotiHelper;
     private PrePostInfoBean mInfo;
     private PrePostAsyncTask mPrePostAsyncTask;
     private PostBean mPostArg;
@@ -71,12 +73,14 @@ public class PostHelper {
     public PostHelper(@ApplicationContext Context ctx,
                       HiSettingsHelper settings,
                       OkHttpHelper okHttpHelper,
+                      NotiHelper notiHelper,
                       @Assisted int mode,
                       @Assisted @Nullable PrePostInfoBean info,
                       @Assisted PostBean postArg) {
         mCtx = ctx;
         mSettings = settings;
         mOkHttpHelper = okHttpHelper;
+        mNotiHelper = notiHelper;
         mMode = mode;
         mInfo = info;
         mPostArg = postArg;
@@ -238,7 +242,7 @@ public class PostHelper {
                     try {
                         //parse resp to get redirected page content
                         Document doc = Jsoup.parse(resp);
-                        DetailListBean data = HiParserThreadDetail.parse(mCtx, doc, tid);
+                        DetailListBean data = HiParserThreadDetail.parse(mCtx, mSettings, mNotiHelper, doc, tid);
                         if (data != null && data.getCount() > 0) {
                             mDetailListBean = data;
                         }

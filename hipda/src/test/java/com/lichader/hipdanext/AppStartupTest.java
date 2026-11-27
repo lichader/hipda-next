@@ -10,15 +10,18 @@ import android.content.Context;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.work.ListenableWorker;
+import androidx.work.testing.TestListenableWorkerBuilder;
 
 import com.lichader.hipdanext.async.FavoriteHelper;
 import com.lichader.hipdanext.async.LoginHelper;
-import com.lichader.hipdanext.bean.PostBean;
 import com.lichader.hipdanext.bean.HiSettingsHelper;
+import com.lichader.hipdanext.bean.PostBean;
 import com.lichader.hipdanext.di.SingletonEntryPoint;
 import com.lichader.hipdanext.okhttp.CachedDns;
 import com.lichader.hipdanext.okhttp.OkHttpHelper;
 import com.lichader.hipdanext.okhttp.RetryIntercepter;
+import com.lichader.hipdanext.service.NotiWorker;
 import com.lichader.hipdanext.ui.HiApplication;
 import com.lichader.hipdanext.utils.HiUtils;
 
@@ -100,6 +103,17 @@ public class AppStartupTest {
         assertFalse(login.isLoggedIn());
         assertEquals("", hilt.settings().getUsername());
         assertEquals(0, hilt.notiHelper().getCurrentNotification().getSmsCount());
+    }
+
+    @Test
+    public void notiWorkerIsCreatedByHilt() {
+        Context app = ApplicationProvider.getApplicationContext();
+        NotiWorker worker = TestListenableWorkerBuilder.from(app, NotiWorker.class)
+                .setWorkerFactory(((HiApplication) app).getWorkManagerConfiguration().getWorkerFactory())
+                .build();
+        // Logged out, so the worker checks nothing and succeeds offline.
+        SingletonEntryPoint.get().loginHelper().logout();
+        assertEquals(ListenableWorker.Result.success(), worker.doWork());
     }
 
     @Test

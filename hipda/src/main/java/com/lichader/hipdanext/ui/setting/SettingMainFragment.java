@@ -99,7 +99,7 @@ public class SettingMainFragment extends BaseSettingFragment {
             GlideHelper.initDefaultFiles();
 
         if (mNotiTaskEnabled != mSettings.isNotiTaskEnabled()) {
-            NotiWorker.scheduleOrCancelWork();
+            NotiWorker.scheduleOrCancelWork(requireContext().getApplicationContext(), mSettings);
         }
 
         if (mCacheCleared

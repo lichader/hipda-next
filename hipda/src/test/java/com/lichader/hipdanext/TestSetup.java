@@ -13,10 +13,17 @@ final class TestSetup {
     private TestSetup() {
     }
 
-    /** Robolectric does not run AndroidX Startup, so WorkManager is initialized by hand. */
+    /**
+     * WorkManager in tests runs work at once on the calling thread, and creates workers
+     * with the app's Hilt worker factory as it does in the app.
+     */
     static void initWorkManager() {
         Context context = ApplicationProvider.getApplicationContext();
+        Configuration appConfig = ((Configuration.Provider) context).getWorkManagerConfiguration();
         WorkManagerTestInitHelper.initializeTestWorkManager(context,
-                new Configuration.Builder().setExecutor(new SynchronousExecutor()).build());
+                new Configuration.Builder()
+                        .setWorkerFactory(appConfig.getWorkerFactory())
+                        .setExecutor(new SynchronousExecutor())
+                        .build());
     }
 }

@@ -10,7 +10,6 @@ import com.lichader.hipdanext.utils.Constants;
 import com.lichader.hipdanext.utils.HiUtils;
 
 import org.greenrobot.eventbus.EventBus;
-import com.lichader.hipdanext.di.SingletonEntryPoint;
 
 /**
  * Created by GreenSkinMonster on 2016-03-28.
@@ -77,7 +76,7 @@ public class PostJob extends BaseJob {
             }
         }
 
-        PostHelper postHelper = SingletonEntryPoint.get().postHelperFactory().create(mMode, mPrePostInfo, mPostArg);
+        PostHelper postHelper = mServices.postHelperFactory().create(mMode, mPrePostInfo, mPostArg);
         PostBean postResult = postHelper.post();
 
         mEvent.mPostResult = postResult;

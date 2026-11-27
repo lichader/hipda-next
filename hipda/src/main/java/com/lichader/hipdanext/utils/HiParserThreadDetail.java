@@ -16,6 +16,7 @@ import com.lichader.hipdanext.bean.PollBean;
 import com.lichader.hipdanext.bean.PollOptionBean;
 import com.lichader.hipdanext.cache.SignatureContainer;
 import com.lichader.hipdanext.cache.SmallImages;
+import com.lichader.hipdanext.service.NotiHelper;
 import com.lichader.hipdanext.ui.textstyle.TextStyle;
 import com.lichader.hipdanext.ui.textstyle.TextStyleHolder;
 
@@ -40,7 +41,8 @@ public class HiParserThreadDetail {
         return "";
     }
 
-    public static DetailListBean parse(Context context, Document doc, String tid) {
+    public static DetailListBean parse(Context context, HiSettingsHelper settings, NotiHelper notiHelper,
+                                       Document doc, String tid) {
         // get last page
         Elements pagesES = doc.select("div#wrap div.forumcontrol div.pages");
         // thread have only 1 page don't have "div.pages"
@@ -58,7 +60,7 @@ public class HiParserThreadDetail {
             }
         }
 
-        new Thread(new HiParserThreadList.ParseNotifyRunnable(context, doc)).start();
+        notiHelper.fetchNotificationAsync(context, doc);
         HiSettingsHelper.updateMobileNetworkStatus(context);
 
         DetailListBean details = new DetailListBean();
@@ -142,10 +144,10 @@ public class HiParserThreadDetail {
             //update max posts in page, this is controlled by user setting
             if (i == 0) {
                 if (page == 1 && last_page > 1) {
-                    HiSettingsHelper.getInstance().setMaxPostsInPage(postsEL.childNodeSize());
+                    settings.setMaxPostsInPage(postsEL.childNodeSize());
                 } else if (page > 1) {
                     int maxPostsInPage = (Utils.parseInt(floor) - 1) / (page - 1);
-                    HiSettingsHelper.getInstance().setMaxPostsInPage(maxPostsInPage);
+                    settings.setMaxPostsInPage(maxPostsInPage);
                 }
             }
 
@@ -307,7 +309,7 @@ public class HiParserThreadDetail {
 
                 textStyles.addLevel(level);
 
-                processChildren = parseNode(contentN, content, level, textStyles);
+                processChildren = parseNode(settings, contentN, content, level, textStyles);
 
                 if (processChildren && contentN.childNodeSize() > 0) {
                     contentN = contentN.childNode(0);
@@ -374,7 +376,7 @@ public class HiParserThreadDetail {
     }
 
     // return true for continue children, false for ignore children
-    private static boolean parseNode(Node contentN, DetailBean.Contents content, int level, @NonNull TextStyleHolder textStyles) {
+    private static boolean parseNode(HiSettingsHelper settings, Node contentN, DetailBean.Contents content, int level, @NonNull TextStyleHolder textStyles) {
 
         if (contentN.nodeName().equals("i")    //text in an alternate voice or mood
                 || contentN.nodeName().equals("u")    //text that should be stylistically different from normal text
@@ -590,7 +592,7 @@ public class HiParserThreadDetail {
             }
             return false;
         } else {
-            if (HiSettingsHelper.getInstance().isErrorReportMode()
+            if (settings.isErrorReportMode()
                     && !"#comment".equals(contentN.nodeName())) {
                 content.addNotice("[[ERROR:UNPARSED TAG:" + contentN.nodeName() + ":" + contentN.toString() + "]]");
                 Logger.e("[[ERROR:UNPARSED TAG:" + contentN.nodeName() + "]]");

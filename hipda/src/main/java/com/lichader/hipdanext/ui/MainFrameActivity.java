@@ -187,7 +187,7 @@ public class MainFrameActivity extends BaseActivity {
             }
 
             mTaskHelper.runDailyTask(false);
-            NotiWorker.scheduleOrCancelWork();
+            NotiWorker.scheduleOrCancelWork(getApplicationContext(), mSettings);
             requestNotificationPermissionIfNeeded();
 
             if (HiApplication.isUpdated()) {
@@ -208,7 +208,7 @@ public class MainFrameActivity extends BaseActivity {
             return;
         FragmentArgs args = FragmentUtils.parse(intent);
         if (args != null) {
-            HiParserThreadList.holdFetchNotify();
+            mNotiHelper.holdFetchNotify();
             args.setSkipEnterAnim(true);
             FragmentUtils.show(this, args);
         }
