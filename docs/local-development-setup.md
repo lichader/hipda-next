@@ -1,6 +1,6 @@
 # Local Development Setup
 
-Status: draft. Updated on 2026-11-26 for the Android 17 toolchain (AGP 9.1.1, Gradle 9.3.1, JDK 21, compile SDK 37) and Android SDK command-line tools 23.0. The command-line build matches the CI workflow ([.github/workflows/build.yml](../.github/workflows/build.yml)), which builds debug and release APKs and runs lint on every push. The bootstrap script has been tested on Linux x86_64 only; its macOS paths and the Android Studio steps have not been tested end to end.
+Status: draft. Updated on 2026-11-27 for the Android 17 toolchain (AGP 9.5.3, Gradle 9.6.0, JDK 21, compile SDK 37) and Android SDK command-line tools 23.0. The command-line build matches the CI workflow ([.github/workflows/build.yml](../.github/workflows/build.yml)), which builds debug and release APKs and runs lint on every push. The bootstrap script has been tested on Linux x86_64 only; its macOS paths and the Android Studio steps have not been tested end to end.
 
 This guide covers building, installing, and checking HiPDA Next on your own machine. For project layout and coding conventions, see [AGENTS.md](../AGENTS.md).
 
@@ -31,11 +31,11 @@ The script does not edit your shell startup files. At the end it prints the `AND
 | Component | Version | Where it is set |
 | --- | --- | --- |
 | JDK | 21 | Pinned in [gradle/gradle-daemon-jvm.properties](../gradle/gradle-daemon-jvm.properties); [.sdkmanrc](../.sdkmanrc) names a Temurin 21 build for SDKMAN! users; CI uses Temurin 21 |
-| Gradle | 9.3.1 (via wrapper) | [gradle/wrapper/gradle-wrapper.properties](../gradle/wrapper/gradle-wrapper.properties) |
-| Android Gradle plugin (AGP) | 9.1.1 | [build.gradle](../build.gradle) |
+| Gradle | 9.6.0 (via wrapper) | [gradle/wrapper/gradle-wrapper.properties](../gradle/wrapper/gradle-wrapper.properties) |
+| Android Gradle plugin (AGP) | 9.5.3 | [build.gradle](../build.gradle) |
 | Android SDK platform | API 37 (Android 17), package `platforms;android-37.0` | `compileSdkVersion` in [build.gradle](../build.gradle) |
 | Target SDK | 37 | `targetSdkVersion` in [build.gradle](../build.gradle) |
-| Android SDK build tools | 36.0.0 (AGP 9.1.1 default) | Gradle installs it on first build if missing |
+| Android SDK build tools | 36.0.0 (AGP 9.5.3 default) | Gradle installs it on first build if missing |
 | Android SDK command-line tools | 23.0 | Pinned in [scripts/bootstrap.sh](../scripts/bootstrap.sh) |
 | Minimum device API | 21 (Android 5.0) | `minSdkVersion` in [build.gradle](../build.gradle) |
 | Java language level | 8 | `compileOptions` in both module `build.gradle` files |
@@ -102,7 +102,7 @@ From the repository root:
 ./gradlew :hipda:assembleDebug
 ```
 
-The first run downloads Gradle 9.3.1 and all dependencies from Maven Central, Google Maven, and JitPack, so it needs network access to those hosts. The APK is written to `hipda/build/outputs/apk/debug/`.
+The first run downloads Gradle 9.6.0 and all dependencies from Maven Central, Google Maven, and JitPack, so it needs network access to those hosts. The APK is written to `hipda/build/outputs/apk/debug/`.
 
 ## 5. Run on a Device or Emulator
 
@@ -146,7 +146,6 @@ The repository does not track `.idea/`; Android Studio rebuilds it from the Grad
 | Gradle cannot find a Java 21 toolchain for the daemon | Install JDK 21, or point `org.gradle.java.installations.paths` in `~/.gradle/gradle.properties` at it. |
 | `SDK location not found` | Create `local.properties` with `sdk.dir`, or set `ANDROID_HOME`. |
 | `Failed to find target` for API 37, or missing build tools | Install `platforms/android-37.0` (see step 2) so its license is accepted and Gradle can install build tools. |
-| Gradle warns that it "only understands SDK XML versions up to 3" | Harmless: command-line tools 23.0 write a newer metadata format than AGP 9.1.1 reads. The build still works. |
 | `adb server version (...) doesn't match this client` | Two different `adb` binaries are on your `PATH`, such as a system package and the SDK's `platform-tools`. Keep one first on your `PATH`. |
 | Dependency resolution fails for `com.github.*` artifacts | JitPack (`jitpack.io`) is unreachable; check network or proxy settings. |
 | `INSTALL_FAILED_UPDATE_INCOMPATIBLE` | A differently signed copy of the app is installed. Uninstall it, then reinstall. |

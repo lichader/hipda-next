@@ -7,7 +7,7 @@ HiPDA Next is an unofficial Android client for the HiPDA forum, built with Java 
 - `hipda/`: application module. Sources live in `src/main/java/com/lichader/hipdanext/`, grouped into `ui`, `bean`, `db`, `okhttp`, `glide`, `job`, `async`, `cache`, `service`, and `utils` packages.
 - `hipda/src/main/res/`: layouts, strings, themes, menus, and images; `src/main/assets/` contains release notes, licenses, and donor information.
 - `emoji/`: local Android library, with Java sources under `src/main/java/com/vanniktech/emoji/` and emoji resources under `src/main/res/`.
-- Root Gradle files define shared SDK versions and repositories; `gradle/wrapper/` pins Gradle 9.3.1 (AGP 9.1.1).
+- Root Gradle files define shared SDK versions and repositories; `gradle/wrapper/` pins Gradle 9.6.0 (AGP 9.5.3).
 
 ## Build, Test, and Development Commands
 
