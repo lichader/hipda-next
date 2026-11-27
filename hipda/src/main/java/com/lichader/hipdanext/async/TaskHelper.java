@@ -37,14 +37,19 @@ public class TaskHelper {
     private final OkHttpHelper mOkHttpHelper;
     private final LoginHelper mLoginHelper;
     private final BlacklistHelper mBlacklistHelper;
+    private final ContentDao mContentDao;
+    private final HistoryDao mHistoryDao;
 
     @Inject
     public TaskHelper(HiSettingsHelper settings, OkHttpHelper okHttpHelper,
-                      LoginHelper loginHelper, BlacklistHelper blacklistHelper) {
+                      LoginHelper loginHelper, BlacklistHelper blacklistHelper,
+                      ContentDao contentDao, HistoryDao historyDao) {
         mSettings = settings;
         mOkHttpHelper = okHttpHelper;
         mLoginHelper = loginHelper;
         mBlacklistHelper = blacklistHelper;
+        mContentDao = contentDao;
+        mHistoryDao = historyDao;
     }
 
     public void runDailyTask(boolean force) {
@@ -61,8 +66,8 @@ public class TaskHelper {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    ContentDao.cleanup();
-                    HistoryDao.cleanup();
+                    mContentDao.cleanup();
+                    mHistoryDao.cleanup();
                     Utils.cleanPictures();
                     Utils.cleanTempUploadFiles();
                     //FavoriteHelper.getInstance().fetchMyFavorites();

@@ -20,6 +20,7 @@ import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.cache.ImageContainer;
 import com.lichader.hipdanext.cache.ImageInfo;
 import com.lichader.hipdanext.glide.GifTransformation;
+import com.lichader.hipdanext.job.JobMgr;
 import com.lichader.hipdanext.ui.ImageViewerActivity;
 import com.lichader.hipdanext.utils.UIUtils;
 import com.lichader.hipdanext.utils.Utils;
@@ -45,8 +46,9 @@ public class ThreadImageLayout extends BaseImageLayout {
 
     private final HiSettingsHelper mSettings;
 
-    public ThreadImageLayout(Activity activity, HiSettingsHelper settings, ContentImg contentImg, ArrayList<ContentImg> images, boolean isThumb) {
-        super(activity);
+    public ThreadImageLayout(Activity activity, HiSettingsHelper settings, JobMgr jobMgr,
+                             ContentImg contentImg, ArrayList<ContentImg> images, boolean isThumb) {
+        super(activity, jobMgr);
         mSettings = settings;
 
         mActivity = activity;

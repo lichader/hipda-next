@@ -40,6 +40,7 @@ import com.lichader.hipdanext.bean.PollBean;
 import com.lichader.hipdanext.bean.PollOptionBean;
 import com.lichader.hipdanext.cache.ImageContainer;
 import com.lichader.hipdanext.glide.GlideHelper;
+import com.lichader.hipdanext.job.JobMgr;
 import com.lichader.hipdanext.ui.ThreadDetailFragment;
 import com.lichader.hipdanext.ui.widget.OnSingleClickListener;
 import com.lichader.hipdanext.ui.widget.TextViewWithEmoticon;
@@ -78,15 +79,18 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
     private WeakReference<TextView> mVoteButtonHolder;
 
     private final HiSettingsHelper mSettings;
+    private final JobMgr mJobMgr;
 
     public ThreadDetailAdapter(ThreadDetailFragment detailFragment,
                                HiSettingsHelper settings,
+                               JobMgr jobMgr,
                                RecyclerItemClickListener itemClickListener,
                                Button.OnClickListener gotoFloorListener,
                                View.OnClickListener avatarListener,
                                View.OnClickListener warningListener,
                                View.OnClickListener votePollListener) {
         mSettings = settings;
+        mJobMgr = jobMgr;
         mCtx = detailFragment.getActivity();
         mInflater = LayoutInflater.from(mCtx);
         mItemClickListener = itemClickListener;
@@ -350,7 +354,7 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
                         mIsThumb = true;
                     }
 
-                    ThreadImageLayout threadImageLayout = new ThreadImageLayout(mDetailFragment.getActivity(), mSettings, contentImg, mDetailFragment.getImagesInPage(detail.getPage()), mIsThumb);
+                    ThreadImageLayout threadImageLayout = new ThreadImageLayout(mDetailFragment.getActivity(), mSettings, mJobMgr, contentImg, mDetailFragment.getImagesInPage(detail.getPage()), mIsThumb);
 
                     contentView.addView(threadImageLayout);
                 } else if (content instanceof ContentAttach) {

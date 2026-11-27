@@ -4,11 +4,15 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.lichader.hipdanext.ui.HiApplication;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import dagger.hilt.android.qualifiers.ApplicationContext;
 
 /**
  * Created by GreenSkinMonster on 2016-07-23.
  */
+@Singleton
 public class HistoryDBHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
@@ -25,19 +29,10 @@ public class HistoryDBHelper extends SQLiteOpenHelper {
                     "post_time TEXT, " +
                     "visit_time NUMERIC); ";
 
-    private static HistoryDBHelper instance;
-
-    HistoryDBHelper(Context context) {
+    @Inject
+    public HistoryDBHelper(@ApplicationContext Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
-
-    public static synchronized HistoryDBHelper getHelper() {
-        if (instance == null)
-            instance = new HistoryDBHelper(HiApplication.getAppContext());
-
-        return instance;
-    }
-
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {

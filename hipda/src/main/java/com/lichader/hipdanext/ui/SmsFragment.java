@@ -64,6 +64,9 @@ import javax.inject.Inject;
 public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPostListener {
 
     @Inject
+    JobMgr mJobMgr;
+
+    @Inject
     OkHttpHelper mOkHttpHelper;
 
     public static final String ARG_AUTHOR = "AUTHOR";
@@ -115,7 +118,7 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
             public void onClick(View view) {
                 mLoadingView.setState(ContentLoadingView.LOAD_NOW);
                 SimpleListJob job = new SimpleListJob(getActivity(), mSessionId, SimpleListJob.TYPE_SMS_DETAIL, 1, mUid);
-                JobMgr.addJob(job);
+                mJobMgr.addJob(job);
             }
         });
 
@@ -185,7 +188,7 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
         if (mSmsBeans.size() == 0) {
             mLoadingView.setState(ContentLoadingView.LOADING);
             SimpleListJob job = new SimpleListJob(getActivity(), mSessionId, SimpleListJob.TYPE_SMS_DETAIL, 1, mUid);
-            JobMgr.addJob(job);
+            mJobMgr.addJob(job);
         }
     }
 
@@ -287,7 +290,7 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
                 public void onFinish() {
                     try {
                         SimpleListJob job = new SimpleListJob(getActivity(), mSessionId, SimpleListJob.TYPE_SMS_DETAIL, 1, mUid);
-                        JobMgr.addJob(job);
+                        mJobMgr.addJob(job);
                     } catch (Exception ignored) {
                     }
                 }

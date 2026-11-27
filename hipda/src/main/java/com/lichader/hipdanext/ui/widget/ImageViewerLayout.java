@@ -26,6 +26,7 @@ import com.lichader.hipdanext.R;
 import com.lichader.hipdanext.bean.ContentImg;
 import com.lichader.hipdanext.cache.ImageContainer;
 import com.lichader.hipdanext.cache.ImageInfo;
+import com.lichader.hipdanext.job.JobMgr;
 import com.lichader.hipdanext.ui.ImageViewerActivity;
 import com.lichader.hipdanext.utils.UIUtils;
 import com.lichader.hipdanext.utils.Utils;
@@ -76,8 +77,8 @@ public class ImageViewerLayout extends BaseImageLayout {
         }
     };
 
-    public ImageViewerLayout(Activity activity, ContentImg contentImg) {
-        super(activity);
+    public ImageViewerLayout(Activity activity, JobMgr jobMgr, ContentImg contentImg) {
+        super(activity, jobMgr);
 
         mRequestManager = Glide.with(activity);
         mUrl = contentImg.getContent();

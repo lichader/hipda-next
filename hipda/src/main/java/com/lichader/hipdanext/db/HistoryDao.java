@@ -13,14 +13,25 @@ import com.lichader.hipdanext.utils.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 /**
  * Created by GreenSkinMonster on 2016-07-23.
  */
+@Singleton
 public class HistoryDao {
 
     private final static int MAX_SIZE = 100;
 
-    public synchronized static void saveHistoryInBackground(
+    private final HistoryDBHelper mDbHelper;
+
+    @Inject
+    public HistoryDao(HistoryDBHelper dbHelper) {
+        mDbHelper = dbHelper;
+    }
+
+    public synchronized void saveHistoryInBackground(
             final String tid, final String fid, final String title,
             final String uid, final String username, final String postTime) {
         new Handler().post(new Runnable() {
@@ -31,7 +42,7 @@ public class HistoryDao {
         });
     }
 
-    private synchronized static void saveHistory(
+    private synchronized void saveHistory(
             String tid, String fid, String title,
             String uid, String username, String postTime) {
 
@@ -41,7 +52,7 @@ public class HistoryDao {
         SQLiteDatabase db = null;
         Cursor cursor = null;
         try {
-            db = HistoryDBHelper.getHelper().getWritableDatabase();
+            db = mDbHelper.getWritableDatabase();
             ContentValues contentValues = new ContentValues();
             contentValues.put("tid", tid);
 
@@ -78,10 +89,10 @@ public class HistoryDao {
         }
     }
 
-    public synchronized static void cleanup() {
+    public synchronized void cleanup() {
         SQLiteDatabase db = null;
         try {
-            db = HistoryDBHelper.getHelper().getWritableDatabase();
+            db = mDbHelper.getWritableDatabase();
             db.execSQL("delete from " + HistoryDBHelper.TABLE_NAME
                     + " where tid not in " +
                     "(select tid from " + HistoryDBHelper.TABLE_NAME
@@ -94,13 +105,13 @@ public class HistoryDao {
         }
     }
 
-    public static List<History> getHistories() {
+    public List<History> getHistories() {
         List<History> histories = new ArrayList<>();
         SQLiteDatabase db = null;
         Cursor cursor = null;
 
         try {
-            db = HistoryDBHelper.getHelper().getReadableDatabase();
+            db = mDbHelper.getReadableDatabase();
             cursor = db.rawQuery(
                     "select * from " + HistoryDBHelper.TABLE_NAME +
                             " where title is not null and title<>''" +

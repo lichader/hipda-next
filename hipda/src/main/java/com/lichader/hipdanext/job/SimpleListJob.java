@@ -96,7 +96,7 @@ public class SimpleListJob extends BaseJob {
 
         if (mType == TYPE_HISTORIES) {
             data = new SimpleListBean();
-            List<History> histories = HistoryDao.getHistories();
+            List<History> histories = mServices.historyDao().getHistories();
             for (History history : histories) {
                 SimpleListItemBean bean = new SimpleListItemBean();
                 String forumName = "";

@@ -60,6 +60,9 @@ public class SimpleListFragment extends BaseFragment
         implements SwipeRefreshLayout.OnRefreshListener, PostSmsAsyncTask.SmsPostListener {
 
     @Inject
+    JobMgr mJobMgr;
+
+    @Inject
     NotiHelper mNotiHelper;
 
     @Inject
@@ -161,7 +164,7 @@ public class SimpleListFragment extends BaseFragment
                     mRecyclerView.setFooterState(XFooterView.STATE_HIDDEN);
                     mLoadingView.setState(ContentLoadingView.LOADING);
                     SimpleListJob job = new SimpleListJob(getActivity(), mSessionId, mType, mPage, mSearchId);
-                    JobMgr.addJob(job);
+                    mJobMgr.addJob(job);
                 }
                 break;
         }
@@ -253,7 +256,7 @@ public class SimpleListFragment extends BaseFragment
         mMaxPage = 0;
         mPage = 1;
         SimpleListJob job = new SimpleListJob(getActivity(), mSessionId, mType, mPage, mSearchId);
-        JobMgr.addJob(job);
+        mJobMgr.addJob(job);
     }
 
     @Override
@@ -288,7 +291,7 @@ public class SimpleListFragment extends BaseFragment
                             mPage++;
                             mRecyclerView.setFooterState(XFooterView.STATE_LOADING);
                             SimpleListJob job = new SimpleListJob(getActivity(), mSessionId, mType, mPage, mSearchId);
-                            JobMgr.addJob(job);
+                            mJobMgr.addJob(job);
                         } else {
                             mRecyclerView.setFooterState(XFooterView.STATE_END);
                         }

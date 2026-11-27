@@ -5,6 +5,7 @@ import com.lichader.hipdanext.async.LoginHelper;
 import com.lichader.hipdanext.async.PostHelper;
 import com.lichader.hipdanext.async.UploadImgHelper;
 import com.lichader.hipdanext.bean.HiSettingsHelper;
+import com.lichader.hipdanext.db.HistoryDao;
 import com.lichader.hipdanext.okhttp.CachedDns;
 import com.lichader.hipdanext.okhttp.OkHttpHelper;
 import com.lichader.hipdanext.service.NotiHelper;
@@ -30,6 +31,8 @@ public interface SingletonEntryPoint {
     HiSettingsHelper settings();
 
     FavoriteHelper favorites();
+
+    HistoryDao historyDao();
 
     LoginHelper loginHelper();
 

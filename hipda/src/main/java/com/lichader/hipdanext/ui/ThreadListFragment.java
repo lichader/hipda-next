@@ -80,6 +80,11 @@ public class ThreadListFragment extends BaseFragment
         implements SwipeRefreshLayout.OnRefreshListener {
 
     @Inject
+    JobMgr mJobMgr;
+    @Inject
+    HistoryDao mHistoryDao;
+
+    @Inject
     LoginHelper mLoginHelper;
     @Inject
     NotiHelper mNotiHelper;
@@ -197,7 +202,7 @@ public class ThreadListFragment extends BaseFragment
                 mLoadingView.setState(ContentLoadingView.LOAD_NOW);
                 mInloading = true;
                 ThreadListJob job = new ThreadListJob(getActivity(), mSessionId, mForumId, mPage);
-                JobMgr.addJob(job);
+                mJobMgr.addJob(job);
             } else {
                 swipeLayout.setRefreshing(false);
                 mLoadingView.setState(ContentLoadingView.CONTENT);
@@ -356,7 +361,7 @@ public class ThreadListFragment extends BaseFragment
             FABHideOnScrollBehavior.hideFab(mMainFab);
         }
         ThreadListJob job = new ThreadListJob(getActivity(), mSessionId, mForumId, mPage);
-        JobMgr.addJob(job);
+        mJobMgr.addJob(job);
     }
 
     @Override
@@ -391,7 +396,7 @@ public class ThreadListFragment extends BaseFragment
                         mInloading = true;
                         mRecyclerView.setFooterState(XFooterView.STATE_LOADING);
                         ThreadListJob job = new ThreadListJob(getActivity(), mSessionId, mForumId, mPage);
-                        JobMgr.addJob(job);
+                        mJobMgr.addJob(job);
                     }
                 }
             }
@@ -407,7 +412,7 @@ public class ThreadListFragment extends BaseFragment
                 String tid = thread.getTid();
                 String title = thread.getTitle();
                 FragmentUtils.showThreadActivity(getActivity(), false, tid, title, -1, -1, null, thread.getMaxPage());
-                HistoryDao.saveHistoryInBackground(tid, mFidHolder[0] + "",
+                mHistoryDao.saveHistoryInBackground(tid, mFidHolder[0] + "",
                         title, thread.getAuthorId(), thread.getAuthor(), thread.getTimeCreate());
             }
         }
@@ -424,7 +429,7 @@ public class ThreadListFragment extends BaseFragment
                     page = (int) Math.ceil((Integer.parseInt(thread.getCountCmts()) + 1) * 1.0f / maxPostsInPage);
                 }
                 FragmentUtils.showThreadActivity(getActivity(), false, tid, title, page, ThreadDetailFragment.LAST_FLOOR_OF_PAGE, null, thread.getMaxPage());
-                HistoryDao.saveHistoryInBackground(tid, "", title, thread.getAuthorId(), thread.getAuthor(), thread.getTimeCreate());
+                mHistoryDao.saveHistoryInBackground(tid, "", title, thread.getAuthorId(), thread.getAuthor(), thread.getTimeCreate());
             }
         }
 
@@ -629,7 +634,7 @@ public class ThreadListFragment extends BaseFragment
                 mPage++;
                 mInloading = true;
                 ThreadListJob job = new ThreadListJob(getActivity(), mSessionId, mForumId, mPage);
-                JobMgr.addJob(job);
+                mJobMgr.addJob(job);
             }
         }
 

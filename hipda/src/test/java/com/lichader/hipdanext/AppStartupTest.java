@@ -5,8 +5,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.robolectric.Shadows.shadowOf;
 
 import android.content.Context;
+import android.os.Looper;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -17,6 +19,8 @@ import com.lichader.hipdanext.async.FavoriteHelper;
 import com.lichader.hipdanext.async.LoginHelper;
 import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.bean.PostBean;
+import com.lichader.hipdanext.db.History;
+import com.lichader.hipdanext.db.HistoryDao;
 import com.lichader.hipdanext.di.SingletonEntryPoint;
 import com.lichader.hipdanext.okhttp.CachedDns;
 import com.lichader.hipdanext.okhttp.OkHttpHelper;
@@ -114,6 +118,19 @@ public class AppStartupTest {
         // Logged out, so the worker checks nothing and succeeds offline.
         SingletonEntryPoint.get().loginHelper().logout();
         assertEquals(ListenableWorker.Result.success(), worker.doWork());
+    }
+
+    @Test
+    public void historyIsSavedThroughHilt() {
+        HistoryDao history = SingletonEntryPoint.get().historyDao();
+        assertSame(history, SingletonEntryPoint.get().historyDao());
+        history.saveHistoryInBackground("424242", "2", "smoke", "1", "someone", "");
+        shadowOf(Looper.getMainLooper()).idle();
+        boolean found = false;
+        for (History h : history.getHistories()) {
+            if ("424242".equals(h.getTid())) found = true;
+        }
+        assertTrue("saved thread must be in the history", found);
     }
 
     @Test

@@ -108,6 +108,13 @@ import javax.inject.Inject;
 public class ThreadDetailFragment extends BaseFragment {
 
     @Inject
+    JobMgr mJobMgr;
+    @Inject
+    ContentDao mContentDao;
+    @Inject
+    HistoryDao mHistoryDao;
+
+    @Inject
     OkHttpHelper mOkHttpHelper;
 
     @Inject
@@ -246,6 +253,7 @@ public class ThreadDetailFragment extends BaseFragment {
         RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), mSettings, new OnItemClickListener());
         mDetailAdapter = new ThreadDetailAdapter(this,
                 mSettings,
+                mJobMgr,
                 itemClickListener,
                 new GoToFloorOnClickListener(),
                 new AvatarOnClickListener(),
@@ -310,7 +318,7 @@ public class ThreadDetailFragment extends BaseFragment {
                         postBean.setFloor(mQuickReplyToPost.getFloor());
                     }
 
-                    JobMgr.addJob(new PostJob(mSessionId, mQuickReplyMode, null, postBean, true));
+                    mJobMgr.addJob(new PostJob(mSessionId, mQuickReplyMode, null, postBean, true));
 
                     UIUtils.hideSoftKeyboard(getActivity());
                     scrollToBottom();
@@ -535,7 +543,7 @@ public class ThreadDetailFragment extends BaseFragment {
 
     private void startJob(int page, int fetchType, int loadingPosition) {
         ThreadDetailJob job = new ThreadDetailJob(getActivity(), mSessionId, mTid, mAuthorId, mGotoPostId, page, fetchType, loadingPosition);
-        JobMgr.addJob(job);
+        mJobMgr.addJob(job);
     }
 
     public boolean isInAuthorOnlyMode() {
@@ -770,7 +778,7 @@ public class ThreadDetailFragment extends BaseFragment {
                         if (detailBean.getFloor() == 1)
                             postBean.setSubject(mTitle);
 
-                        JobMgr.addJob(new PostJob(mSessionId, PostHelper.MODE_QUICK_DELETE, null, postBean, false));
+                        mJobMgr.addJob(new PostJob(mSessionId, PostHelper.MODE_QUICK_DELETE, null, postBean, false));
                     }
                 });
         popDialog.setIcon(new IconicsDrawable(getActivity(), FontAwesome.Icon.faw_exclamation_circle).sizeDp(24).color(Color.RED));
@@ -1286,7 +1294,7 @@ public class ThreadDetailFragment extends BaseFragment {
                 PollBean pollBean = mCache.get(1).getAll().get(0).getPoll();
                 prePostInfo.setFormhash(pollBean.getFormhash());
             }
-            JobMgr.addJob(new PostJob(mSessionId, PostHelper.MODE_VOTE_POLL, prePostInfo, postBean, false));
+            mJobMgr.addJob(new PostJob(mSessionId, PostHelper.MODE_VOTE_POLL, prePostInfo, postBean, false));
         }
     }
 
@@ -1493,7 +1501,7 @@ public class ThreadDetailFragment extends BaseFragment {
                     username = detailBean.getAuthor();
                     postTime = detailBean.getTimePost();
                 }
-                HistoryDao.saveHistoryInBackground(mTid, String.valueOf(mFid), mTitle, uid, username, postTime);
+                mHistoryDao.saveHistoryInBackground(mTid, String.valueOf(mFid), mTitle, uid, username, postTime);
             }
         }
 
@@ -1588,7 +1596,7 @@ public class ThreadDetailFragment extends BaseFragment {
             if (event.fromQuickReply) {
                 mFooterLoading = false;
                 if (!TextUtils.isEmpty(mEtReply.getText())) {
-                    ContentDao.saveContent(mSessionId, mEtReply.getText().toString());
+                    mContentDao.saveContent(mSessionId, mEtReply.getText().toString());
                 }
                 showQuickReply();
                 mRecyclerView.setFooterState(XFooterView.STATE_ERROR);

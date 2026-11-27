@@ -62,6 +62,9 @@ import javax.inject.Inject;
 public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.SmsPostListener {
 
     @Inject
+    JobMgr mJobMgr;
+
+    @Inject
     BlacklistHelper mBlacklistHelper;
 
     @Inject
@@ -182,7 +185,7 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
                                 SimpleListJob.TYPE_SEARCH_USER_THREADS,
                                 mPage,
                                 bean);
-                        JobMgr.addJob(job);
+                        mJobMgr.addJob(job);
                     }
                 } else {
                     mButton.setText("搜索帖子");
@@ -327,7 +330,7 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
                                     SimpleListJob.TYPE_SEARCH_USER_THREADS,
                                     mPage,
                                     bean);
-                            JobMgr.addJob(job);
+                            mJobMgr.addJob(job);
                         } else {
                             mRecyclerView.setFooterState(XFooterView.STATE_END);
                         }

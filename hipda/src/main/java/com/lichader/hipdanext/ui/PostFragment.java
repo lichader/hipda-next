@@ -73,9 +73,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import dagger.hilt.android.AndroidEntryPoint;
+import javax.inject.Inject;
 
 @AndroidEntryPoint
 public class PostFragment extends BaseFragment {
+
+    @Inject
+    JobMgr mJobMgr;
+    @Inject
+    ContentDao mContentDao;
 
     public static final String ARG_FID_KEY = "fid";
     public static final String ARG_TID_KEY = "tid";
@@ -282,7 +288,7 @@ public class PostFragment extends BaseFragment {
             new Handler().post(new Runnable() {
                 @Override
                 public void run() {
-                    ContentDao.saveContent(mSessionId, mEtContent.getText().toString());
+                    mContentDao.saveContent(mSessionId, mEtContent.getText().toString());
                 }
             });
         }
@@ -517,7 +523,7 @@ public class PostFragment extends BaseFragment {
         postBean.setFloor(mFloor);
         postBean.setDelete(mDeleteMode);
 
-        JobMgr.addJob(new PostJob(mParentSessionId, mMode, mPrePostInfo, postBean, false));
+        mJobMgr.addJob(new PostJob(mParentSessionId, mMode, mPrePostInfo, postBean, false));
         getActivity().finish();
     }
 
@@ -551,14 +557,14 @@ public class PostFragment extends BaseFragment {
 
         mProgressDialog = HiProgressDialog.show(getActivity(), "正在上传...");
         if (mPrePostInfo != null) {
-            JobMgr.addJob(new ImageUploadJob(mSessionId, mPrePostInfo.getUid(), mPrePostInfo.getHash(), uris.toArray(new Uri[0]), original));
+            mJobMgr.addJob(new ImageUploadJob(mSessionId, mPrePostInfo.getUid(), mPrePostInfo.getHash(), uris.toArray(new Uri[0]), original));
         } else {
             UIUtils.toast("无法获取发帖信息");
         }
     }
 
     private void showRestoreContentDialog() {
-        final Content[] contents = ContentDao.getSavedContents(mSessionId);
+        final Content[] contents = mContentDao.getSavedContents(mSessionId);
 
         if (contents == null || contents.length == 0) {
             UIUtils.toast("没有之前输入的内容");
