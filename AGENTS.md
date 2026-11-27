@@ -20,11 +20,11 @@ Use JDK 21 (pinned in `gradle/gradle-daemon-jvm.properties`; `.sdkmanrc` names t
 
 ## Coding Style & Naming Conventions
 
-Use four-space indentation and same-line opening braces in Java; follow surrounding XML formatting. Use `PascalCase` class names, `camelCase` methods, and `UPPER_SNAKE_CASE` constants. Preserve existing `m`-prefixed fields where used. Name Android resources in `lower_snake_case`, such as `fragment_thread_detail.xml`; prefix new emoji library resources with `emoji`. Keep code compatible with Java 8. No standalone formatter is configured.
+Use four-space indentation and same-line opening braces in Java; follow surrounding XML formatting. Use `PascalCase` class names, `camelCase` methods, and `UPPER_SNAKE_CASE` constants. Preserve existing `m`-prefixed fields where used. Name Android resources in `lower_snake_case`, such as `fragment_thread_detail.xml`; prefix new emoji library resources with `emoji`. Java code may use Java 21 language features; D8 desugars them for API 21 devices. Newer Java library APIs are not desugared, so check that any `java.*` API you call exists at the minimum API level (lint flags those that do not). No standalone formatter is configured.
 
 ## Kotlin
 
-Kotlin is compiled by AGP's built-in Kotlin support, so no `kotlin-android` plugin is applied; the root `build.gradle` pins the Kotlin version (`kotlin_version`). Kotlin targets the same JVM 1.8 bytecode as Java. New code may be written in Kotlin, and Java files may be converted one at a time; keep the package name and, for code Java still calls, keep the Java-facing API (for example `@JvmStatic` on `object` members). Follow the official Kotlin coding conventions with four-space indentation. Annotation processing for Hilt runs through KSP (`ksp`, `kspTest`), which covers both languages; Glide's compiler still uses `annotationProcessor`, so keep the `AppGlideModule` in Java.
+Kotlin is compiled by AGP's built-in Kotlin support, so no `kotlin-android` plugin is applied; the root `build.gradle` pins the Kotlin version (`kotlin_version`). Kotlin targets the same JVM 21 bytecode as Java. New code may be written in Kotlin, and Java files may be converted one at a time; keep the package name and, for code Java still calls, keep the Java-facing API (for example `@JvmStatic` on `object` members). Follow the official Kotlin coding conventions with four-space indentation. Annotation processing for Hilt runs through KSP (`ksp`, `kspTest`), which covers both languages; Glide's compiler still uses `annotationProcessor`, so keep the `AppGlideModule` in Java.
 
 ## Testing Guidelines
 
