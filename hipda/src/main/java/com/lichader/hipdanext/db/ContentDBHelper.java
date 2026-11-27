@@ -9,9 +9,6 @@ import javax.inject.Singleton;
 
 import dagger.hilt.android.qualifiers.ApplicationContext;
 
-/**
- * Created by GreenSkinMonster on 2016-07-23.
- */
 @Singleton
 public class ContentDBHelper extends SQLiteOpenHelper {
 

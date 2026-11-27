@@ -50,7 +50,6 @@ import com.lichader.hipdanext.bean.HiSettingsHelper;
 
 /**
  * a base fragment
- * Created by GreenSkinMonster on 2015-05-09.
  */
 public abstract class BaseFragment extends Fragment {
 

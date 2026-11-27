@@ -27,9 +27,6 @@ import java.util.concurrent.Executors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-/**
- * Created by GreenSkinMonster on 2016-07-24.
- */
 @Singleton
 public class TaskHelper {
 

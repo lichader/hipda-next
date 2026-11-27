@@ -10,10 +10,6 @@ import com.lichader.hipdanext.ui.widget.swipeback.SwipeUtils;
 import com.lichader.hipdanext.utils.UIUtils;
 
 
-/**
- * Created by GreenSkinMonster on 2017-06-15.
- */
-
 public class SwipeBaseActivity extends BaseActivity implements SwipeBackActivityBase {
     private SwipeBackActivityHelper mHelper;
 

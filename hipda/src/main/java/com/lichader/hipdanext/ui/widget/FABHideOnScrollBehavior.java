@@ -11,9 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.ViewCompat;
 
-/**
- * Created by GreenSkinMonster on 2016-11-14.
- */
 @SuppressWarnings("unused")
 public class FABHideOnScrollBehavior extends FloatingActionButton.Behavior {
 

@@ -17,10 +17,6 @@ import java.util.List;
 
 import androidx.appcompat.app.AlertDialog;
 
-/**
- * Created by GreenSkinMonster on 2016-11-23.
- */
-
 public class SimplePopupMenu {
 
     private Context mContext;

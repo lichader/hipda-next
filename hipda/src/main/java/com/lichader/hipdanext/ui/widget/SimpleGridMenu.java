@@ -30,10 +30,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 
-/**
- * Created by GreenSkinMonster on 2017-06-24.
- */
-
 public class SimpleGridMenu {
 
     private Context mContext;

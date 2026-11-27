@@ -15,7 +15,6 @@ import java.util.HashMap;
 
 /**
  * TagHandler to process customized tag
- * Created by GreenSkinMonster on 2015-04-23.
  */
 public class HiHtmlTagHandler implements Html.TagHandler {
 

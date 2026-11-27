@@ -2,9 +2,6 @@ package com.lichader.hipdanext.bean;
 
 import com.mikepenz.iconics.typeface.IIcon;
 
-/**
- * Created by GreenSkinMonster on 2016-07-21.
- */
 public class Forum {
     private String mName;
     private int mId;

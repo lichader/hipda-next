@@ -9,7 +9,6 @@ import java.util.Map;
 
 /**
  * store text style
- * Created by GreenSkinMonster on 2015-04-22.
  */
 public class TextStyle {
     private boolean bold;

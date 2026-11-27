@@ -2,7 +2,6 @@ package com.lichader.hipdanext.ui;
 
 /**
  * arguments for start fragments
- * Created by GreenSkinMonster on 2015-09-01.
  */
 public class FragmentArgs {
 

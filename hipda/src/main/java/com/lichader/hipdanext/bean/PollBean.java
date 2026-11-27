@@ -2,9 +2,6 @@ package com.lichader.hipdanext.bean;
 
 import java.util.List;
 
-/**
- * Created by GreenSkinMonster on 2021-08-20.
- */
 public class PollBean {
 
     private String mTitle;

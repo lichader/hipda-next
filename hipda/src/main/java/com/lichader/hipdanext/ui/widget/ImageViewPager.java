@@ -6,10 +6,6 @@ import android.view.MotionEvent;
 
 import androidx.viewpager.widget.ViewPager;
 
-/**
- * Created by GreenSkinMonster on 2017-06-29.
- */
-
 public class ImageViewPager extends ViewPager {
     public ImageViewPager(Context context) {
         super(context);

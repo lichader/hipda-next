@@ -14,9 +14,6 @@ import com.lichader.hipdanext.utils.Utils;
 
 import androidx.core.content.ContextCompat;
 
-/**
- * Created by GreenSkinMonster on 2016-11-08.
- */
 public class XFooterView extends RelativeLayout {
 
     public final static int STATE_HIDDEN = 0;

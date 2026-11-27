@@ -14,7 +14,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * get color id from theme attr id
- * Created by GreenSkinMonster on 2015-05-09.
  */
 public class ColorHelper {
 

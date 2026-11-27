@@ -15,7 +15,6 @@ import androidx.core.content.ContextCompat;
 
 /**
  * a simple progress dialog
- * Created by GreenSkinMonster on 2015-03-11.
  */
 public class HiProgressDialog extends ProgressDialog {
 

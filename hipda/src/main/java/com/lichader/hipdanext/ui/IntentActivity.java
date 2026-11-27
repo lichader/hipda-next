@@ -12,10 +12,6 @@ import androidx.core.app.ActivityCompat;
 import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
 
-/**
- * Created by GreenSkinMonster on 2017-06-22.
- */
-
 @AndroidEntryPoint
 public class IntentActivity extends AppCompatActivity {
 

@@ -25,10 +25,6 @@ import com.lichader.hipdanext.utils.Utils;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-/**
- * Created by GreenSkinMonster on 2016-11-14.
- */
-
 public class SmsAdapter extends BaseRvAdapter<SimpleListItemBean> {
 
     private View.OnClickListener mAvatarListener;

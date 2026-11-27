@@ -4,7 +4,6 @@ import com.lichader.hipdanext.utils.Constants;
 
 /**
  * Image loading event
- * Created by GreenSkinMonster on 2015-08-27.
  */
 public class GlideImageEvent {
 

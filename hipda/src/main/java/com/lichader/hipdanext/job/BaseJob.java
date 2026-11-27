@@ -11,9 +11,6 @@ import com.lichader.hipdanext.okhttp.OkHttpHelper;
 
 import androidx.annotation.Nullable;
 
-/**
- * Created by GreenSkinMonster on 2016-03-28.
- */
 public abstract class BaseJob extends Job {
 
     /**

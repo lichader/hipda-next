@@ -14,9 +14,6 @@ import javax.inject.Singleton;
 
 import dagger.hilt.android.qualifiers.ApplicationContext;
 
-/**
- * Created by GreenSkinMonster on 2015-08-27.
- */
 @Singleton
 public class JobMgr {
 

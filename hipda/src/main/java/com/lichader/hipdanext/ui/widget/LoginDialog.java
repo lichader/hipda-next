@@ -20,7 +20,6 @@ import com.lichader.hipdanext.utils.UIUtils;
 
 /**
  * dialog for login
- * Created by GreenSkinMonster on 2015-04-18.
  */
 public class LoginDialog extends Dialog {
 

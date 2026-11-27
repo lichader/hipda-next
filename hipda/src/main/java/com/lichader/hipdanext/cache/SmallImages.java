@@ -8,7 +8,6 @@ import java.util.Map;
 
 /**
  * cache small images
- * Created by GreenSkinMonster on 2015-11-10.
  */
 public class SmallImages {
 

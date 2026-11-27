@@ -10,10 +10,6 @@ import android.widget.TextView;
 
 import com.lichader.hipdanext.R;
 
-/**
- * Created by GreenSkinMonster on 2017-06-06.
- */
-
 public class ValueChagerView extends RelativeLayout {
 
     private Button mBtnPlus;

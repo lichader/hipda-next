@@ -13,9 +13,6 @@ import java.util.LinkedHashSet;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-/**
- * Created by GreenSkinMonster on 2016-07-23.
- */
 @Singleton
 public class ContentDao {
 

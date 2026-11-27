@@ -73,7 +73,6 @@ import io.github.inflationx.calligraphy3.TypefaceUtils;
 
 /**
  * nested setting fragment
- * Created by GreenSkinMonster on 2015-09-11.
  */
 @AndroidEntryPoint
 public class SettingNestedFragment extends BaseSettingFragment {

@@ -13,9 +13,6 @@ import com.lichader.hipdanext.job.UploadImage;
 import java.util.ArrayList;
 import java.util.Collection;
 
-/**
- * Created by GreenSkinMonster on 2016-04-12.
- */
 public class GridImageAdapter extends BaseAdapter {
     private Activity mContext;
     private Collection<UploadImage> mImages = new ArrayList<>();

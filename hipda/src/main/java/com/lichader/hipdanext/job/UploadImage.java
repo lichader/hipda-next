@@ -3,9 +3,6 @@ package com.lichader.hipdanext.job;
 import android.graphics.Bitmap;
 import android.net.Uri;
 
-/**
- * Created by GreenSkinMonster on 2016-04-13.
- */
 public class UploadImage {
 
     private String mImgId;

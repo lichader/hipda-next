@@ -6,7 +6,6 @@ import com.lichader.hipdanext.utils.Utils;
 
 /**
  * store loaded image's size
- * Created by GreenSkinMonster on 2015-04-24.
  */
 public class ImageInfo {
 

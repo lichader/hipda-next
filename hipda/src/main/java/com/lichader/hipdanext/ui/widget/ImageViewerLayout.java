@@ -34,9 +34,6 @@ import com.lichader.hipdanext.utils.Utils;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.core.content.ContextCompat;
 
-/**
- * Created by GreenSkinMonster on 2015-11-07.
- */
 public class ImageViewerLayout extends BaseImageLayout {
 
     private final ImageInfo mImageInfo;

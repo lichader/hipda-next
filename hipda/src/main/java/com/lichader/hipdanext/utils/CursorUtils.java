@@ -9,7 +9,6 @@ import java.io.File;
 
 /**
  * http://hmkcode.com/android-display-selected-image-and-its-real-path/
- * Created by GreenSkinMonster on 2015-04-14.
  */
 public class CursorUtils {
 

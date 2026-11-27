@@ -2,10 +2,6 @@ package com.lichader.hipdanext.ui.setting;
 
 import androidx.preference.Preference;
 
-/**
- * Created by GreenSkinMonster on 2017-06-08.
- */
-
 abstract class OnPreferenceClickListener implements Preference.OnPreferenceClickListener {
 
     private static final long MIN_CLICK_INTERVAL = 600;

@@ -11,9 +11,6 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.ArrayList;
 import java.util.Collection;
 
-/**
- * Created by GreenSkinMonster on 2016-04-01.
- */
 public class ImageUploadJob extends BaseJob implements UploadImgHelper.UploadImgListener {
 
     private String mUid;

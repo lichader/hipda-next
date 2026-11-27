@@ -2,7 +2,6 @@ package com.lichader.hipdanext.bean;
 
 /**
  * bean for notification
- * Created by GreenSkinMonster on 2015-09-08.
  */
 public class NotificationBean {
     private int mSmsCount;

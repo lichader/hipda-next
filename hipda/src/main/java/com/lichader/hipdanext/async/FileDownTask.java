@@ -7,10 +7,6 @@ import com.lichader.hipdanext.job.GlideImageJob;
 import com.lichader.hipdanext.job.JobMgr;
 import com.lichader.hipdanext.ui.widget.HiProgressDialog;
 
-/**
- * Created by GreenSkinMonster on 2016-11-27.
- */
-
 public class FileDownTask extends AsyncTask<String, Void, Void> {
 
     private final Context mContext;

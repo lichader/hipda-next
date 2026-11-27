@@ -3,9 +3,6 @@ package com.lichader.hipdanext.glide;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by GreenSkinMonster on 2019-02-28.
- */
 public class AvatarModel {
 
     private static final Map<String, String> AVATAR_CACHE_KEYS = new HashMap<>();

@@ -30,7 +30,6 @@ import okhttp3.Request;
 
 /**
  * check and download update file
- * Created by GreenSkinMonster on 2015-03-09.
  */
 @Singleton
 public class UpdateHelper {

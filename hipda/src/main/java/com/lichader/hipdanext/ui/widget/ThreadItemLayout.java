@@ -20,9 +20,6 @@ import com.lichader.hipdanext.glide.GlideHelper;
 import com.lichader.hipdanext.utils.ColorHelper;
 import com.lichader.hipdanext.utils.Utils;
 
-/**
- * Created by GreenSkinMonster on 2016-04-21.
- */
 public class ThreadItemLayout extends ConstraintLayout {
 
     private ImageView mAvatar;

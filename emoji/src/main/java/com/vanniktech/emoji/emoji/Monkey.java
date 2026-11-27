@@ -2,9 +2,6 @@ package com.vanniktech.emoji.emoji;
 
 import com.vanniktech.emoji.R;
 
-/**
- * Created by GreenSkinMonster on 2016-04-11.
- */
 public class Monkey {
     public final static String[] EMOJIS = {
             "{:2_41:}",

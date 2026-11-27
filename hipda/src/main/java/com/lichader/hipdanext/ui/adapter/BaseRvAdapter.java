@@ -8,10 +8,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by GreenSkinMonster on 2016-11-08.
- */
-
 public abstract class BaseRvAdapter<V> extends RecyclerView.Adapter {
 
     private static final int TYPE_HEADER = -1;

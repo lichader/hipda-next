@@ -37,7 +37,6 @@ import okhttp3.Response;
 
 /**
  * helper class for okhttp
- * Created by GreenSkinMonster on 2015-10-22.
  */
 @Singleton
 public class OkHttpHelper {

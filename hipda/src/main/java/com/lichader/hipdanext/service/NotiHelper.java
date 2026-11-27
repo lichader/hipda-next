@@ -47,7 +47,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext;
 
 /**
  * parse and fetch notifications
- * Created by GreenSkinMonster on 2015-09-08.
  */
 @Singleton
 public class NotiHelper {

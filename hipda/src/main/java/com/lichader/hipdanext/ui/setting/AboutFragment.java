@@ -17,7 +17,6 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 /**
  * show version and info
- * Created by GreenSkinMonster on 2015-05-23.
  */
 @AndroidEntryPoint
 public class AboutFragment extends BaseFragment {

@@ -2,9 +2,6 @@ package com.lichader.hipdanext.job;
 
 import java.util.Collection;
 
-/**
- * Created by GreenSkinMonster on 2016-04-01.
- */
 public class ImageUploadEvent extends BaseEvent {
 
     public final static int UPLOADING = 0;

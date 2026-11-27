@@ -1,8 +1,5 @@
 package com.lichader.hipdanext.bean;
 
-/**
- * Created by GreenSkinMonster on 2021-07-27.
- */
 public class Profile {
 
     private String username;

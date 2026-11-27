@@ -8,9 +8,6 @@ import com.lichader.hipdanext.bean.HiSettingsHelper;
 import androidx.appcompat.app.AlertDialog;
 import androidx.preference.Preference;
 
-/**
- * Created by GreenSkinMonster on 2017-06-02.
- */
 public class TimePickerListener extends OnPreferenceClickListener {
 
     private String mDefaultValue;

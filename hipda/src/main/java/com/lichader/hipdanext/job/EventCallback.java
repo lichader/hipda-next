@@ -2,10 +2,6 @@ package com.lichader.hipdanext.job;
 
 import com.lichader.hipdanext.utils.Constants;
 
-/**
- * Created by GreenSkinMonster on 2016-11-17.
- */
-
 public abstract class EventCallback<T extends BaseEvent> {
 
     public abstract void onSuccess(T event);

@@ -5,9 +5,6 @@ import android.widget.Toast;
 
 import com.lichader.hipdanext.ui.HiApplication;
 
-/**
- * Created by GreenSkinMonster on 2021-07-23.
- */
 public class SimpleExceptionHandler implements Thread.UncaughtExceptionHandler {
 
     final private Thread.UncaughtExceptionHandler mDefaultHandler;

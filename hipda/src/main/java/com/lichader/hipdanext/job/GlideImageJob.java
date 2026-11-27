@@ -29,7 +29,6 @@ import androidx.annotation.Nullable;
 
 /**
  * Image loading job
- * Created by GreenSkinMonster on 2015-08-27.
  */
 public class GlideImageJob extends BaseJob {
 

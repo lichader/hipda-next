@@ -10,10 +10,6 @@ import androidx.core.view.GestureDetectorCompat;
 import com.lichader.hipdanext.R;
 import com.lichader.hipdanext.bean.HiSettingsHelper;
 
-/**
- * Created by GreenSkinMonster on 2016-11-10.
- */
-
 public class RecyclerItemClickListener implements View.OnTouchListener {
 
     private static final long MIN_CLICK_INTERVAL = 600;

@@ -4,10 +4,6 @@ import android.text.TextUtils;
 
 import com.lichader.hipdanext.utils.Utils;
 
-/**
- * Created by GreenSkinMonster on 2017-07-17.
- */
-
 public class SearchBean {
 
     private String mQuery = "";

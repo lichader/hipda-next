@@ -15,9 +15,6 @@ import com.lichader.hipdanext.utils.Utils;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-/**
- * Created by GreenSkinMonster on 2016-11-13.
- */
 public class XRecyclerView extends RecyclerView {
 
     private final static int SCROLL_BACK_HEADER = 0;

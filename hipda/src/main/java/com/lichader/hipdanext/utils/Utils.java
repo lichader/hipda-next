@@ -59,7 +59,6 @@ import java.util.regex.Pattern;
 
 /**
  * Common utils
- * Created by GreenSkinMonster on 2015-03-23.
  */
 public class Utils {
 
