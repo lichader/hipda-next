@@ -1,11 +1,14 @@
 package com.lichader.hipdanext;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
@@ -13,6 +16,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.lichader.hipdanext.async.PostHelper;
 import com.lichader.hipdanext.job.SimpleListJob;
+import com.lichader.hipdanext.ui.BaseActivity;
+import com.lichader.hipdanext.ui.BaseFragment;
 import com.lichader.hipdanext.ui.MainFrameActivity;
 import com.lichader.hipdanext.ui.PostActivity;
 import com.lichader.hipdanext.ui.PostFragment;
@@ -26,6 +31,7 @@ import com.lichader.hipdanext.ui.ThreadDetailFragment;
 import com.lichader.hipdanext.ui.UserInfoActivity;
 import com.lichader.hipdanext.ui.UserinfoFragment;
 import com.lichader.hipdanext.ui.setting.AboutFragment;
+import com.lichader.hipdanext.ui.setting.BaseSettingFragment;
 import com.lichader.hipdanext.ui.setting.BlacklistFragment;
 import com.lichader.hipdanext.ui.setting.SettingNestedFragment;
 
@@ -33,6 +39,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.shadows.ShadowLooper;
+
+import dagger.hilt.internal.GeneratedComponentManagerHolder;
 
 /**
  * Opens every screen of the app and checks that it gets to the resumed state
@@ -54,7 +62,29 @@ public class ActivityLaunchTest {
         try (ActivityScenario<A> scenario = ActivityScenario.launch(intent)) {
             ShadowLooper.idleMainLooper();
             scenario.moveToState(Lifecycle.State.RESUMED);
-            scenario.onActivity(a -> assertNotNull(a.getWindow().getDecorView()));
+            scenario.onActivity(a -> {
+                assertNotNull(a.getWindow().getDecorView());
+                assertInjected(a);
+            });
+        }
+    }
+
+    /**
+     * Screens read their services from {@code @Inject} fields in the base classes, which
+     * stay null unless the concrete class is an {@code @AndroidEntryPoint}.
+     */
+    private static void assertInjected(Activity activity) {
+        if (activity instanceof BaseActivity) {
+            assertTrue(activity.getClass().getName() + " must be an @AndroidEntryPoint",
+                    activity instanceof GeneratedComponentManagerHolder);
+        }
+        if (activity instanceof FragmentActivity) {
+            for (Fragment f : ((FragmentActivity) activity).getSupportFragmentManager().getFragments()) {
+                if (f instanceof BaseFragment || f instanceof BaseSettingFragment) {
+                    assertTrue(f.getClass().getName() + " must be an @AndroidEntryPoint",
+                            f instanceof GeneratedComponentManagerHolder);
+                }
+            }
         }
     }
 

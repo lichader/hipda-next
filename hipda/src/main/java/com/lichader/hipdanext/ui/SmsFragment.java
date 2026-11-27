@@ -26,7 +26,6 @@ import com.vanniktech.emoji.EmojiEditText;
 
 import com.lichader.hipdanext.R;
 import com.lichader.hipdanext.async.PostSmsAsyncTask;
-import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.bean.SimpleListBean;
 import com.lichader.hipdanext.bean.SimpleListItemBean;
 import com.lichader.hipdanext.job.EventCallback;
@@ -58,8 +57,14 @@ import java.util.Date;
 import java.util.List;
 
 import okhttp3.Request;
+import dagger.hilt.android.AndroidEntryPoint;
+import javax.inject.Inject;
 
+@AndroidEntryPoint
 public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPostListener {
+
+    @Inject
+    OkHttpHelper mOkHttpHelper;
 
     public static final String ARG_AUTHOR = "AUTHOR";
     public static final String ARG_UID = "UID";
@@ -118,7 +123,7 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
         mCountdownButton.setImageDrawable(new IconicsDrawable(getActivity(), GoogleMaterial.Icon.gmd_send).sizeDp(28).color(Color.GRAY));
 
         mEtSms = (EmojiEditText) view.findViewById(R.id.et_sms);
-        mEtSms.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
+        mEtSms.setTextSize(mSettings.getPostTextSize());
         mCountdownButton.setOnClickListener(new OnSingleClickListener() {
             @Override
             public void onSingleClick(View v) {
@@ -143,11 +148,11 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
         mEtSms.setText("");
         mCountdownButton.setEnabled(false);
         SimpleListItemBean bean = new SimpleListItemBean();
-        bean.setAuthor(HiSettingsHelper.getInstance().getUsername());
-        bean.setUid(HiSettingsHelper.getInstance().getUid());
+        bean.setAuthor(mSettings.getUsername());
+        bean.setUid(mSettings.getUid());
         bean.setNew(false);
         bean.setTime(Utils.formatDate(new Date(), "yyyy-M-d HH:mm"));
-        bean.setAvatarUrl(HiUtils.getAvatarUrlByUid(HiSettingsHelper.getInstance().getUid()));
+        bean.setAvatarUrl(HiUtils.getAvatarUrlByUid(mSettings.getUid()));
         bean.setInfo(replyText);
         bean.setStatus(Constants.STATUS_IN_PROGRESS);
         mSmsAdapter.getDatas().add(bean);
@@ -238,7 +243,7 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
 
                         String url = HiUtils.ClearSMS.replace("{uid}", mUid);
 
-                        OkHttpHelper.getInstance().asyncGet(url, new OkHttpHelper.ResultCallback() {
+                        mOkHttpHelper.asyncGet(url, new OkHttpHelper.ResultCallback() {
                             @Override
                             public void onError(Request request, Exception e) {
                                 progress.dismissError("操作时发生错误 : " + OkHttpHelper.getErrorMessage(e));

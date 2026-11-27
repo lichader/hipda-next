@@ -13,11 +13,13 @@ import com.lichader.hipdanext.R;
 import com.lichader.hipdanext.ui.BaseFragment;
 import com.lichader.hipdanext.ui.HiApplication;
 import com.lichader.hipdanext.utils.Utils;
+import dagger.hilt.android.AndroidEntryPoint;
 
 /**
  * show version and info
  * Created by GreenSkinMonster on 2015-05-23.
  */
+@AndroidEntryPoint
 public class AboutFragment extends BaseFragment {
 
     public static final String TAG_KEY = "ABOUT_KEY";

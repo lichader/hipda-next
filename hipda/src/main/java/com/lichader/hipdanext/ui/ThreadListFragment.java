@@ -36,7 +36,6 @@ import com.mikepenz.iconics.IconicsDrawable;
 import com.lichader.hipdanext.R;
 import com.lichader.hipdanext.async.LoginHelper;
 import com.lichader.hipdanext.async.NetworkReadyEvent;
-import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.bean.NotificationBean;
 import com.lichader.hipdanext.bean.PostBean;
 import com.lichader.hipdanext.bean.ThreadBean;
@@ -73,7 +72,9 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
+import dagger.hilt.android.AndroidEntryPoint;
 
+@AndroidEntryPoint
 public class ThreadListFragment extends BaseFragment
         implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -105,15 +106,15 @@ public class ThreadListFragment extends BaseFragment
             mForumId = getArguments().getInt(ARG_FID_KEY);
         }
         if (!HiUtils.isForumValid(mForumId)) {
-            if (HiSettingsHelper.getInstance().getForums().size() > 0) {
-                mForumId = HiSettingsHelper.getInstance().getForums().get(0);
+            if (mSettings.getForums().size() > 0) {
+                mForumId = mSettings.getForums().get(0);
             } else {
                 mForumId = HiUtils.FID_BS;
             }
         }
         mFidHolder[0] = mForumId;
 
-        HiSettingsHelper.getInstance().setLastForumId(mForumId);
+        mSettings.setLastForumId(mForumId);
     }
 
     @Override
@@ -223,7 +224,7 @@ public class ThreadListFragment extends BaseFragment
         if (mForumId == HiUtils.FID_BS) {
             mForumTypeMenuItem = menu.findItem(R.id.action_filter_by_type);
             mForumTypeMenuItem.setVisible(true);
-            String typeId = HiSettingsHelper.getInstance().getBSTypeId();
+            String typeId = mSettings.getBSTypeId();
             int typeIdIndex = HiUtils.getBSTypeIndexByFid(typeId);
             if (typeIdIndex == -1) typeIdIndex = 0;
             mForumTypeMenuItem.setIcon(new IconicsDrawable(getActivity(), HiUtils.BS_TYPE_ICONS[typeIdIndex])
@@ -235,7 +236,7 @@ public class ThreadListFragment extends BaseFragment
                 .color(UIUtils.getToolbarTextColor(getActivity())).sizeDp(18));
 
         MenuItem showStickItem = menu.findItem(R.id.action_show_stick_threads);
-        showStickItem.setChecked(HiSettingsHelper.getInstance().isShowStickThreads());
+        showStickItem.setChecked(mSettings.isShowStickThreads());
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -243,7 +244,7 @@ public class ThreadListFragment extends BaseFragment
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(R.id.action_order_by).setChecked(HiSettingsHelper.getInstance().isSortByPostTime(mForumId));
+        menu.findItem(R.id.action_order_by).setChecked(mSettings.isSortByPostTime(mForumId));
     }
 
     @Override
@@ -268,7 +269,7 @@ public class ThreadListFragment extends BaseFragment
         if (itemId == R.id.action_order_by) {
             if (!mInloading) {
                 item.setChecked(!item.isChecked());
-                HiSettingsHelper.getInstance().setSortByPostTime(mForumId, item.isChecked());
+                mSettings.setSortByPostTime(mForumId, item.isChecked());
                 setActionBarSubtitle();
                 mLoadingView.setState(ContentLoadingView.LOAD_NOW);
                 refresh();
@@ -277,7 +278,7 @@ public class ThreadListFragment extends BaseFragment
         }
         if (itemId == R.id.action_show_stick_threads) {
             item.setChecked(!item.isChecked());
-            HiSettingsHelper.getInstance().setShowStickThreads(item.isChecked());
+            mSettings.setShowStickThreads(item.isChecked());
             mLoadingView.setState(ContentLoadingView.LOAD_NOW);
             refresh();
             return true;
@@ -290,7 +291,7 @@ public class ThreadListFragment extends BaseFragment
     }
 
     private void setActionBarSubtitle() {
-        if (HiSettingsHelper.getInstance().isSortByPostTime(mForumId)) {
+        if (mSettings.isSortByPostTime(mForumId)) {
             setActionBarSubtitle(getString(R.string.action_order_by_thread));
         } else {
             setActionBarSubtitle("");
@@ -345,7 +346,7 @@ public class ThreadListFragment extends BaseFragment
         mRecyclerView.scrollToTop();
         hideFooter();
         mInloading = true;
-        if (HiSettingsHelper.getInstance().isFabAutoHide() && mMainFab != null) {
+        if (mSettings.isFabAutoHide() && mMainFab != null) {
             FABHideOnScrollBehavior.hideFab(mMainFab);
         }
         ThreadListJob job = new ThreadListJob(getActivity(), mSessionId, mForumId, mPage);
@@ -412,7 +413,7 @@ public class ThreadListFragment extends BaseFragment
                 String tid = thread.getTid();
                 String title = thread.getTitle();
                 int page = 1;
-                int maxPostsInPage = HiSettingsHelper.getInstance().getMaxPostsInPage();
+                int maxPostsInPage = mSettings.getMaxPostsInPage();
                 if (maxPostsInPage > 0 && TextUtils.isDigitsOnly(thread.getCountCmts())) {
                     page = (int) Math.ceil((Integer.parseInt(thread.getCountCmts()) + 1) * 1.0f / maxPostsInPage);
                 }
@@ -431,7 +432,7 @@ public class ThreadListFragment extends BaseFragment
     }
 
     private void showForumTypesDialog() {
-        final String currentTypeId = HiSettingsHelper.getInstance().getBSTypeId();
+        final String currentTypeId = mSettings.getBSTypeId();
         final LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View viewlayout = inflater.inflate(R.layout.dialog_forum_types, null);
 
@@ -450,7 +451,7 @@ public class ThreadListFragment extends BaseFragment
                 dialog.dismiss();
                 if (!HiUtils.BS_TYPE_IDS[position].equals(currentTypeId)) {
                     mLoadingView.setState(ContentLoadingView.LOAD_NOW);
-                    HiSettingsHelper.getInstance().setBSTypeId(HiUtils.BS_TYPE_IDS[position]);
+                    mSettings.setBSTypeId(HiUtils.BS_TYPE_IDS[position]);
                     if (mForumTypeMenuItem != null) {
                         mForumTypeMenuItem.setIcon(new IconicsDrawable(getActivity(), HiUtils.BS_TYPE_ICONS[position])
                                 .color(UIUtils.getToolbarTextColor(getActivity())).actionBar());
@@ -560,7 +561,7 @@ public class ThreadListFragment extends BaseFragment
             TextView text = row.findViewById(R.id.forum_type_text);
 
             text.setText(HiUtils.BS_TYPES[position]);
-            if (position == HiUtils.getBSTypeIndexByFid(HiSettingsHelper.getInstance().getBSTypeId())) {
+            if (position == HiUtils.getBSTypeIndexByFid(mSettings.getBSTypeId())) {
                 icon.setImageDrawable(new IconicsDrawable(getActivity(), HiUtils.BS_TYPE_ICONS[position]).color(ColorHelper.getColorAccent(getActivity())).sizeDp(20));
                 text.setTextColor(ColorHelper.getColorAccent(getActivity()));
             } else {
@@ -581,10 +582,10 @@ public class ThreadListFragment extends BaseFragment
             hideFooter();
 
             ThreadListBean threads = event.mData;
-            if (TextUtils.isEmpty(HiSettingsHelper.getInstance().getUid())
+            if (TextUtils.isEmpty(mSettings.getUid())
                     && !TextUtils.isEmpty(threads.getUid())) {
-                HiSettingsHelper.getInstance().setUid(threads.getUid());
-                HiSettingsHelper.getInstance().saveCurrentProfile();
+                mSettings.setUid(threads.getUid());
+                mSettings.saveCurrentProfile();
                 GlideHelper.refreshUserIcon(getActivity());
                 if (getActivity() != null)
                     ((MainFrameActivity) getActivity()).updateAccountHeader();

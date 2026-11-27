@@ -20,11 +20,13 @@ import com.lichader.hipdanext.utils.Utils;
 
 import java.util.List;
 import java.util.Set;
+import dagger.hilt.android.AndroidEntryPoint;
 
 /**
  * main setting fragment
  * Created by GreenSkinMonster on 2015-09-11.
  */
+@AndroidEntryPoint
 public class SettingMainFragment extends BaseSettingFragment {
 
     private int mScreenOrietation;
@@ -69,13 +71,13 @@ public class SettingMainFragment extends BaseSettingFragment {
             });
         }
 
-        mScreenOrietation = HiSettingsHelper.getInstance().getScreenOrietation();
-        mForums = HiSettingsHelper.getInstance().getForums();
-        mFreqMenus = HiSettingsHelper.getInstance().getFreqMenus();
-        mFont = HiSettingsHelper.getInstance().getFont();
-        mForumServer = HiSettingsHelper.getInstance().getForumServer();
-        mCircleAvatar = HiSettingsHelper.getInstance().isCircleAvatar();
-        mNotiTaskEnabled = HiSettingsHelper.getInstance().isNotiTaskEnabled();
+        mScreenOrietation = mSettings.getScreenOrietation();
+        mForums = mSettings.getForums();
+        mFreqMenus = mSettings.getFreqMenus();
+        mFont = mSettings.getFont();
+        mForumServer = mSettings.getForumServer();
+        mCircleAvatar = mSettings.isCircleAvatar();
+        mNotiTaskEnabled = mSettings.isNotiTaskEnabled();
 
         setActionBarTitle(R.string.title_fragment_settings);
     }
@@ -91,22 +93,22 @@ public class SettingMainFragment extends BaseSettingFragment {
     }
 
     private void updateSettingStatus() {
-        HiSettingsHelper.getInstance().reload();
+        mSettings.reload();
 
-        if (HiSettingsHelper.getInstance().isCircleAvatar() != mCircleAvatar)
+        if (mSettings.isCircleAvatar() != mCircleAvatar)
             GlideHelper.initDefaultFiles();
 
-        if (mNotiTaskEnabled != HiSettingsHelper.getInstance().isNotiTaskEnabled()) {
+        if (mNotiTaskEnabled != mSettings.isNotiTaskEnabled()) {
             NotiWorker.scheduleOrCancelWork();
         }
 
         if (mCacheCleared
-                || !HiSettingsHelper.getInstance().getFont().equals(mFont)) {
+                || !mSettings.getFont().equals(mFont)) {
             HiApplication.setSettingStatus(HiApplication.RESTART);
-        } else if (HiSettingsHelper.getInstance().getScreenOrietation() != mScreenOrietation
-                || !HiSettingsHelper.getInstance().getForums().equals(mForums)
-                || !HiSettingsHelper.getInstance().getFreqMenus().equals(mFreqMenus)
-                || !HiSettingsHelper.getInstance().getForumServer().equals(mForumServer)) {
+        } else if (mSettings.getScreenOrietation() != mScreenOrietation
+                || !mSettings.getForums().equals(mForums)
+                || !mSettings.getFreqMenus().equals(mFreqMenus)
+                || !mSettings.getForumServer().equals(mForumServer)) {
             HiApplication.setSettingStatus(HiApplication.RECREATE);
         } else {
             HiApplication.setSettingStatus(HiApplication.RELOAD);
@@ -137,7 +139,7 @@ public class SettingMainFragment extends BaseSettingFragment {
                 return true;
             }
         });
-//        Date lastCheckTime = HiSettingsHelper.getInstance().getLastUpdateCheckTime();
+//        Date lastCheckTime = mSettings.getLastUpdateCheckTime();
 //        if (lastCheckTime != null) {
 //            checkPreference.setSummary("上次检查 ：" + Utils.shortyTime(lastCheckTime));
 //        } else {

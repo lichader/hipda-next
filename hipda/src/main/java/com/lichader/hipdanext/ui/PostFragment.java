@@ -42,7 +42,6 @@ import com.lichader.hipdanext.R;
 import com.lichader.hipdanext.async.PostHelper;
 import com.lichader.hipdanext.async.PrePostAsyncTask;
 import com.lichader.hipdanext.bean.Forum;
-import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.bean.PostBean;
 import com.lichader.hipdanext.bean.PrePostInfoBean;
 import com.lichader.hipdanext.db.Content;
@@ -73,7 +72,9 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import dagger.hilt.android.AndroidEntryPoint;
 
+@AndroidEntryPoint
 public class PostFragment extends BaseFragment {
 
     public static final String ARG_FID_KEY = "fid";
@@ -197,7 +198,7 @@ public class PostFragment extends BaseFragment {
             mForumName = forum.getName();
 
         mEtSubject = view.findViewById(R.id.et_subject);
-        mEtContent.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
+        mEtContent.setTextSize(mSettings.getPostTextSize());
         UIUtils.setLineSpacing(mEtContent);
 
         mEtContent.addTextChangedListener(new TextWatcher() {
@@ -468,7 +469,7 @@ public class PostFragment extends BaseFragment {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         StringBuilder sb = new StringBuilder();
-                                        String tail = HiSettingsHelper.getInstance().getTailStr();
+                                        String tail = mSettings.getTailStr();
                                         String content;
                                         boolean appendTail = false;
                                         if (replyText.trim().endsWith(tail)) {
@@ -709,7 +710,7 @@ public class PostFragment extends BaseFragment {
         }
 
         if (mMode == PostHelper.MODE_QUOTE_POST || mMode == PostHelper.MODE_REPLY_POST) {
-            mTvQuoteText.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
+            mTvQuoteText.setTextSize(mSettings.getPostTextSize());
             UIUtils.setLineSpacing(mTvQuoteText);
             mTvQuoteText.setText(mQuoteText);
             mTvQuoteText.setVisibility(View.VISIBLE);

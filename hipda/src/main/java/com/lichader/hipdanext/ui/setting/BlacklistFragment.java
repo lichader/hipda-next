@@ -20,7 +20,6 @@ import com.mikepenz.iconics.IconicsDrawable;
 
 import com.lichader.hipdanext.R;
 import com.lichader.hipdanext.async.BlacklistHelper;
-import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.okhttp.OkHttpHelper;
 import com.lichader.hipdanext.ui.BaseFragment;
 import com.lichader.hipdanext.ui.widget.ContentLoadingView;
@@ -37,11 +36,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.Request;
+import dagger.hilt.android.AndroidEntryPoint;
 
 /**
  * Created by GreenSkinMonster on 2017-07-15.
  */
 
+@AndroidEntryPoint
 public class BlacklistFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
 
     public static final String TAG_KEY = "BLACKLIST_KEY";
@@ -119,8 +120,8 @@ public class BlacklistFragment extends BaseFragment implements SwipeRefreshLayou
                     if (TextUtils.isEmpty(errorMsg)) {
                         mBlacklists = HiParser.parseBlacklist(doc);
                         mAdapter.notifyDataSetChanged();
-                        HiSettingsHelper.getInstance().setBlacklists(mBlacklists);
-                        HiSettingsHelper.getInstance().setBlacklistSyncTime();
+                        mSettings.setBlacklists(mBlacklists);
+                        mSettings.setBlacklistSyncTime();
 
                         new Handler().postDelayed(new Runnable() {
                             @Override
@@ -173,7 +174,7 @@ public class BlacklistFragment extends BaseFragment implements SwipeRefreshLayou
                         } else {
                             refresh();
                         }
-                        HiSettingsHelper.getInstance().removeFromBlacklist(username);
+                        mSettings.removeFromBlacklist(username);
                     }
                 } catch (Exception e) {
                     UIUtils.toast(OkHttpHelper.getErrorMessage(e).getMessage());

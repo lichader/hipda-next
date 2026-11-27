@@ -43,7 +43,6 @@ import com.mikepenz.iconics.IconicsDrawable;
 
 import com.lichader.hipdanext.R;
 import com.lichader.hipdanext.bean.Forum;
-import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.bean.SearchBean;
 import com.lichader.hipdanext.bean.SimpleListBean;
 import com.lichader.hipdanext.bean.SimpleListItemBean;
@@ -71,11 +70,13 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
+import dagger.hilt.android.AndroidEntryPoint;
 
 /**
  * Created by GreenSkinMonster on 2017-07-17.
  */
 
+@AndroidEntryPoint
 public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private final int mType = SimpleListJob.TYPE_SEARCH;
@@ -632,7 +633,7 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
     }
 
     private String[] getForumIds() {
-        List<Integer> forums = HiSettingsHelper.getInstance().getForums();
+        List<Integer> forums = mSettings.getForums();
         String[] forumIds = new String[forums.size() + 1];
         forumIds[0] = "0";
         int i = 1;
@@ -643,7 +644,7 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
     }
 
     private String[] getForumNames() {
-        List<Integer> forums = HiSettingsHelper.getInstance().getForums();
+        List<Integer> forums = mSettings.getForums();
         String[] forumNames = new String[forums.size() + 1];
         forumNames[0] = "全部版块";
         int i = 1;

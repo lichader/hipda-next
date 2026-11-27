@@ -52,9 +52,16 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import dagger.hilt.android.AndroidEntryPoint;
+import javax.inject.Inject;
 
+@AndroidEntryPoint
 public class SimpleListFragment extends BaseFragment
         implements SwipeRefreshLayout.OnRefreshListener, PostSmsAsyncTask.SmsPostListener {
+
+    @Inject
+    FavoriteHelper mFavoriteHelper;
+
     public static final String ARG_TYPE = "type";
 
     private int mType;
@@ -341,7 +348,7 @@ public class SimpleListFragment extends BaseFragment
         popupMenu.add("cancel", "取消收藏", new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                FavoriteHelper.getInstance().deleteFavorite(getActivity(), mFormhash, FavoriteHelper.TYPE_FAVORITE, item.getTid());
+                mFavoriteHelper.deleteFavorite(getActivity(), mFormhash, FavoriteHelper.TYPE_FAVORITE, item.getTid());
                 removeItem(item);
             }
         });
@@ -359,7 +366,7 @@ public class SimpleListFragment extends BaseFragment
         popupMenu.add("cancel", "取消关注", new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                FavoriteHelper.getInstance().deleteFavorite(getActivity(), mFormhash, FavoriteHelper.TYPE_ATTENTION, item.getTid());
+                mFavoriteHelper.deleteFavorite(getActivity(), mFormhash, FavoriteHelper.TYPE_ATTENTION, item.getTid());
                 removeItem(item);
             }
         });
@@ -467,7 +474,7 @@ public class SimpleListFragment extends BaseFragment
                 for (SimpleListItemBean itemBean : beans) {
                     tids.add(itemBean.getTid());
                 }
-                FavoriteHelper.getInstance().addToCahce(item, tids);
+                mFavoriteHelper.addToCahce(item, tids);
             }
 
             if (mType == SimpleListJob.TYPE_SMS)

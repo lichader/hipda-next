@@ -23,12 +23,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import io.github.inflationx.viewpump.ViewPumpContextWrapper;
+import javax.inject.Inject;
 
 /**
  * Created by GreenSkinMonster on 2017-06-14.
  */
 
 public class BaseActivity extends AppCompatActivity {
+
+    @Inject
+    protected HiSettingsHelper mSettings;
 
     public String mSessionId;
     protected View mRootView;
@@ -46,9 +50,9 @@ public class BaseActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, mBackCallback);
 
         try {
-            if (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT == HiSettingsHelper.getInstance().getScreenOrietation()) {
+            if (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT == mSettings.getScreenOrietation()) {
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            } else if (ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE == HiSettingsHelper.getInstance().getScreenOrietation()) {
+            } else if (ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE == mSettings.getScreenOrietation()) {
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
             } else {
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
@@ -88,7 +92,7 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public void updateAppBarScrollFlag() {
-        setAppBarCollapsible(HiSettingsHelper.getInstance().isAppBarCollapsible());
+        setAppBarCollapsible(mSettings.isAppBarCollapsible());
     }
 
     protected void setAppBarCollapsible(boolean collapsible) {
@@ -125,7 +129,7 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public void expandAppBar() {
-        if (mAppBarLayout != null && HiSettingsHelper.getInstance().isAppBarCollapsible()) {
+        if (mAppBarLayout != null && mSettings.isAppBarCollapsible()) {
             mAppBarLayout.setExpanded(true, true);
         }
     }

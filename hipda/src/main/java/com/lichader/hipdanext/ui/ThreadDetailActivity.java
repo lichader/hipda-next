@@ -9,7 +9,6 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import com.lichader.hipdanext.R;
-import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.ui.widget.FABHideOnScrollBehavior;
 import com.lichader.hipdanext.ui.widget.OnSingleClickListener;
 import com.lichader.hipdanext.utils.UIUtils;
@@ -19,11 +18,13 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import dagger.hilt.android.AndroidEntryPoint;
 
 /**
  * Created by GreenSkinMonster on 2017-06-14.
  */
 
+@AndroidEntryPoint
 public class ThreadDetailActivity extends SwipeBaseActivity {
 
     private View mQuickReply;
@@ -78,12 +79,12 @@ public class ThreadDetailActivity extends SwipeBaseActivity {
 
     public void updateFabGravity() {
         CoordinatorLayout.LayoutParams mainFabParams = (CoordinatorLayout.LayoutParams) mMainFab.getLayoutParams();
-        if (HiSettingsHelper.getInstance().isFabLeftSide()) {
+        if (mSettings.isFabLeftSide()) {
             mainFabParams.anchorGravity = Gravity.BOTTOM | Gravity.LEFT | Gravity.END;
         } else {
             mainFabParams.anchorGravity = Gravity.BOTTOM | Gravity.RIGHT | Gravity.END;
         }
-        if (HiSettingsHelper.getInstance().isFabAutoHide()) {
+        if (mSettings.isFabAutoHide()) {
             mainFabParams.setBehavior(new FABHideOnScrollBehavior());
         } else {
             mainFabParams.setBehavior(null);

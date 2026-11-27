@@ -3,7 +3,6 @@ package com.lichader.hipdanext.ui;
 import android.os.Bundle;
 import android.view.View;
 
-import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.ui.widget.swipeback.SwipeBackActivityBase;
 import com.lichader.hipdanext.ui.widget.swipeback.SwipeBackActivityHelper;
 import com.lichader.hipdanext.ui.widget.swipeback.SwipeBackLayout;
@@ -21,12 +20,12 @@ public class SwipeBaseActivity extends BaseActivity implements SwipeBackActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (HiSettingsHelper.getInstance().isGestureBack()) {
+        if (mSettings.isGestureBack()) {
             mHelper = new SwipeBackActivityHelper(this);
             mHelper.onActivityCreate();
 
             getSwipeBackLayout().setEdgeSize((UIUtils.getScreenWidth(this)));
-            setSwipeBackEnable(HiSettingsHelper.getInstance().isGestureBack());
+            setSwipeBackEnable(mSettings.isGestureBack());
         }
     }
 

@@ -24,7 +24,6 @@ import com.mikepenz.iconics.IconicsDrawable;
 import com.lichader.hipdanext.R;
 import com.lichader.hipdanext.async.BlacklistHelper;
 import com.lichader.hipdanext.async.PostSmsAsyncTask;
-import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.bean.SearchBean;
 import com.lichader.hipdanext.bean.SimpleListBean;
 import com.lichader.hipdanext.bean.SimpleListItemBean;
@@ -56,8 +55,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.Request;
+import dagger.hilt.android.AndroidEntryPoint;
+import javax.inject.Inject;
 
+@AndroidEntryPoint
 public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.SmsPostListener {
+
+    @Inject
+    OkHttpHelper mOkHttpHelper;
 
     public static final String ARG_USERNAME = "USERNAME";
     public static final String ARG_UID = "UID";
@@ -114,7 +119,7 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
         view.setClickable(false);
 
         mAvatarView = (ImageView) view.findViewById(R.id.userinfo_avatar);
-        if (HiSettingsHelper.getInstance().isLoadAvatar()) {
+        if (mSettings.isLoadAvatar()) {
             mAvatarView.setVisibility(View.VISIBLE);
             mAvatarView.setOnClickListener(new OnSingleClickListener() {
                 @Override
@@ -134,14 +139,14 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
 
         mUsernameView = (TextView) view.findViewById(R.id.userinfo_username);
         mUsernameView.setText(mUsername);
-        mUsernameView.setTextSize(HiSettingsHelper.getInstance().getPostTextSize() + 2);
+        mUsernameView.setTextSize(mSettings.getPostTextSize() + 2);
 
         mOnlineView = (TextView) view.findViewById(R.id.user_online);
         mOnlineView.setVisibility(View.INVISIBLE);
 
         mDetailView = (TextView) view.findViewById(R.id.userinfo_detail);
         mDetailView.setText("正在获取信息...");
-        mDetailView.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
+        mDetailView.setTextSize(mSettings.getPostTextSize());
 
         //to avoid click through this view
         view.setOnTouchListener(new View.OnTouchListener() {
@@ -208,7 +213,7 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
             mDetailView.setVisibility(View.VISIBLE);
             mRecyclerView.setVisibility(View.GONE);
         }
-        OkHttpHelper.getInstance().asyncGet(HiUtils.UserInfoUrl + mUid, new UserInfoCallback());
+        mOkHttpHelper.asyncGet(HiUtils.UserInfoUrl + mUid, new UserInfoCallback());
 
         mRecyclerView.setAdapter(mSimpleListAdapter);
         mRecyclerView.addOnScrollListener(new OnScrollListener());
@@ -227,7 +232,7 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
 
     @Override
     public void onPrepareOptionsMenu(@NonNull Menu menu) {
-        if (HiSettingsHelper.getInstance().isInBlacklist(mUsername)) {
+        if (mSettings.isInBlacklist(mUsername)) {
             menu.findItem(R.id.action_blacklist).setVisible(false);
             menu.findItem(R.id.action_remove_blacklist).setVisible(true);
         } else {
@@ -271,7 +276,7 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
         public void onResponse(String response) {
             UserInfoBean info = HiParser.parseUserInfo(response);
             if (info != null) {
-                if (HiSettingsHelper.getInstance().isLoadAvatar()) {
+                if (mSettings.isLoadAvatar()) {
                     mAvatarView.setVisibility(View.VISIBLE);
                     GlideHelper.loadAvatar(UserinfoFragment.this, mAvatarView, info.getAvatarUrl());
                     mAvatarUrl = info.getAvatarUrl();
