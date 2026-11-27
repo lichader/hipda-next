@@ -49,7 +49,10 @@ public class RecyclerItemClickListener implements View.OnTouchListener {
         }
     }
 
-    public RecyclerItemClickListener(Context context, OnItemClickListener listener) {
+    private final HiSettingsHelper mSettings;
+
+    public RecyclerItemClickListener(Context context, HiSettingsHelper settings, OnItemClickListener listener) {
+        mSettings = settings;
         mListener = listener;
         mGestureDetector = new GestureDetectorCompat(context, new GestureDetector.SimpleOnGestureListener() {
 
@@ -96,7 +99,7 @@ public class RecyclerItemClickListener implements View.OnTouchListener {
         float y = event.getY();
 
         //hack to delay ripple effect, should be replaced by better way
-        if (HiSettingsHelper.getInstance().isClickEffect()) {
+        if (mSettings.isClickEffect()) {
             view.drawableHotspotChanged(x, y);
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:

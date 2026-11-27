@@ -5,6 +5,7 @@ import android.view.ViewGroup;
 
 import com.bumptech.glide.RequestManager;
 
+import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.bean.ThreadBean;
 import com.lichader.hipdanext.ui.widget.ThreadItemLayout;
 
@@ -14,14 +15,17 @@ public class ThreadListAdapter extends BaseRvAdapter<ThreadBean> {
 
     private RequestManager mGlide;
 
-    public ThreadListAdapter(RequestManager glide, RecyclerItemClickListener listener) {
+    private final HiSettingsHelper mSettings;
+
+    public ThreadListAdapter(RequestManager glide, HiSettingsHelper settings, RecyclerItemClickListener listener) {
+        mSettings = settings;
         mGlide = glide;
         mItemClickListener = listener;
     }
 
     @Override
     public ViewHolderImpl onCreateViewHolderImpl(ViewGroup parent, int viewType) {
-        return new ViewHolderImpl(new ThreadItemLayout(parent.getContext(), mGlide));
+        return new ViewHolderImpl(new ThreadItemLayout(parent.getContext(), mSettings, mGlide));
     }
 
     @Override

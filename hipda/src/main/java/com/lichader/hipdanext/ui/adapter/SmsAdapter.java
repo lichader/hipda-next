@@ -35,7 +35,10 @@ public class SmsAdapter extends BaseRvAdapter<SimpleListItemBean> {
     private LayoutInflater mInflater;
     private SmsFragment mFragment;
 
-    public SmsAdapter(SmsFragment fragment, View.OnClickListener avatarListener, RecyclerItemClickListener itemClickListener) {
+    private final HiSettingsHelper mSettings;
+
+    public SmsAdapter(SmsFragment fragment, HiSettingsHelper settings, View.OnClickListener avatarListener, RecyclerItemClickListener itemClickListener) {
+        mSettings = settings;
         mAvatarListener = avatarListener;
         mInflater = LayoutInflater.from(fragment.getActivity());
         mFragment = fragment;
@@ -56,7 +59,7 @@ public class SmsAdapter extends BaseRvAdapter<SimpleListItemBean> {
         holder.iv_my_avatar.setVisibility(View.INVISIBLE);
         holder.iv_friend_avatar.setVisibility(View.INVISIBLE);
 
-        if (item.getUid().equals(HiSettingsHelper.getInstance().getUid())) {
+        if (item.getUid().equals(mSettings.getUid())) {
             holder.iv_my_avatar.setTag(R.id.avatar_tag_uid, item.getUid());
             holder.iv_my_avatar.setTag(R.id.avatar_tag_username, item.getAuthor());
         } else {
@@ -64,7 +67,7 @@ public class SmsAdapter extends BaseRvAdapter<SimpleListItemBean> {
             holder.iv_friend_avatar.setTag(R.id.avatar_tag_username, item.getAuthor());
         }
 
-        if (item.getUid().equals(HiSettingsHelper.getInstance().getUid())) {
+        if (item.getUid().equals(mSettings.getUid())) {
             holder.info_layout.setGravity(Gravity.RIGHT);
             holder.bubble_layout.setArrowDirection(ArrowDirection.RIGHT);
             holder.bubble_layout.setBubbleColor(ContextCompat.getColor(mFragment.getActivity(), R.color.md_yellow_400));
@@ -73,7 +76,7 @@ public class SmsAdapter extends BaseRvAdapter<SimpleListItemBean> {
             params.gravity = Gravity.RIGHT;
             holder.bubble_layout.setLayoutParams(params);
 
-            if (HiSettingsHelper.getInstance().isLoadAvatar()) {
+            if (mSettings.isLoadAvatar()) {
                 holder.iv_my_avatar.setVisibility(View.VISIBLE);
                 if (!TextUtils.isEmpty(item.getUid())) {
                     holder.iv_my_avatar.setOnClickListener(mAvatarListener);
@@ -90,7 +93,7 @@ public class SmsAdapter extends BaseRvAdapter<SimpleListItemBean> {
             params.gravity = Gravity.LEFT;
             holder.bubble_layout.setLayoutParams(params);
 
-            if (HiSettingsHelper.getInstance().isLoadAvatar()) {
+            if (mSettings.isLoadAvatar()) {
                 holder.iv_friend_avatar.setVisibility(View.VISIBLE);
                 if (!TextUtils.isEmpty(item.getUid())) {
                     holder.iv_friend_avatar.setOnClickListener(mAvatarListener);
@@ -99,8 +102,8 @@ public class SmsAdapter extends BaseRvAdapter<SimpleListItemBean> {
             }
         }
 
-        if (!HiSettingsHelper.getInstance().isLoadAvatar()) {
-            if (item.getUid().equals(HiSettingsHelper.getInstance().getUid())) {
+        if (!mSettings.isLoadAvatar()) {
+            if (item.getUid().equals(mSettings.getUid())) {
                 holder.iv_my_avatar.setVisibility(View.GONE);
                 holder.iv_friend_avatar.setVisibility(View.INVISIBLE);
             } else {
@@ -118,7 +121,7 @@ public class SmsAdapter extends BaseRvAdapter<SimpleListItemBean> {
         holder.tv_content.setText(text);
         holder.tv_content.setFocusable(false);
 
-        holder.tv_content.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
+        holder.tv_content.setTextSize(mSettings.getPostTextSize());
         holder.tv_content.setTextColor(ContextCompat.getColor(mFragment.getActivity(), R.color.black));
 
         if (item.isNew()) {

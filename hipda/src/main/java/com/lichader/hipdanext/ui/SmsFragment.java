@@ -96,8 +96,8 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
             mUid = getArguments().getString(ARG_UID);
         }
 
-        RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), new OnItemClickListener());
-        mSmsAdapter = new SmsAdapter(this, new AvatarOnClickListener(), itemClickListener);
+        RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), mSettings, new OnItemClickListener());
+        mSmsAdapter = new SmsAdapter(this, mSettings, new AvatarOnClickListener(), itemClickListener);
     }
 
     @Override

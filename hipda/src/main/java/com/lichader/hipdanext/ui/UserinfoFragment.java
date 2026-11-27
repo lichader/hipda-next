@@ -110,8 +110,8 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
             mUid = getArguments().getString(ARG_UID);
         }
 
-        RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), new OnItemClickListener());
-        mSimpleListAdapter = new SimpleListAdapter(this, SimpleListJob.TYPE_SEARCH_USER_THREADS, itemClickListener);
+        RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), mSettings, new OnItemClickListener());
+        mSimpleListAdapter = new SimpleListAdapter(this, mSettings, SimpleListJob.TYPE_SEARCH_USER_THREADS, itemClickListener);
     }
 
     @Override

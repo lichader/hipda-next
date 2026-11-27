@@ -149,11 +149,11 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
 
         mPreferences = getActivity().getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE);
 
-        RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), new OnItemClickListener());
-        mSimpleListAdapter = new SimpleListAdapter(this, mType, itemClickListener);
+        RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), mSettings, new OnItemClickListener());
+        mSimpleListAdapter = new SimpleListAdapter(this, mSettings, mType, itemClickListener);
 
         mHistoryAdapter = new SearchHistoryAdapter(getActivity(),
-                new RecyclerItemClickListener(getActivity(), new HistoryItemClickListener()));
+                new RecyclerItemClickListener(getActivity(), mSettings, new HistoryItemClickListener()));
 
         mIconDrawable = new IconicsDrawable(getActivity(), GoogleMaterial.Icon.gmd_history).sizeDp(16).color(Color.GRAY);
 

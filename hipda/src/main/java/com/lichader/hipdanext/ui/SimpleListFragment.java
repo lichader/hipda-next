@@ -95,8 +95,8 @@ public class SimpleListFragment extends BaseFragment
             mType = getArguments().getInt(ARG_TYPE);
         }
 
-        RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), new OnItemClickListener());
-        mSimpleListAdapter = new SimpleListAdapter(this, mType, itemClickListener);
+        RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), mSettings, new OnItemClickListener());
+        mSimpleListAdapter = new SimpleListAdapter(this, mSettings, mType, itemClickListener);
     }
 
     @Override

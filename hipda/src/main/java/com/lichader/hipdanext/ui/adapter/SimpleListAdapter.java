@@ -30,7 +30,10 @@ public class SimpleListAdapter extends BaseRvAdapter<SimpleListItemBean> {
     private BaseFragment mFragment;
     private int mType;
 
-    public SimpleListAdapter(BaseFragment fragment, int type, RecyclerItemClickListener itemClickListener) {
+    private final HiSettingsHelper mSettings;
+
+    public SimpleListAdapter(BaseFragment fragment, HiSettingsHelper settings, int type, RecyclerItemClickListener itemClickListener) {
+        mSettings = settings;
         mInflater = LayoutInflater.from(fragment.getActivity());
         mFragment = fragment;
         mType = type;
@@ -48,7 +51,7 @@ public class SimpleListAdapter extends BaseRvAdapter<SimpleListItemBean> {
 
         SimpleListItemBean item = getItem(position);
 
-        holder.tv_title.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
+        holder.tv_title.setTextSize(mSettings.getPostTextSize());
         holder.tv_title.setText(Utils.trim(item.getTitle()));
         if (item.isNew()) {
             holder.tv_time.setTextColor(ContextCompat.getColor(mFragment.getActivity(), R.color.red));
@@ -64,7 +67,7 @@ public class SimpleListAdapter extends BaseRvAdapter<SimpleListItemBean> {
                 holder.tv_info.setText(HtmlCompat.fromHtml(item.getInfo()));
             else
                 holder.tv_info.setText(item.getInfo());
-            holder.tv_info.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
+            holder.tv_info.setTextSize(mSettings.getPostTextSize());
         }
 
         if (TextUtils.isEmpty(item.getTime()) && TextUtils.isEmpty(item.getForum()) && TextUtils.isEmpty(item.getAuthor())) {
@@ -84,7 +87,7 @@ public class SimpleListAdapter extends BaseRvAdapter<SimpleListItemBean> {
             }
         }
 
-        if (HiSettingsHelper.getInstance().isLoadAvatar()
+        if (mSettings.isLoadAvatar()
                 && mType != SimpleListJob.TYPE_SEARCH_USER_THREADS
                 && mType != SimpleListJob.TYPE_FAVORITES
                 && mType != SimpleListJob.TYPE_ATTENTION

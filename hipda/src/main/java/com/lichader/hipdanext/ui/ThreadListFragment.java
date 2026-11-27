@@ -133,9 +133,9 @@ public class ThreadListFragment extends BaseFragment
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecyclerView.addItemDecoration(new SimpleDivider(getActivity()));
 
-        RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), new OnItemClickListener());
+        RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), mSettings, new OnItemClickListener());
 
-        mThreadListAdapter = new ThreadListAdapter(Glide.with(getActivity()), itemClickListener);
+        mThreadListAdapter = new ThreadListAdapter(Glide.with(getActivity()), mSettings, itemClickListener);
         mThreadListAdapter.setDatas(mThreadBeans);
 
         mRecyclerView.setAdapter(mThreadListAdapter);

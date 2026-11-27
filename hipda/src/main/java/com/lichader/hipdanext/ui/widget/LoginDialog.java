@@ -32,8 +32,11 @@ public class LoginDialog extends Dialog {
     private String mSecQuestion = "";
     private String mSecAnswer = "";
 
-    public LoginDialog(MainFrameActivity activity, LoginHelper loginHelper) {
+    private final HiSettingsHelper mSettings;
+
+    public LoginDialog(MainFrameActivity activity, HiSettingsHelper settings, LoginHelper loginHelper) {
         super(activity);
+        mSettings = settings;
         mActivity = activity;
         mLoginHelper = loginHelper;
     }
@@ -85,11 +88,11 @@ public class LoginDialog extends Dialog {
                 if (mLoginHelper.isLoggedIn())
                     mLoginHelper.logout();
 
-                HiSettingsHelper.getInstance().setUsername(mUsername);
-                HiSettingsHelper.getInstance().setPassword(mPassword);
-                HiSettingsHelper.getInstance().setSecQuestion(mSecQuestion);
-                HiSettingsHelper.getInstance().setSecAnswer(mSecAnswer);
-                HiSettingsHelper.getInstance().setUid("");
+                mSettings.setUsername(mUsername);
+                mSettings.setPassword(mPassword);
+                mSettings.setSecQuestion(mSecQuestion);
+                mSettings.setSecAnswer(mSecAnswer);
+                mSettings.setUid("");
 
                 mActivity.doLoginProgress();
                 dismiss();

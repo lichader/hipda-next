@@ -243,8 +243,9 @@ public class ThreadDetailFragment extends BaseFragment {
         mRecyclerView.setHeaderState(XHeaderView.STATE_HIDDEN);
         mRecyclerView.setFooterState(XFooterView.STATE_HIDDEN);
 
-        RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), new OnItemClickListener());
+        RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), mSettings, new OnItemClickListener());
         mDetailAdapter = new ThreadDetailAdapter(this,
+                mSettings,
                 itemClickListener,
                 new GoToFloorOnClickListener(),
                 new AvatarOnClickListener(),
@@ -628,7 +629,7 @@ public class ThreadDetailFragment extends BaseFragment {
     private void showGridMenu(final DetailBean detailBean) {
         if (mGridMenu != null)
             return;
-        mGridMenu = new SimpleGridMenu(this);
+        mGridMenu = new SimpleGridMenu(this, mSettings);
         mGridMenu.setDetailBean(detailBean);
         mGridMenu.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override

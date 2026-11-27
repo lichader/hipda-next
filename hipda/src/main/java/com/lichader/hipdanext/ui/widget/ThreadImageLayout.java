@@ -43,8 +43,11 @@ public class ThreadImageLayout extends BaseImageLayout {
     private int mImageIndex;
     private ArrayList<ContentImg> mImages;
 
-    public ThreadImageLayout(Activity activity, ContentImg contentImg, ArrayList<ContentImg> images, boolean isThumb) {
+    private final HiSettingsHelper mSettings;
+
+    public ThreadImageLayout(Activity activity, HiSettingsHelper settings, ContentImg contentImg, ArrayList<ContentImg> images, boolean isThumb) {
         super(activity);
+        mSettings = settings;
 
         mActivity = activity;
         mRequestManager = Glide.with(mActivity);
@@ -116,7 +119,7 @@ public class ThreadImageLayout extends BaseImageLayout {
 
     @Override
     protected boolean isNetworkFetch() {
-        return HiSettingsHelper.getInstance().isImageLoadable(mContentImg.getFileSize(), mIsThumb);
+        return mSettings.isImageLoadable(mContentImg.getFileSize(), mIsThumb);
     }
 
     private void doLayout() {

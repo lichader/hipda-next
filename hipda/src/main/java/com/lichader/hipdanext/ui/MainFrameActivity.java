@@ -857,7 +857,7 @@ public class MainFrameActivity extends BaseActivity {
 
     public void showLoginDialog() {
         if (mLoginDialog == null || !mLoginDialog.isShowing()) {
-            mLoginDialog = new LoginDialog(this, mLoginHelper);
+            mLoginDialog = new LoginDialog(this, mSettings, mLoginHelper);
             mLoginDialog.setTitle("用户登录");
             mLoginDialog.show();
         }
@@ -927,7 +927,7 @@ public class MainFrameActivity extends BaseActivity {
         final LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View view = inflater.inflate(R.layout.dialog_theme_setting, null);
 
-        final BottomSheetDialog dialog = new ThemeSettingDialog(this);
+        final BottomSheetDialog dialog = new ThemeSettingDialog(this, mSettings);
 
         dialog.setContentView(view);
         dialog.show();
