@@ -33,6 +33,31 @@ jobs:
       - name: Build debug and release APKs
         run: ./gradlew :hipda:assembleDebug :hipda:assembleRelease --stacktrace
 
+      # Robolectric downloads its Android runtime jars (hundreds of MB) into ~/.m2 on first use.
+      # Maven Central rate-limits repeated downloads of them, so keep them between runs.
+      - name: Cache Robolectric runtime jars
+        uses: actions/cache@v6
+        with:
+          path: ~/.m2/repository/org/robolectric
+          key: robolectric-${{ hashFiles('hipda/build.gradle') }}
+          restore-keys: robolectric-
+
+      - name: Unit tests
+        id: unit-tests
+        run: ./gradlew :hipda:testDebugUnitTest --stacktrace
+
+      # Show results in the job summary and annotate failures. annotate_only needs no
+      # checks: write permission, so it also works for pull requests from forks.
+      - name: Publish test results
+        if: ${{ !cancelled() && steps.unit-tests.outcome != 'skipped' }}
+        uses: mikepenz/action-junit-report@a16be3a69023e9bd7e748ede768b3282ea7b30ce # v6.7.1
+        with:
+          report_paths: hipda/build/test-results/testDebugUnitTest/TEST-*.xml
+          annotate_only: true
+          detailed_summary: true
+          failed_summary_logs: true
+          require_tests: true
+
       - name: Lint
         run: ./gradlew --continue :hipda:lintDebug :emoji:lintDebug
 
@@ -42,6 +67,14 @@ jobs:
           name: hipda-next-debug-${{ github.run_number }}
           path: hipda/build/outputs/apk/debug/*.apk
           if-no-files-found: error
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-reports-${{ github.run_number }}
+          path: hipda/build/reports/tests/testDebugUnitTest
+          if-no-files-found: ignore
 
       - name: Upload lint reports
         if: always()

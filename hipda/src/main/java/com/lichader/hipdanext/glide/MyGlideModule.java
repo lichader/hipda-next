@@ -32,6 +32,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
+import dagger.hilt.EntryPoint;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.EntryPointAccessors;
+import dagger.hilt.components.SingletonComponent;
+
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
@@ -46,10 +51,23 @@ public class MyGlideModule extends AppGlideModule {
     private final static int DEFAULT_CACHE_SIZE = 500;
     private final static int MIN_CACHE_SIZE = 300;
 
+    /** Glide creates this module itself, so its dependencies come from the Hilt graph. */
+    @EntryPoint
+    @InstallIn(SingletonComponent.class)
+    public interface Dependencies {
+        HiSettingsHelper settings();
+
+        CachedDns cachedDns();
+    }
+
+    private static Dependencies dependencies(Context context) {
+        return EntryPointAccessors.fromApplication(context, Dependencies.class);
+    }
+
 
     @Override
     public void applyOptions(@NonNull Context context, @NonNull GlideBuilder gb) {
-        String cacheSizeStr = HiSettingsHelper.getInstance().getStringValue(HiSettingsHelper.PERF_CACHE_SIZE_IN_MB, DEFAULT_CACHE_SIZE + "");
+        String cacheSizeStr = dependencies(context).settings().getStringValue(HiSettingsHelper.PERF_CACHE_SIZE_IN_MB, DEFAULT_CACHE_SIZE + "");
         int cacheSize = DEFAULT_CACHE_SIZE;
         if (TextUtils.isDigitsOnly(cacheSizeStr)) {
             cacheSize = Integer.parseInt(cacheSizeStr);
@@ -70,7 +88,7 @@ public class MyGlideModule extends AppGlideModule {
         builder.connectTimeout(OkHttpHelper.CONNECT_TIMEOUT_SECS, TimeUnit.SECONDS)
                 .readTimeout(OkHttpHelper.READ_TIMEOUT_SECS, TimeUnit.SECONDS)
                 .writeTimeout(OkHttpHelper.WRITE_TIMEOUT_SECS, TimeUnit.SECONDS)
-                .dns(CachedDns.getInstance());
+                .dns(dependencies(context).cachedDns());
 
         if (Logger.isDebug()) {
             //builder.addInterceptor(new LoggingInterceptor());

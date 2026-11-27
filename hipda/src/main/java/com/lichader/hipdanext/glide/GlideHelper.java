@@ -26,6 +26,7 @@ import com.lichader.hipdanext.ui.BaseFragment;
 import com.lichader.hipdanext.ui.HiApplication;
 import com.lichader.hipdanext.utils.HiUtils;
 import com.lichader.hipdanext.utils.Logger;
+import com.lichader.hipdanext.utils.UIUtils;
 import com.lichader.hipdanext.utils.Utils;
 
 import org.jetbrains.annotations.NotNull;
@@ -114,9 +115,10 @@ public class GlideHelper {
         AVATAR_CACHE_DIR.delete();
     }
 
-    public static boolean isOkToLoad(Context activity) {
-        if (activity instanceof Activity) {
-            return !Utils.isDestroyed((Activity) activity);
+    public static boolean isOkToLoad(Context context) {
+        Activity activity = UIUtils.findActivity(context);
+        if (activity != null) {
+            return !Utils.isDestroyed(activity);
         }
         return true;
     }

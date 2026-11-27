@@ -19,6 +19,11 @@ import com.lichader.hipdanext.utils.Utils;
 
 import java.io.File;
 
+import javax.inject.Inject;
+
+import dagger.Lazy;
+
+import dagger.hilt.android.HiltAndroidApp;
 import io.github.inflationx.calligraphy3.CalligraphyConfig;
 import io.github.inflationx.calligraphy3.CalligraphyInterceptor;
 import io.github.inflationx.viewpump.ViewPump;
@@ -26,6 +31,7 @@ import io.github.inflationx.viewpump.ViewPump;
 /**
  * Created by GreenSkinMonster on 2015-03-28.
  */
+@HiltAndroidApp
 public class HiApplication extends Application implements Application.ActivityLifecycleCallbacks {
 
     public final static int IDLE = 0;
@@ -38,6 +44,12 @@ public class HiApplication extends Application implements Application.ActivityLi
     private static boolean updated;
     private static boolean fontSet;
     private static int settingStatus;
+
+    // Lazy keeps start-up as before: each service is created on first use.
+    @Inject
+    Lazy<OkHttpHelper> mOkHttpHelper;
+    @Inject
+    Lazy<CachedDns> mCachedDns;
 
     @Override
     public void onCreate() {
@@ -53,7 +65,7 @@ public class HiApplication extends Application implements Application.ActivityLi
         updated = UpdateHelper.updateApp();
 
         if (!HiSettingsHelper.getInstance().isLoginInfoValid()) {
-            OkHttpHelper.getInstance().clearCookies();
+            mOkHttpHelper.get().clearCookies();
         }
 
         try {
@@ -146,7 +158,7 @@ public class HiApplication extends Application implements Application.ActivityLi
     public void onActivityDestroyed(Activity activity) {
         if (activity instanceof MainFrameActivity) {
             mainActivityCount--;
-            CachedDns.getInstance().clearCache();
+            mCachedDns.get().clearCache();
         }
     }
 

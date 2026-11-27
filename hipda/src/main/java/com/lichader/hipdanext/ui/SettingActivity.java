@@ -15,10 +15,13 @@ import com.lichader.hipdanext.ui.setting.BlacklistFragment;
 import com.lichader.hipdanext.ui.setting.SettingMainFragment;
 import com.lichader.hipdanext.ui.setting.SettingNestedFragment;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
 /**
  * Created by GreenSkinMonster on 2017-06-16.
  */
 
+@AndroidEntryPoint
 public class SettingActivity extends SwipeBaseActivity {
 
     @Override

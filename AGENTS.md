@@ -16,7 +16,7 @@ Use JDK 21 (pinned in `gradle/gradle-daemon-jvm.properties`; `.sdkmanrc` names t
 - `./gradlew :hipda:assembleDebug`: build a debug APK under `hipda/build/outputs/apk/debug/`.
 - `./gradlew :hipda:installDebug`: install on a connected device or emulator; launch the app there.
 - `./gradlew :hipda:lintDebug :emoji:lintDebug`: run Android Lint for both modules. Application lint errors currently do not fail the build, so review reports.
-- `./gradlew :hipda:testDebugUnitTest :emoji:testDebugUnitTest`: run local unit tests once test dependencies and tests are added.
+- `./gradlew :hipda:testDebugUnitTest`: run the Robolectric unit tests (JVM, no device needed).
 
 ## Coding Style & Naming Conventions
 
@@ -24,7 +24,11 @@ Use four-space indentation and same-line opening braces in Java; follow surround
 
 ## Testing Guidelines
 
-No automated tests, test framework dependencies, instrumentation runner, or coverage threshold are configured. Place new JVM tests in `<module>/src/test/java/` and device tests in `<module>/src/androidTest/java/`, using names such as `HiParserTest.java`; configure their dependencies and runner as needed. Manually verify affected forum, login, posting, image, emoji, and theme flows on a device or emulator.
+`hipda/src/test/java/` holds JUnit 4 + Robolectric smoke tests: `AppStartupTest` checks application start-up and the app-wide services, and `ActivityLaunchTest` opens every screen offline. Keep them passing and extend them when you add screens or services. No instrumentation runner or coverage threshold is configured; place device tests in `<module>/src/androidTest/java/`, using names such as `HiParserTest.java`. Manually verify affected forum, login, posting, image, emoji, and theme flows on a device or emulator, since the tests cannot reach the forum.
+
+## Dependency Injection
+
+The app uses Hilt (`@HiltAndroidApp` on `HiApplication`). The core services are being moved from `getInstance()` singletons to Hilt bindings step by step; prefer injecting a service over calling `getInstance()` in new code.
 
 ## Commit & Pull Request Guidelines
 
@@ -32,4 +36,4 @@ History uses short, lowercase imperative subjects, such as `fix image upload` an
 
 ## Security & Configuration
 
-Keep credentials, signing keys, and machine-specific settings out of commits. `local.properties` and `fabric.properties` are ignored. The tracked `gradle.properties` holds only non-secret project settings required to build; put signing keys and passwords in `~/.gradle/gradle.properties`. CI builds a debug APK on every push using `.github/workflows/build.yml`. The README's Fabric setup note references an absent example file; current Gradle files contain no Fabric plugin configuration.
+Keep credentials, signing keys, and machine-specific settings out of commits. `local.properties` and `fabric.properties` are ignored. The tracked `gradle.properties` holds only non-secret project settings required to build; put signing keys and passwords in `~/.gradle/gradle.properties`. CI builds debug and release APKs, runs the unit tests, and lints on every push using `.github/workflows/build.yml`. The README's Fabric setup note references an absent example file; current Gradle files contain no Fabric plugin configuration.

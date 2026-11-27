@@ -64,6 +64,10 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
 import io.github.inflationx.calligraphy3.CalligraphyTypefaceSpan;
 import io.github.inflationx.calligraphy3.TypefaceUtils;
 
@@ -71,7 +75,11 @@ import io.github.inflationx.calligraphy3.TypefaceUtils;
  * nested setting fragment
  * Created by GreenSkinMonster on 2015-09-11.
  */
+@AndroidEntryPoint
 public class SettingNestedFragment extends BaseSettingFragment {
+
+    @Inject
+    OkHttpHelper mOkHttpHelper;
 
     public static final int SCREEN_TAIL = 1;
     public static final int SCREEN_UI = 2;
@@ -359,7 +367,7 @@ public class SettingNestedFragment extends BaseSettingFragment {
                                     SettingMainFragment.mCacheCleared = true;
                                     Exception error = null;
                                     try {
-                                        OkHttpHelper.getInstance().clearCookies();
+                                        mOkHttpHelper.clearCookies();
                                         Utils.clearOkhttpCache();
                                     } catch (Exception ex) {
                                         error = ex;

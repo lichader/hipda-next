@@ -6,7 +6,7 @@ import android.text.TextUtils;
 
 import com.lichader.hipdanext.okhttp.OkHttpHelper;
 import com.lichader.hipdanext.okhttp.ParamsMap;
-import com.lichader.hipdanext.ui.HiApplication;
+import com.lichader.hipdanext.di.SingletonEntryPoint;
 import com.lichader.hipdanext.utils.HiUtils;
 import com.lichader.hipdanext.utils.Logger;
 import com.lichader.hipdanext.utils.UIUtils;
@@ -22,9 +22,14 @@ import org.jsoup.select.Elements;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import dagger.hilt.android.qualifiers.ApplicationContext;
+
 import okhttp3.Request;
 
-
+@Singleton
 public class FavoriteHelper {
 
     public final static String TYPE_FAVORITE = "favorites";
@@ -36,23 +41,26 @@ public class FavoriteHelper {
     private final static String FAVORITES_CACHE_KEY = "favorites";
     private final static String ATTENTION_CACHE_KEY = "attention";
 
-    private SharedPreferences mCachePref;
+    private final SharedPreferences mCachePref;
+    private final OkHttpHelper mOkHttpHelper;
 
     private Set<String> mFavoritesCache;
     private Set<String> mAttentionCache;
 
-    private FavoriteHelper() {
-        mCachePref = HiApplication.getAppContext().getSharedPreferences(FAV_CACHE_PREFS, 0);
+    @Inject
+    public FavoriteHelper(@ApplicationContext Context context, OkHttpHelper okHttpHelper) {
+        mOkHttpHelper = okHttpHelper;
+        mCachePref = context.getSharedPreferences(FAV_CACHE_PREFS, 0);
         mFavoritesCache = mCachePref.getStringSet(FAVORITES_CACHE_KEY, new HashSet<String>());
         mAttentionCache = mCachePref.getStringSet(ATTENTION_CACHE_KEY, new HashSet<String>());
     }
 
-    private static class SingletonHolder {
-        public static final FavoriteHelper INSTANCE = new FavoriteHelper();
-    }
-
+    /**
+     * @deprecated inject {@link FavoriteHelper} instead.
+     */
+    @Deprecated
     public static FavoriteHelper getInstance() {
-        return SingletonHolder.INSTANCE;
+        return SingletonEntryPoint.get().favorites();
     }
 
     public void fetchMyFavorites() {
@@ -100,7 +108,7 @@ public class FavoriteHelper {
             url += "&page=" + page;
 
         try {
-            String response = OkHttpHelper.getInstance().get(url);
+            String response = mOkHttpHelper.get(url);
             Document doc = Jsoup.parse(response);
             int last_page = 1;
             //if this is the last page, page number is in <strong>
@@ -208,7 +216,7 @@ public class FavoriteHelper {
 
         String url = HiUtils.FavoriteAddUrl.replace("{item}", item).replace("{tid}", tid);
 
-        OkHttpHelper.getInstance().asyncGet(url, new OkHttpHelper.ResultCallback() {
+        mOkHttpHelper.asyncGet(url, new OkHttpHelper.ResultCallback() {
             @Override
             public void onError(Request request, Exception e) {
                 UIUtils.toast("添加失败 : " + OkHttpHelper.getErrorMessage(e));
@@ -237,7 +245,7 @@ public class FavoriteHelper {
 
         String url = HiUtils.FavoriteRemoveUrl.replace("{item}", item).replace("{tid}", tid);
 
-        OkHttpHelper.getInstance().asyncGet(url, new OkHttpHelper.ResultCallback() {
+        mOkHttpHelper.asyncGet(url, new OkHttpHelper.ResultCallback() {
             @Override
             public void onError(Request request, Exception e) {
                 UIUtils.toast("移除失败 : " + OkHttpHelper.getErrorMessage(e));
@@ -276,7 +284,7 @@ public class FavoriteHelper {
         params.put("delete[]", tid);
         params.put("formhash", formhash);
         try {
-            OkHttpHelper.getInstance().asyncPost(url, params, new OkHttpHelper.ResultCallback() {
+            mOkHttpHelper.asyncPost(url, params, new OkHttpHelper.ResultCallback() {
                 @Override
                 public void onError(Request request, Exception e) {
                     UIUtils.toast("移除失败 : " + OkHttpHelper.getErrorMessage(e));
