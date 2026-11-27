@@ -1,8 +1,5 @@
 package com.lichader.hipdanext.bean;
 
-/**
- * Created by GreenSkinMonster on 2021-08-20.
- */
 public class PollOptionBean {
 
     private String mOptionId = "";

@@ -20,10 +20,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import dagger.hilt.android.AndroidEntryPoint;
 
-/**
- * Created by GreenSkinMonster on 2017-06-14.
- */
-
 @AndroidEntryPoint
 public class ThreadDetailActivity extends SwipeBaseActivity {
 

@@ -2,10 +2,6 @@ package com.lichader.hipdanext.job;
 
 import com.lichader.hipdanext.bean.DetailListBean;
 
-/**
- * Created by GreenSkinMonster on 2016-11-11.
- */
-
 public class ThreadDetailEvent extends BaseEvent {
     public DetailListBean mData;
     public int mFectchType;

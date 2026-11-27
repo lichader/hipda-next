@@ -2,10 +2,6 @@ package com.lichader.hipdanext.cache;
 
 import com.lichader.hipdanext.utils.Utils;
 
-/**
- * Created by GreenSkinMonster on 2017-10-25.
- */
-
 public class SignatureContainer {
 
     private static LRUCache<String, String> SIGS = new LRUCache<>(128);

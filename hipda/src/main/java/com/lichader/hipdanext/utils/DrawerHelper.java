@@ -11,9 +11,6 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import com.lichader.hipdanext.R;
 
-/**
- * Created by GreenSkinMonster on 2016-07-27.
- */
 public class DrawerHelper {
 
     public enum DrawerItem {

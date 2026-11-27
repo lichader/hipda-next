@@ -56,10 +56,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
 
-/**
- * Created by GreenSkinMonster on 2016-11-08.
- */
-
 public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
 
     private final Context mCtx;

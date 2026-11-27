@@ -24,10 +24,6 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-/**
- * Created by GreenSkinMonster on 2017-06-07.
- */
-
 public class ForumSelectListener extends OnPreferenceClickListener {
 
     private Context mContext;

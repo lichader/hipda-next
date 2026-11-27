@@ -10,10 +10,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.lichader.hipdanext.R;
 
-/**
- * Created by GreenSkinMonster on 2016-11-14.
- */
-
 public class SimpleDivider extends RecyclerView.ItemDecoration {
     private Drawable mDivider;
 

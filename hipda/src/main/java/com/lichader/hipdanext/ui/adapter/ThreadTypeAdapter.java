@@ -12,9 +12,6 @@ import com.lichader.hipdanext.R;
 
 import java.util.Map;
 
-/**
- * Created by GreenSkinMonster on 2016-04-12.
- */
 public class ThreadTypeAdapter extends BaseAdapter {
 
     private Activity mContext;

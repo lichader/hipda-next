@@ -9,7 +9,6 @@ import java.util.HashMap;
 
 /**
  * keep thread detail in cache and manage a postId to page map
- * Created by GreenSkinMonster on 2015-03-31.
  */
 public class ThreadDetailCache {
 

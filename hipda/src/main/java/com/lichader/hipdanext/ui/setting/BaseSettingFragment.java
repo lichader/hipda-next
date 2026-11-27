@@ -27,7 +27,6 @@ import com.lichader.hipdanext.bean.HiSettingsHelper;
 
 /**
  * base setting fragment
- * Created by GreenSkinMonster on 2015-09-11.
  */
 public class BaseSettingFragment extends PreferenceFragmentCompat {
 

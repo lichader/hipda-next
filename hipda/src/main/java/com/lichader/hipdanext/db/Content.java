@@ -6,9 +6,6 @@ import com.lichader.hipdanext.utils.Utils;
 
 import java.util.Date;
 
-/**
- * Created by GreenSkinMonster on 2016-07-23.
- */
 public class Content {
 
     private String mSessionId;

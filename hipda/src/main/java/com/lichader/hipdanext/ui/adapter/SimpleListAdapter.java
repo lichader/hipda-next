@@ -20,10 +20,6 @@ import com.lichader.hipdanext.utils.Utils;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-/**
- * Created by GreenSkinMonster on 2016-11-14.
- */
-
 public class SimpleListAdapter extends BaseRvAdapter<SimpleListItemBean> {
 
     private LayoutInflater mInflater;

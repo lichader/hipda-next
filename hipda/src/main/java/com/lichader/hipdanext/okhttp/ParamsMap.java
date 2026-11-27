@@ -6,10 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created by GreenSkinMonster on 2016-12-04.
- */
-
 public class ParamsMap {
 
     private Map<String, List<String>> params = new HashMap<>();

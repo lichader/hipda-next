@@ -60,9 +60,6 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-/**
- * Created by GreenSkinMonster on 2016-04-05.
- */
 public class UIUtils {
 
     private final static String IMAGES_DIR = "HiPDA";

@@ -4,7 +4,6 @@ import android.util.SparseArray;
 
 /**
  * text style holder by dom level
- * Created by GreenSkinMonster on 2015-04-23.
  */
 public class TextStyleHolder {
 

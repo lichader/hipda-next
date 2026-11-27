@@ -39,10 +39,6 @@ import okhttp3.Request;
 import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
 
-/**
- * Created by GreenSkinMonster on 2017-07-15.
- */
-
 @AndroidEntryPoint
 public class BlacklistFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
 

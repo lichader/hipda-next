@@ -17,10 +17,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-/**
- * Created by GreenSkinMonster on 2016-11-11.
- */
-
 public class ThreadDetailJob extends BaseJob {
 
     public final static String FIND_AUTHOR_ID = "-1";

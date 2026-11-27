@@ -3,9 +3,6 @@ package com.lichader.hipdanext.ui.widget;
 import android.view.View;
 import android.widget.AdapterView;
 
-/**
- * Created by GreenSkinMonster on 2015-03-10.
- */
 public abstract class OnViewItemSingleClickListener implements AdapterView.OnItemClickListener {
 
     private static final long MIN_CLICK_INTERVAL = 600;

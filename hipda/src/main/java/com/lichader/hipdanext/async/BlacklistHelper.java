@@ -23,9 +23,6 @@ import javax.inject.Singleton;
 
 import okhttp3.Request;
 
-/**
- * Created by GreenSkinMonster on 2017-07-14.
- */
 @Singleton
 public class BlacklistHelper {
 

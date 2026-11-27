@@ -10,10 +10,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import dagger.hilt.android.AndroidEntryPoint;
 
-/**
- * Created by GreenSkinMonster on 2017-06-15.
- */
-
 @AndroidEntryPoint
 public class UserInfoActivity extends SwipeBaseActivity {
 

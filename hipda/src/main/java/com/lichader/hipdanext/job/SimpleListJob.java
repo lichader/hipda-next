@@ -24,10 +24,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 
-/**
- * Created by GreenSkinMonster on 2016-11-16.
- */
-
 public class SimpleListJob extends BaseJob {
 
     public static final int TYPE_MYREPLY = 0;

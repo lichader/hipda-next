@@ -73,10 +73,6 @@ import java.util.List;
 import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
 
-/**
- * Created by GreenSkinMonster on 2017-07-17.
- */
-
 @AndroidEntryPoint
 public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
 

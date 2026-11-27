@@ -22,7 +22,6 @@ import androidx.fragment.app.FragmentTransaction;
 
 /**
  * utils to deal with fragments
- * Created by GreenSkinMonster on 2015-09-01.
  */
 public class FragmentUtils {
 

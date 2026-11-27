@@ -1,8 +1,5 @@
 package com.lichader.hipdanext.db;
 
-/**
- * Created by GreenSkinMonster on 2016-07-23.
- */
 public class History {
 
     private String mTid;

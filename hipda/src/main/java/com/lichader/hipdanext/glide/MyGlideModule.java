@@ -41,10 +41,6 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
 
-/**
- * Created by GreenSkinMonster on 2016-11-03.
- */
-
 @GlideModule
 public class MyGlideModule extends AppGlideModule {
 

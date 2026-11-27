@@ -14,10 +14,6 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.lichader.hipdanext.R;
 import dagger.hilt.android.AndroidEntryPoint;
 
-/**
- * Created by GreenSkinMonster on 2017-06-14.
- */
-
 @AndroidEntryPoint
 public class PostActivity extends SwipeBaseActivity {
 

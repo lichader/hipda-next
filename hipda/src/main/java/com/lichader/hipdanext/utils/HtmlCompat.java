@@ -4,10 +4,6 @@ import android.os.Build;
 import android.text.Html;
 import android.text.Spanned;
 
-/**
- * Created by GreenSkinMonster on 2016-10-17.
- */
-
 public class HtmlCompat {
 
     @SuppressWarnings("deprecation")

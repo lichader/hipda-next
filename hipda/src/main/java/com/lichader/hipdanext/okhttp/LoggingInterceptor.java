@@ -11,7 +11,6 @@ import okhttp3.Response;
 
 /**
  * log interceptor for okhttp
- * Created by GreenSkinMonster on 2015-05-27.
  */
 public class LoggingInterceptor implements Interceptor {
     @Override

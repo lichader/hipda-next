@@ -21,9 +21,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-/**
- * Created by GreenSkinMonster on 2019-02-25.
- */
 public class AvatarStreamFetcher implements DataFetcher<InputStream> {
     private final OkHttpClient client;
     private ResponseBody responseBody;

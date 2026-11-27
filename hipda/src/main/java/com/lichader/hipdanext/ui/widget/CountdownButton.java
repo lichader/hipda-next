@@ -13,10 +13,6 @@ import android.widget.TextView;
 
 import com.lichader.hipdanext.R;
 
-/**
- * Created by GreenSkinMonster on 2017-06-28.
- */
-
 public class CountdownButton extends RelativeLayout {
 
     private ImageButton mImageButton;

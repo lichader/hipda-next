@@ -8,10 +8,6 @@ import android.widget.TextView;
 
 import com.lichader.hipdanext.R;
 
-/**
- * Created by GreenSkinMonster on 2016-11-18.
- */
-
 public class ContentLoadingView extends RelativeLayout {
 
     public static final int LOADING = 0;

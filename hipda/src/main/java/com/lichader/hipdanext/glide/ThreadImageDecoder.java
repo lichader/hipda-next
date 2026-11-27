@@ -22,7 +22,6 @@ import androidx.annotation.NonNull;
 
 /**
  * pre scale bitmap before load to ImageView
- * Created by GreenSkinMonster on 2015-03-18.
  */
 public class ThreadImageDecoder implements ResourceDecoder<InputStream, Bitmap> {
 

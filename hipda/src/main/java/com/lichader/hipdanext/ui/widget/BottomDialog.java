@@ -15,10 +15,6 @@ import com.lichader.hipdanext.R;
 
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Created by GreenSkinMonster on 2016-11-23.
- */
-
 public class BottomDialog extends BottomSheetDialog {
 
     public BottomDialog(@NonNull @NotNull Context context) {

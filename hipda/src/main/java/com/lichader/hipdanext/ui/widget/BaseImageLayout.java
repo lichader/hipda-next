@@ -31,9 +31,6 @@ import java.lang.ref.WeakReference;
 
 import androidx.annotation.Nullable;
 
-/**
- * Created by GreenSkinMonster on 2019-03-07.
- */
 public abstract class BaseImageLayout extends RelativeLayout {
 
     private static WeakReference<BaseImageLayout> mCurrentViewHolder;

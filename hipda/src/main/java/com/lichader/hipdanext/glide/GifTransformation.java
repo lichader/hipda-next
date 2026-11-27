@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 
 /**
  * draw a mark on gif
- * Created by GreenSkinMonster on 2015-04-12.
  */
 public class GifTransformation extends BitmapTransformation {
 

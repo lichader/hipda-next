@@ -24,7 +24,6 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 /**
  * main setting fragment
- * Created by GreenSkinMonster on 2015-09-11.
  */
 @AndroidEntryPoint
 public class SettingMainFragment extends BaseSettingFragment {

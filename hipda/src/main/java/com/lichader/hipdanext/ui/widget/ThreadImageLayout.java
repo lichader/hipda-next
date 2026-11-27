@@ -32,9 +32,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
 
-/**
- * Created by GreenSkinMonster on 2015-11-07.
- */
 public class ThreadImageLayout extends BaseImageLayout {
 
     private Activity mActivity;

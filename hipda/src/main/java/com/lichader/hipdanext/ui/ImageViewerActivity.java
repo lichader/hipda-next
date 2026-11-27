@@ -32,9 +32,6 @@ import io.github.inflationx.viewpump.ViewPumpContextWrapper;
 import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
 
-/**
- * Created by GreenSkinMonster on 2016-11-30.
- */
 @AndroidEntryPoint
 public class ImageViewerActivity extends AppCompatActivity {
 

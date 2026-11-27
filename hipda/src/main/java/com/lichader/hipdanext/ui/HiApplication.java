@@ -32,9 +32,6 @@ import io.github.inflationx.calligraphy3.CalligraphyConfig;
 import io.github.inflationx.calligraphy3.CalligraphyInterceptor;
 import io.github.inflationx.viewpump.ViewPump;
 
-/**
- * Created by GreenSkinMonster on 2015-03-28.
- */
 @HiltAndroidApp
 public class HiApplication extends Application
         implements Application.ActivityLifecycleCallbacks, Configuration.Provider {

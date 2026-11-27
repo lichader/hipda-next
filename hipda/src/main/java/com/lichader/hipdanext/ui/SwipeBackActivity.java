@@ -11,10 +11,6 @@ import com.lichader.hipdanext.ui.widget.swipeback.SwipeUtils;
 import androidx.appcompat.app.AppCompatActivity;
 
 
-/**
- * Created by GreenSkinMonster on 2017-06-15.
- */
-
 public class SwipeBackActivity extends AppCompatActivity implements SwipeBackActivityBase {
     private SwipeBackActivityHelper mHelper;
 

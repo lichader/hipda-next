@@ -25,10 +25,6 @@ import androidx.fragment.app.Fragment;
 import io.github.inflationx.viewpump.ViewPumpContextWrapper;
 import javax.inject.Inject;
 
-/**
- * Created by GreenSkinMonster on 2017-06-14.
- */
-
 public class BaseActivity extends AppCompatActivity {
 
     @Inject

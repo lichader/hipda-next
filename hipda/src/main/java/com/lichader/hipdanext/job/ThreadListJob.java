@@ -15,10 +15,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-/**
- * Created by GreenSkinMonster on 2016-11-16.
- */
-
 public class ThreadListJob extends BaseJob {
 
     private Context mCtx;

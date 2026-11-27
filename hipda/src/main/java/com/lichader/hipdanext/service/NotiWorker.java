@@ -22,9 +22,6 @@ import androidx.work.WorkerParameters;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedInject;
 
-/**
- * Created by GreenSkinMonster on 2019-03-16.
- */
 @HiltWorker
 public class NotiWorker extends Worker {
 

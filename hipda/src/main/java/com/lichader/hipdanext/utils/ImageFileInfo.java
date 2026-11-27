@@ -2,7 +2,6 @@ package com.lichader.hipdanext.utils;
 
 /**
  * simple bean for selected image file
- * Created by GreenSkinMonster on 2015-04-14.
  */
 public class ImageFileInfo {
     private String filePath;

@@ -2,7 +2,6 @@ package com.lichader.hipdanext.utils;
 
 /**
  * some constants
- * Created by GreenSkinMonster on 2015-03-13.
  */
 public class Constants {
     public static final int STATUS_SUCCESS = 0;

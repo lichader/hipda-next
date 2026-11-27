@@ -11,9 +11,6 @@ import com.lichader.hipdanext.utils.HiUtils;
 
 import org.greenrobot.eventbus.EventBus;
 
-/**
- * Created by GreenSkinMonster on 2016-03-28.
- */
 public class PostJob extends BaseJob {
 
     private final static int MIN_JOB_TIME_MS = 500;

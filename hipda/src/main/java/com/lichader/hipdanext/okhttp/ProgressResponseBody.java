@@ -10,10 +10,6 @@ import okio.ForwardingSource;
 import okio.Okio;
 import okio.Source;
 
-/**
- * Created by GreenSkinMonster on 2016-11-03.
- */
-
 public class ProgressResponseBody extends ResponseBody {
 
     private final ResponseBody responseBody;
