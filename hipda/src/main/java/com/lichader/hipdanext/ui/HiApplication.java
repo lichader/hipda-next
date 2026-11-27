@@ -19,6 +19,7 @@ import com.lichader.hipdanext.utils.Utils;
 
 import java.io.File;
 
+import dagger.hilt.android.HiltAndroidApp;
 import io.github.inflationx.calligraphy3.CalligraphyConfig;
 import io.github.inflationx.calligraphy3.CalligraphyInterceptor;
 import io.github.inflationx.viewpump.ViewPump;
@@ -26,6 +27,7 @@ import io.github.inflationx.viewpump.ViewPump;
 /**
  * Created by GreenSkinMonster on 2015-03-28.
  */
+@HiltAndroidApp
 public class HiApplication extends Application implements Application.ActivityLifecycleCallbacks {
 
     public final static int IDLE = 0;

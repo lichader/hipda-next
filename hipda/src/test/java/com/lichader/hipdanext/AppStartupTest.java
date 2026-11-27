@@ -20,6 +20,8 @@ import com.lichader.hipdanext.ui.HiApplication;
 import com.lichader.hipdanext.utils.HiUtils;
 
 import org.junit.Test;
+
+import dagger.hilt.internal.GeneratedComponentManagerHolder;
 import org.junit.runner.RunWith;
 
 import java.util.Collections;
@@ -43,6 +45,13 @@ public class AppStartupTest {
         assertNotNull(HiApplication.getAppContext());
         assertNotNull(HiUtils.BaseUrl);
         assertTrue(HiUtils.BaseUrl.endsWith("/forum/"));
+    }
+
+    @Test
+    public void applicationHostsHiltComponent() {
+        Context app = ApplicationProvider.getApplicationContext();
+        assertTrue(app instanceof GeneratedComponentManagerHolder);
+        assertNotNull(((GeneratedComponentManagerHolder) app).componentManager().generatedComponent());
     }
 
     @Test
