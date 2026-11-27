@@ -36,4 +36,4 @@ History uses short, lowercase imperative subjects, such as `fix image upload` an
 
 ## Security & Configuration
 
-Keep credentials, signing keys, and machine-specific settings out of commits. `local.properties` and `fabric.properties` are ignored. The tracked `gradle.properties` holds only non-secret project settings required to build; put signing keys and passwords in `~/.gradle/gradle.properties`. CI builds a debug APK on every push using `.github/workflows/build.yml`. The README's Fabric setup note references an absent example file; current Gradle files contain no Fabric plugin configuration.
+Keep credentials, signing keys, and machine-specific settings out of commits. `local.properties` and `fabric.properties` are ignored. The tracked `gradle.properties` holds only non-secret project settings required to build; put signing keys and passwords in `~/.gradle/gradle.properties`. CI builds debug and release APKs, runs the unit tests, and lints on every push using `.github/workflows/build.yml`. The README's Fabric setup note references an absent example file; current Gradle files contain no Fabric plugin configuration.
