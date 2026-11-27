@@ -2,11 +2,11 @@
 
 ## Project Structure & Module Organization
 
-HiPDA Next is an unofficial Android client for the HiPDA forum, built with Java and Gradle.
+HiPDA Next is an unofficial Android client for the HiPDA forum, built with Java, Kotlin and Gradle.
 
-- `hipda/`: application module. Sources live in `src/main/java/com/lichader/hipdanext/`, grouped into `ui`, `bean`, `db`, `okhttp`, `glide`, `job`, `async`, `cache`, `service`, and `utils` packages.
+- `hipda/`: application module. Java sources live in `src/main/java/com/lichader/hipdanext/` and Kotlin sources in `src/main/kotlin/com/lichader/hipdanext/` (tests likewise under `src/test/java/` and `src/test/kotlin/`), grouped into `ui`, `bean`, `db`, `okhttp`, `glide`, `job`, `async`, `cache`, `service`, and `utils` packages.
 - `hipda/src/main/res/`: layouts, strings, themes, menus, and images; `src/main/assets/` contains release notes, licenses, and donor information.
-- `emoji/`: local Android library, with Java sources under `src/main/java/com/vanniktech/emoji/` and emoji resources under `src/main/res/`.
+- `emoji/`: local Android library (Java only), with Java sources under `src/main/java/com/vanniktech/emoji/` and emoji resources under `src/main/res/`.
 - Root Gradle files define shared SDK versions and repositories; `gradle/wrapper/` pins Gradle 9.6.0 (AGP 9.5.3).
 
 ## Build, Test, and Development Commands
@@ -22,9 +22,13 @@ Use JDK 21 (pinned in `gradle/gradle-daemon-jvm.properties`; `.sdkmanrc` names t
 
 Use four-space indentation and same-line opening braces in Java; follow surrounding XML formatting. Use `PascalCase` class names, `camelCase` methods, and `UPPER_SNAKE_CASE` constants. Preserve existing `m`-prefixed fields where used. Name Android resources in `lower_snake_case`, such as `fragment_thread_detail.xml`; prefix new emoji library resources with `emoji`. Keep code compatible with Java 8. No standalone formatter is configured.
 
+## Kotlin
+
+Kotlin is compiled by AGP's built-in Kotlin support, so no `kotlin-android` plugin is applied; the root `build.gradle` pins the Kotlin version (`kotlin_version`). Kotlin targets the same JVM 1.8 bytecode as Java. New code may be written in Kotlin, and Java files may be converted one at a time; keep the package name and, for code Java still calls, keep the Java-facing API (for example `@JvmStatic` on `object` members). Follow the official Kotlin coding conventions with four-space indentation. Annotation processing for Hilt runs through KSP (`ksp`, `kspTest`), which covers both languages; Glide's compiler still uses `annotationProcessor`, so keep the `AppGlideModule` in Java.
+
 ## Testing Guidelines
 
-`hipda/src/test/java/` holds JUnit 4 + Robolectric smoke tests: `AppStartupTest` checks application start-up and the app-wide services, and `ActivityLaunchTest` opens every screen offline. Keep them passing and extend them when you add screens or services. No instrumentation runner or coverage threshold is configured; place device tests in `<module>/src/androidTest/java/`, using names such as `HiParserTest.java`. Manually verify affected forum, login, posting, image, emoji, and theme flows on a device or emulator, since the tests cannot reach the forum.
+`hipda/src/test/java/` and `hipda/src/test/kotlin/` hold JUnit 4 + Robolectric tests: `AppStartupTest` checks application start-up and the app-wide services, and `ActivityLaunchTest` opens every screen offline. Keep them passing and extend them when you add screens or services. No instrumentation runner or coverage threshold is configured; place device tests in `<module>/src/androidTest/java/`, using names such as `HiParserTest.java`. Manually verify affected forum, login, posting, image, emoji, and theme flows on a device or emulator, since the tests cannot reach the forum.
 
 ## Dependency Injection
 
