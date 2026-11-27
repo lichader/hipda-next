@@ -35,8 +35,11 @@ public class ThreadItemLayout extends ConstraintLayout {
 
     private RequestManager mGlide;
 
-    public ThreadItemLayout(Context context, RequestManager glide) {
+    private final HiSettingsHelper mSettings;
+
+    public ThreadItemLayout(Context context, HiSettingsHelper settings, RequestManager glide) {
         super(context, null, 0);
+        mSettings = settings;
         inflate(context, R.layout.item_thread_list, this);
 
         LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -56,7 +59,7 @@ public class ThreadItemLayout extends ConstraintLayout {
     public void setData(final ThreadBean thread) {
         mTvAuthor.setText(thread.getAuthor());
 
-        mTvTitle.setTextSize(HiSettingsHelper.getInstance().getTitleTextSize());
+        mTvTitle.setTextSize(mSettings.getTitleTextSize());
         mTvTitle.setText(thread.getTitle());
 
         String titleColor = Utils.nullToText(thread.getTitleColor()).trim();
@@ -94,9 +97,9 @@ public class ThreadItemLayout extends ConstraintLayout {
             mIvIndicator.setVisibility(View.GONE);
         }
 
-        if (HiSettingsHelper.getInstance().isLoadAvatar()) {
+        if (mSettings.isLoadAvatar()) {
             mAvatar.setVisibility(View.VISIBLE);
-            GlideHelper.loadAvatar(mGlide, mAvatar, thread.getAvatarUrl());
+            GlideHelper.loadAvatar(mGlide, mAvatar, thread.getAvatarUrl(), mSettings);
         } else {
             mAvatar.setVisibility(View.GONE);
         }

@@ -2,7 +2,6 @@ package com.lichader.hipdanext.okhttp;
 
 import androidx.annotation.NonNull;
 
-import com.lichader.hipdanext.di.SingletonEntryPoint;
 import com.lichader.hipdanext.utils.HiUtils;
 
 import java.net.InetAddress;
@@ -25,14 +24,6 @@ public class CachedDns implements Dns {
 
     @Inject
     public CachedDns() {
-    }
-
-    /**
-     * @deprecated inject {@link CachedDns} instead.
-     */
-    @Deprecated
-    public static CachedDns getInstance() {
-        return SingletonEntryPoint.get().cachedDns();
     }
 
     @NonNull

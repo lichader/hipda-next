@@ -79,7 +79,7 @@ public class MyGlideModule extends AppGlideModule {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
             gb.setDefaultRequestOptions(new RequestOptions().format(DecodeFormat.PREFER_RGB_565));
 
-        GlideHelper.initDefaultFiles();
+        GlideHelper.initDefaultFiles(dependencies(context).settings());
     }
 
     @Override

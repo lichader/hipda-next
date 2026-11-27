@@ -20,6 +20,7 @@ import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.cache.ImageContainer;
 import com.lichader.hipdanext.cache.ImageInfo;
 import com.lichader.hipdanext.glide.GifTransformation;
+import com.lichader.hipdanext.job.JobMgr;
 import com.lichader.hipdanext.ui.ImageViewerActivity;
 import com.lichader.hipdanext.utils.UIUtils;
 import com.lichader.hipdanext.utils.Utils;
@@ -43,8 +44,12 @@ public class ThreadImageLayout extends BaseImageLayout {
     private int mImageIndex;
     private ArrayList<ContentImg> mImages;
 
-    public ThreadImageLayout(Activity activity, ContentImg contentImg, ArrayList<ContentImg> images, boolean isThumb) {
-        super(activity);
+    private final HiSettingsHelper mSettings;
+
+    public ThreadImageLayout(Activity activity, HiSettingsHelper settings, JobMgr jobMgr,
+                             ContentImg contentImg, ArrayList<ContentImg> images, boolean isThumb) {
+        super(activity, jobMgr);
+        mSettings = settings;
 
         mActivity = activity;
         mRequestManager = Glide.with(mActivity);
@@ -116,7 +121,7 @@ public class ThreadImageLayout extends BaseImageLayout {
 
     @Override
     protected boolean isNetworkFetch() {
-        return HiSettingsHelper.getInstance().isImageLoadable(mContentImg.getFileSize(), mIsThumb);
+        return mSettings.isImageLoadable(mContentImg.getFileSize(), mIsThumb);
     }
 
     private void doLayout() {

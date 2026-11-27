@@ -6,6 +6,10 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+import androidx.hilt.work.HiltWorkerFactory;
+import androidx.work.Configuration;
+
 import com.lichader.hipdanext.R;
 import com.lichader.hipdanext.async.UpdateHelper;
 import com.lichader.hipdanext.bean.HiSettingsHelper;
@@ -32,7 +36,8 @@ import io.github.inflationx.viewpump.ViewPump;
  * Created by GreenSkinMonster on 2015-03-28.
  */
 @HiltAndroidApp
-public class HiApplication extends Application implements Application.ActivityLifecycleCallbacks {
+public class HiApplication extends Application
+        implements Application.ActivityLifecycleCallbacks, Configuration.Provider {
 
     public final static int IDLE = 0;
     public final static int RELOAD = 1;
@@ -49,7 +54,13 @@ public class HiApplication extends Application implements Application.ActivityLi
     @Inject
     Lazy<OkHttpHelper> mOkHttpHelper;
     @Inject
+    Lazy<HiSettingsHelper> mSettings;
+    @Inject
     Lazy<CachedDns> mCachedDns;
+    @Inject
+    Lazy<UpdateHelper> mUpdateHelper;
+    @Inject
+    HiltWorkerFactory mWorkerFactory;
 
     @Override
     public void onCreate() {
@@ -57,19 +68,19 @@ public class HiApplication extends Application implements Application.ActivityLi
         context = getApplicationContext();
         registerActivityLifecycleCallbacks(this);
 
-//        if (HiSettingsHelper.getInstance().isErrorReportMode()) {
+//        if (mSettings.get().isErrorReportMode()) {
         Thread.setDefaultUncaughtExceptionHandler(new SimpleExceptionHandler());
 //        }
 
-        UIUtils.setLightDarkThemeMode();
-        updated = UpdateHelper.updateApp();
+        UIUtils.setLightDarkThemeMode(mSettings.get());
+        updated = mUpdateHelper.get().updateApp();
 
-        if (!HiSettingsHelper.getInstance().isLoginInfoValid()) {
+        if (!mSettings.get().isLoginInfoValid()) {
             mOkHttpHelper.get().clearCookies();
         }
 
         try {
-            String font = HiSettingsHelper.getInstance().getFont();
+            String font = mSettings.get().getFont();
             if (!TextUtils.isEmpty(font)) {
                 File fontFile = new File(Utils.getFontsDir(), font);
                 if (fontFile.exists()) {
@@ -82,14 +93,23 @@ public class HiApplication extends Application implements Application.ActivityLi
                                             .build()))
                             .build());
                 } else {
-                    HiSettingsHelper.getInstance().setFont("");
+                    mSettings.get().setFont("");
                 }
             }
         } catch (Exception e) {
-            HiSettingsHelper.getInstance().setFont("");
+            mSettings.get().setFont("");
             Logger.e(e);
         }
-        HiUtils.updateBaseUrls();
+        HiUtils.updateBaseUrls(mSettings.get());
+    }
+
+    /** WorkManager is initialized on first use with this configuration, see the manifest. */
+    @NonNull
+    @Override
+    public Configuration getWorkManagerConfiguration() {
+        return new Configuration.Builder()
+                .setWorkerFactory(mWorkerFactory)
+                .build();
     }
 
     public static Context getAppContext() {

@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.lichader.hipdanext.R;
 import com.lichader.hipdanext.bean.ContentImg;
+import com.lichader.hipdanext.job.JobMgr;
 import com.lichader.hipdanext.ui.adapter.ImageViewerAdapter;
 import com.lichader.hipdanext.ui.widget.ImageViewerLayout;
 import com.lichader.hipdanext.utils.UIUtils;
@@ -28,11 +29,17 @@ import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import io.github.inflationx.viewpump.ViewPumpContextWrapper;
+import dagger.hilt.android.AndroidEntryPoint;
+import javax.inject.Inject;
 
 /**
  * Created by GreenSkinMonster on 2016-11-30.
  */
+@AndroidEntryPoint
 public class ImageViewerActivity extends AppCompatActivity {
+
+    @Inject
+    JobMgr mJobMgr;
 
     public static final String KEY_IMAGES = "images";
     public static final String KEY_IMAGE_INDEX = "imageIndex";
@@ -77,7 +84,7 @@ public class ImageViewerActivity extends AppCompatActivity {
 
             mImageViewerControls = findViewById(R.id.image_viewer_controls);
 
-            mPagerAdapter = new ImageViewerAdapter(this, images);
+            mPagerAdapter = new ImageViewerAdapter(this, mJobMgr, images);
             mViewPager.setAdapter(mPagerAdapter);
 
             mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {

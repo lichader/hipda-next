@@ -4,7 +4,6 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.lichader.hipdanext.async.LoginHelper;
-import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.bean.ThreadListBean;
 import com.lichader.hipdanext.okhttp.NetworkError;
 import com.lichader.hipdanext.okhttp.OkHttpHelper;
@@ -57,7 +56,7 @@ public class ThreadListJob extends BaseJob {
             Document doc = Jsoup.parse(fetchForumList());
             boolean loggedin = LoginHelper.checkLoggedin(doc);
             if (!loggedin) {
-                int status = new LoginHelper().login();
+                int status = mServices.loginHelper().login();
                 if (status == Constants.STATUS_FAIL_ABORT) {
                     eventStatus = Constants.STATUS_FAIL_RELOGIN;
                     eventMessage = "请重新登录";
@@ -67,7 +66,7 @@ public class ThreadListJob extends BaseJob {
                 }
             }
             if (loggedin) {
-                data = HiParserThreadList.parse(mCtx, doc);
+                data = HiParserThreadList.parse(mCtx, mSettings, mServices.notiHelper(), doc);
                 if (!data.isParsed()) {
                     eventStatus = Constants.STATUS_FAIL_ABORT;
                     eventMessage = "页面加载失败";
@@ -91,12 +90,12 @@ public class ThreadListJob extends BaseJob {
 
     private String fetchForumList() throws Exception {
         String mUrl = HiUtils.ThreadListUrl + mForumId + "&page=" + mPage;
-        if (mForumId == HiUtils.FID_BS && TextUtils.isDigitsOnly(HiSettingsHelper.getInstance().getBSTypeId())) {
-            mUrl += "&filter=type&typeid=" + HiSettingsHelper.getInstance().getBSTypeId();
+        if (mForumId == HiUtils.FID_BS && TextUtils.isDigitsOnly(mSettings.getBSTypeId())) {
+            mUrl += "&filter=type&typeid=" + mSettings.getBSTypeId();
         }
-        if (HiSettingsHelper.getInstance().isSortByPostTime(mForumId)) {
+        if (mSettings.isSortByPostTime(mForumId)) {
             mUrl += "&orderby=dateline";
         }
-        return OkHttpHelper.getInstance().get(mUrl, mSessionId);
+        return mOkHttpHelper.get(mUrl, mSessionId);
     }
 }

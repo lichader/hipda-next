@@ -35,7 +35,10 @@ public class ForumSelectListener extends OnPreferenceClickListener {
     private List<ForumStatus> mForumSelctions;
     private View.OnClickListener mOnClickListener;
 
-    ForumSelectListener(Context context) {
+    private final HiSettingsHelper mSettings;
+
+    ForumSelectListener(Context context, HiSettingsHelper settings) {
+        mSettings = settings;
         mContext = context;
         mInflater = LayoutInflater.from(context);
     }
@@ -47,7 +50,7 @@ public class ForumSelectListener extends OnPreferenceClickListener {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mContext);
         recyclerView.setLayoutManager(linearLayoutManager);
 
-        List<Integer> selectedForums = HiSettingsHelper.getInstance().getForums();
+        List<Integer> selectedForums = mSettings.getForums();
         mForumSelctions = new ArrayList<>(HiUtils.FORUMS.length);
         for (int fid : selectedForums) {
             mForumSelctions.add(new ForumStatus(HiUtils.getForumByFid(fid), true));
@@ -111,8 +114,8 @@ public class ForumSelectListener extends OnPreferenceClickListener {
                     }
                 }
                 if (forums.size() > 0) {
-                    HiSettingsHelper.getInstance().setForums(forums);
-                    preference.setSummary(HiUtils.getForumsSummary());
+                    mSettings.setForums(forums);
+                    preference.setSummary(HiUtils.getForumsSummary(mSettings));
                 } else {
                     UIUtils.toast("至少选择一个版面");
                 }

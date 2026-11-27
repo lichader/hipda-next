@@ -70,7 +70,7 @@ public class ThreadDetailJob extends BaseJob {
             Document doc = Jsoup.parse(resp);
             boolean loggedin = LoginHelper.checkLoggedin(doc);
             if (!loggedin) {
-                int status = new LoginHelper().login();
+                int status = mServices.loginHelper().login();
                 if (status == Constants.STATUS_FAIL_ABORT) {
                     eventStatus = Constants.STATUS_FAIL_RELOGIN;
                     eventMessage = "请重新登录";
@@ -82,7 +82,7 @@ public class ThreadDetailJob extends BaseJob {
             }
             if (loggedin) {
                 String tid = HiUtils.isValidId(mTid) ? mTid : Utils.getMiddleString(resp, "tid = parseInt('", "')");
-                data = HiParserThreadDetail.parse(mCtx, doc, tid);
+                data = HiParserThreadDetail.parse(mCtx, mSettings, mServices.notiHelper(), doc, tid);
                 if (data == null || data.getCount() == 0) {
                     eventStatus = Constants.STATUS_FAIL_ABORT;
                     eventMessage = "页面加载失败";
@@ -139,13 +139,13 @@ public class ThreadDetailJob extends BaseJob {
                 mUrl += "&authorid=" + mAuthorId;
 
         }
-        return OkHttpHelper.getInstance().get(mUrl, mSessionId, OkHttpHelper.FORCE_NETWORK);
+        return mOkHttpHelper.get(mUrl, mSessionId, OkHttpHelper.FORCE_NETWORK);
     }
 
     private String getThreadAuthorId() {
         try {
             String url = HiUtils.DetailListUrl + mTid + "&page=1";
-            String response = OkHttpHelper.getInstance().get(url, mSessionId, OkHttpHelper.PREFER_CACHE);
+            String response = mOkHttpHelper.get(url, mSessionId, OkHttpHelper.PREFER_CACHE);
             Document doc = Jsoup.parse(response);
             return HiParserThreadDetail.getThreadAuthorId(doc);
         } catch (Exception e) {

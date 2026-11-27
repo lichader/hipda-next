@@ -73,9 +73,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import dagger.hilt.android.AndroidEntryPoint;
+import javax.inject.Inject;
 
 @AndroidEntryPoint
 public class PostFragment extends BaseFragment {
+
+
+    @Inject
+    JobMgr mJobMgr;
+    @Inject
+    ContentDao mContentDao;
 
     public static final String ARG_FID_KEY = "fid";
     public static final String ARG_TID_KEY = "tid";
@@ -199,7 +206,7 @@ public class PostFragment extends BaseFragment {
 
         mEtSubject = view.findViewById(R.id.et_subject);
         mEtContent.setTextSize(mSettings.getPostTextSize());
-        UIUtils.setLineSpacing(mEtContent);
+        UIUtils.setLineSpacing(mEtContent, mSettings);
 
         mEtContent.addTextChangedListener(new TextWatcher() {
             @Override
@@ -282,7 +289,7 @@ public class PostFragment extends BaseFragment {
             new Handler().post(new Runnable() {
                 @Override
                 public void run() {
-                    ContentDao.saveContent(mSessionId, mEtContent.getText().toString());
+                    mContentDao.saveContent(mSessionId, mEtContent.getText().toString());
                 }
             });
         }
@@ -367,7 +374,7 @@ public class PostFragment extends BaseFragment {
 
         menu.findItem(R.id.action_upload_img).setIcon(new IconicsDrawable(getActivity(),
                 GoogleMaterial.Icon.gmd_add_a_photo).actionBar()
-                .color(UIUtils.getToolbarTextColor(getActivity())));
+                .color(UIUtils.getToolbarTextColor(getActivity(), mSettings)));
 
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -517,7 +524,7 @@ public class PostFragment extends BaseFragment {
         postBean.setFloor(mFloor);
         postBean.setDelete(mDeleteMode);
 
-        JobMgr.addJob(new PostJob(mParentSessionId, mMode, mPrePostInfo, postBean, false));
+        mJobMgr.addJob(new PostJob(mParentSessionId, mMode, mPrePostInfo, postBean, false));
         getActivity().finish();
     }
 
@@ -551,14 +558,14 @@ public class PostFragment extends BaseFragment {
 
         mProgressDialog = HiProgressDialog.show(getActivity(), "正在上传...");
         if (mPrePostInfo != null) {
-            JobMgr.addJob(new ImageUploadJob(mSessionId, mPrePostInfo.getUid(), mPrePostInfo.getHash(), uris.toArray(new Uri[0]), original));
+            mJobMgr.addJob(new ImageUploadJob(mSessionId, mPrePostInfo.getUid(), mPrePostInfo.getHash(), uris.toArray(new Uri[0]), original));
         } else {
             UIUtils.toast("无法获取发帖信息");
         }
     }
 
     private void showRestoreContentDialog() {
-        final Content[] contents = ContentDao.getSavedContents(mSessionId);
+        final Content[] contents = mContentDao.getSavedContents(mSessionId);
 
         if (contents == null || contents.length == 0) {
             UIUtils.toast("没有之前输入的内容");
@@ -671,7 +678,7 @@ public class PostFragment extends BaseFragment {
                 mProgressBar.showNow();
             else
                 mProgressBar.show();
-            mPrePostAsyncTask = new PrePostAsyncTask(getActivity(), mPrePostListener, mMode);
+            mPrePostAsyncTask = new PrePostAsyncTask(getActivity(), mSettings, mOkHttpHelper, mPrePostListener, mMode);
             PostBean postBean = new PostBean();
             postBean.setTid(mTid);
             postBean.setPage(mPage);
@@ -711,7 +718,7 @@ public class PostFragment extends BaseFragment {
 
         if (mMode == PostHelper.MODE_QUOTE_POST || mMode == PostHelper.MODE_REPLY_POST) {
             mTvQuoteText.setTextSize(mSettings.getPostTextSize());
-            UIUtils.setLineSpacing(mTvQuoteText);
+            UIUtils.setLineSpacing(mTvQuoteText, mSettings);
             mTvQuoteText.setText(mQuoteText);
             mTvQuoteText.setVisibility(View.VISIBLE);
             mTvQuoteText.setOnClickListener(new View.OnClickListener() {

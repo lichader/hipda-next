@@ -15,7 +15,10 @@ public class TimePickerListener extends OnPreferenceClickListener {
 
     private String mDefaultValue;
 
-    TimePickerListener(String defaultValue) {
+    private final HiSettingsHelper mSettings;
+
+    TimePickerListener(HiSettingsHelper settings, String defaultValue) {
+        mSettings = settings;
         mDefaultValue = defaultValue;
     }
 
@@ -24,7 +27,7 @@ public class TimePickerListener extends OnPreferenceClickListener {
         AlertDialog.Builder builder = new AlertDialog.Builder(preference.getContext());
 
         final TimePicker timePicker = new TimePicker(preference.getContext());
-        String hourMinute = HiSettingsHelper.getInstance().getStringValue(preference.getKey(), mDefaultValue);
+        String hourMinute = mSettings.getStringValue(preference.getKey(), mDefaultValue);
         int hour = -1;
         int minute = -1;
         try {
@@ -48,7 +51,7 @@ public class TimePickerListener extends OnPreferenceClickListener {
                 int hour = timePicker.getCurrentHour();
                 int minute = timePicker.getCurrentMinute();
                 String hourMinute = (hour < 10 ? "0" : "") + String.valueOf(hour) + ":" + (minute < 10 ? "0" : "") + String.valueOf(minute);
-                HiSettingsHelper.getInstance().setStringValue(preference.getKey(), hourMinute);
+                mSettings.setStringValue(preference.getKey(), hourMinute);
                 preference.setSummary(hourMinute);
             }
         });

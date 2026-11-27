@@ -50,6 +50,7 @@ import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.bean.Theme;
 import com.lichader.hipdanext.cache.ImageContainer;
 import com.lichader.hipdanext.cache.ImageInfo;
+import com.lichader.hipdanext.di.SingletonEntryPoint;
 import com.lichader.hipdanext.ui.HiApplication;
 import com.lichader.hipdanext.ui.MainFrameActivity;
 
@@ -122,7 +123,8 @@ public class UIUtils {
 
         final TextView textView = (TextView) viewlayout.findViewById(R.id.tv_dialog_content);
         textView.setText(detail);
-        UIUtils.setLineSpacing(textView);
+        // Reached from errorSnack() all over the app, so the settings are looked up here.
+        UIUtils.setLineSpacing(textView, SingletonEntryPoint.get().settings());
 
         builder.setView(viewlayout);
         return builder;
@@ -191,16 +193,16 @@ public class UIUtils {
         return false;
     }
 
-    public static void setLineSpacing(TextView textView) {
+    public static void setLineSpacing(TextView textView, HiSettingsHelper settings) {
         float lineSpacingExtra = 2;
         float lineSpacingMultiplier = 1.1f;
-        if (HiSettingsHelper.getInstance().getPostLineSpacing() == 1) {
+        if (settings.getPostLineSpacing() == 1) {
             lineSpacingExtra = 4;
             lineSpacingMultiplier = 1.2f;
-        } else if (HiSettingsHelper.getInstance().getPostLineSpacing() == 2) {
+        } else if (settings.getPostLineSpacing() == 2) {
             lineSpacingExtra = 6;
             lineSpacingMultiplier = 1.3f;
-        } else if (HiSettingsHelper.getInstance().getPostLineSpacing() == 3) {
+        } else if (settings.getPostLineSpacing() == 3) {
             lineSpacingExtra = 8;
             lineSpacingMultiplier = 1.4f;
         }
@@ -457,11 +459,11 @@ public class UIUtils {
         }
     }
 
-    public static void setLightDarkThemeMode() {
-        if (HiSettingsHelper.THEME_MODE_AUTO.equals(HiSettingsHelper.getInstance().getTheme())) {
+    public static void setLightDarkThemeMode(HiSettingsHelper settings) {
+        if (HiSettingsHelper.THEME_MODE_AUTO.equals(settings.getTheme())) {
             AppCompatDelegate.setDefaultNightMode(
                     AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-        } else if (HiSettingsHelper.THEME_MODE_LIGHT.equals(HiSettingsHelper.getInstance().getTheme())) {
+        } else if (HiSettingsHelper.THEME_MODE_LIGHT.equals(settings.getTheme())) {
             AppCompatDelegate.setDefaultNightMode(
                     AppCompatDelegate.MODE_NIGHT_NO);
         } else {
@@ -470,22 +472,22 @@ public class UIUtils {
         }
     }
 
-    public static void setActivityTheme(Activity activity) {
-        activity.setTheme(getThemeValue(activity));
+    public static void setActivityTheme(Activity activity, HiSettingsHelper settings) {
+        activity.setTheme(getThemeValue(activity, settings));
 
         Window window = activity.getWindow();
         View view = window.getDecorView();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (isWhiteTheme(activity)) {
+            if (isWhiteTheme(activity, settings)) {
                 view.setSystemUiVisibility(view.getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
             } else {
                 view.setSystemUiVisibility(view.getSystemUiVisibility() & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
             }
         }
-        if (HiSettingsHelper.getInstance().isNavBarColored()) {
+        if (settings.isNavBarColored()) {
             window.setNavigationBarColor(ColorHelper.getColorPrimary(activity));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (UIUtils.isWhiteTheme(activity)) {
+                if (UIUtils.isWhiteTheme(activity, settings)) {
                     view.setSystemUiVisibility(view.getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
                 } else {
                     view.setSystemUiVisibility(view.getSystemUiVisibility() & ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
@@ -510,29 +512,29 @@ public class UIUtils {
         return !isInLightThemeMode(context);
     }
 
-    public static int getToolbarTextColor(Context context) {
-        return isWhiteTheme(context) ? Color.BLACK : Color.WHITE;
+    public static int getToolbarTextColor(Context context, HiSettingsHelper settings) {
+        return isWhiteTheme(context, settings) ? Color.BLACK : Color.WHITE;
     }
 
-    public static boolean isWhiteTheme(Context context) {
+    public static boolean isWhiteTheme(Context context, HiSettingsHelper settings) {
         return UIUtils.isInLightThemeMode(context)
-                && HiSettingsHelper.THEME_WHITE.equals(HiSettingsHelper.getInstance().getLightTheme());
+                && HiSettingsHelper.THEME_WHITE.equals(settings.getLightTheme());
     }
 
-    public static int getThemeValue(Context context) {
+    public static int getThemeValue(Context context, HiSettingsHelper settings) {
         String theme = UIUtils.isInLightThemeMode(context) ? HiSettingsHelper.THEME_MODE_LIGHT : HiSettingsHelper.THEME_MODE_DARK;
         if (HiSettingsHelper.THEME_MODE_DARK.equals(theme)) {
-            if (HiSettingsHelper.THEME_BLACK.equals(HiSettingsHelper.getInstance().getDarkTheme()))
+            if (HiSettingsHelper.THEME_BLACK.equals(settings.getDarkTheme()))
                 return R.style.ThemeBlack;
             return R.style.ThemeDark;
         } else {
-            String lightTheme = HiSettingsHelper.getInstance().getLightTheme();
+            String lightTheme = settings.getLightTheme();
             for (Theme t : HiSettingsHelper.LIGHT_THEMES) {
                 if (t.getName().equals(lightTheme))
                     return t.getThemeId();
             }
-            HiSettingsHelper.getInstance().setTheme(HiSettingsHelper.THEME_MODE_LIGHT);
-            HiSettingsHelper.getInstance().setLightTheme(HiSettingsHelper.THEME_WHITE);
+            settings.setTheme(HiSettingsHelper.THEME_MODE_LIGHT);
+            settings.setLightTheme(HiSettingsHelper.THEME_WHITE);
             return R.style.ThemeLight_White;
         }
     }

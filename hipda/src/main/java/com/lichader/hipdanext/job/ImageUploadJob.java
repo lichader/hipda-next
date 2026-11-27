@@ -37,7 +37,7 @@ public class ImageUploadJob extends BaseJob implements UploadImgHelper.UploadImg
 
     @Override
     public void onRun() throws Throwable {
-        new UploadImgHelper(this, mUid, mHash, mUris, mOriginal).upload();
+        mServices.uploadImgHelperFactory().create(this, mUid, mHash, mUris, mOriginal).upload();
 
         ImageUploadEvent event = new ImageUploadEvent();
         event.mSessionId = mSessionId;

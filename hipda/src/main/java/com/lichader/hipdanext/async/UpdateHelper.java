@@ -23,131 +23,152 @@ import com.lichader.hipdanext.utils.Utils;
 
 import java.util.Date;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import okhttp3.Request;
 
 /**
  * check and download update file
  * Created by GreenSkinMonster on 2015-03-09.
  */
+@Singleton
 public class UpdateHelper {
 
-    private Activity mCtx;
-    private boolean mSilent;
+    private final HiSettingsHelper mSettings;
+    private final OkHttpHelper mOkHttpHelper;
 
-    private HiProgressDialog pd;
-
-    private String checkUrl = "";
-    private String downloadUrl = "";
-
-    public UpdateHelper(Activity ctx, boolean isSilent) {
-        mCtx = ctx;
-        mSilent = isSilent;
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            checkUrl = "https://coding.net/u/GreenSkinMonster/p/hipda/git/raw/master/hipda-ng.md";
-        } else {
-            checkUrl = "https://coding.net/u/GreenSkinMonster/p/hipda/git/raw/master/hipda-ng-v5.md";
-        }
-        downloadUrl = "https://coding.net/u/GreenSkinMonster/p/hipda/git/raw/master/releases/hipda-ng-release-{version}.apk";
+    @Inject
+    public UpdateHelper(HiSettingsHelper settings, OkHttpHelper okHttpHelper) {
+        mSettings = settings;
+        mOkHttpHelper = okHttpHelper;
     }
 
-    public void check() {
-        HiSettingsHelper.getInstance().setAutoUpdateCheck(true);
-        HiSettingsHelper.getInstance().setLastUpdateCheckTime(new Date());
-
-        if (mSilent) {
-            doCheck();
-        } else {
-            new Thread(this::doCheck).start();
-        }
+    public void check(Activity ctx, boolean isSilent) {
+        new UpdateCheck(ctx, isSilent).check();
     }
 
-    private void doCheck() {
-        if (!mSilent) {
-            new Handler(Looper.getMainLooper()).post(() -> pd = HiProgressDialog.show(mCtx, "正在检查新版本，请稍候..."));
+    /** One update check, started from an activity. */
+    private class UpdateCheck {
+
+        private Activity mCtx;
+        private boolean mSilent;
+
+        private HiProgressDialog pd;
+
+        private String checkUrl = "";
+        private String downloadUrl = "";
+
+        UpdateCheck(Activity ctx, boolean isSilent) {
+            mCtx = ctx;
+            mSilent = isSilent;
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                checkUrl = "https://coding.net/u/GreenSkinMonster/p/hipda/git/raw/master/hipda-ng.md";
+            } else {
+                checkUrl = "https://coding.net/u/GreenSkinMonster/p/hipda/git/raw/master/hipda-ng-v5.md";
+            }
+            downloadUrl = "https://coding.net/u/GreenSkinMonster/p/hipda/git/raw/master/releases/hipda-ng-release-{version}.apk";
         }
-        OkHttpHelper.getInstance().asyncGet(checkUrl, new UpdateCheckCallback());
-    }
 
-    private class UpdateCheckCallback implements OkHttpHelper.ResultCallback {
+        void check() {
+            mSettings.setAutoUpdateCheck(true);
+            mSettings.setLastUpdateCheckTime(new Date());
 
-        @Override
-        public void onError(Request request, Exception e) {
-            Logger.e(e);
+            if (mSilent) {
+                doCheck();
+            } else {
+                new Thread(this::doCheck).start();
+            }
+        }
+
+        private void doCheck() {
+            if (!mSilent) {
+                new Handler(Looper.getMainLooper()).post(() -> pd = HiProgressDialog.show(mCtx, "正在检查新版本，请稍候..."));
+            }
+            mOkHttpHelper.asyncGet(checkUrl, new UpdateCheckCallback());
+        }
+
+        private class UpdateCheckCallback implements OkHttpHelper.ResultCallback {
+
+            @Override
+            public void onError(Request request, Exception e) {
+                Logger.e(e);
+                if (!HiApplication.isAppVisible())
+                    return;
+                if (!mSilent) {
+                    pd.dismissError("检查新版本时发生错误 : " + OkHttpHelper.getErrorMessage(e));
+                }
+            }
+
+            @Override
+            public void onResponse(final String response) {
+                processUpdate(response);
+            }
+        }
+
+        private void processUpdate(String response) {
             if (!HiApplication.isAppVisible())
                 return;
-            if (!mSilent) {
-                pd.dismissError("检查新版本时发生错误 : " + OkHttpHelper.getErrorMessage(e));
-            }
-        }
 
-        @Override
-        public void onResponse(final String response) {
-            processUpdate(response);
-        }
-    }
+            response = Utils.nullToText(response).replace("\r\n", "\n").trim();
 
-    private void processUpdate(String response) {
-        if (!HiApplication.isAppVisible())
-            return;
+            String version = HiApplication.getAppVersion();
 
-        response = Utils.nullToText(response).replace("\r\n", "\n").trim();
+            String newVersion = "";
+            String updateNotes = "";
 
-        String version = HiApplication.getAppVersion();
-
-        String newVersion = "";
-        String updateNotes = "";
-
-        int firstLineIndex = response.indexOf("\n");
-        if (response.startsWith("v") && firstLineIndex > 0) {
-            newVersion = response.substring(1, firstLineIndex).trim();
-            updateNotes = response.substring(firstLineIndex + 1).trim();
-        }
-
-        boolean found = !TextUtils.isEmpty(newVersion)
-                && !TextUtils.isEmpty(updateNotes)
-                && newer(newVersion, version);
-
-        if (found) {
-            if (!mSilent) {
-                pd.dismiss();
+            int firstLineIndex = response.indexOf("\n");
+            if (response.startsWith("v") && firstLineIndex > 0) {
+                newVersion = response.substring(1, firstLineIndex).trim();
+                updateNotes = response.substring(firstLineIndex + 1).trim();
             }
 
-            if (!Utils.isFromGooglePlay(mCtx)) {
-                final String url = downloadUrl.replace("{version}", newVersion);
-                final String filename = (url.contains("/")) ? url.substring(url.lastIndexOf("/") + 1) : "";
+            boolean found = !TextUtils.isEmpty(newVersion)
+                    && !TextUtils.isEmpty(updateNotes)
+                    && newer(newVersion, version);
 
-                Dialog dialog = new AlertDialog.Builder(mCtx).setTitle("发现新版本 : " + newVersion)
-                        .setMessage(updateNotes)
-                        .setPositiveButton("下载",
-                                (dialog1, which) -> {
-                                    try {
-                                        Utils.download(mCtx, url, filename);
-                                    } catch (Exception e) {
-                                        Logger.e(e);
-                                        UIUtils.toast("下载出现错误，请到客户端发布帖中手动下载。\n" + e.getMessage());
-                                    }
-                                })
-                        .setNegativeButton("暂不", (dialog2, which) -> {
-                        })
-                        .setNeutralButton("不再提醒", (dialog3, which) -> HiSettingsHelper.getInstance().setAutoUpdateCheck(false))
-                        .create();
+            if (found) {
+                if (!mSilent) {
+                    pd.dismiss();
+                }
 
-                if (!mCtx.isFinishing())
-                    dialog.show();
+                if (!Utils.isFromGooglePlay(mCtx)) {
+                    final String url = downloadUrl.replace("{version}", newVersion);
+                    final String filename = (url.contains("/")) ? url.substring(url.lastIndexOf("/") + 1) : "";
+
+                    Dialog dialog = new AlertDialog.Builder(mCtx).setTitle("发现新版本 : " + newVersion)
+                            .setMessage(updateNotes)
+                            .setPositiveButton("下载",
+                                    (dialog1, which) -> {
+                                        try {
+                                            Utils.download(mCtx, mOkHttpHelper, url, filename);
+                                        } catch (Exception e) {
+                                            Logger.e(e);
+                                            UIUtils.toast("下载出现错误，请到客户端发布帖中手动下载。\n" + e.getMessage());
+                                        }
+                                    })
+                            .setNegativeButton("暂不", (dialog2, which) -> {
+                            })
+                            .setNeutralButton("不再提醒", (dialog3, which) -> mSettings.setAutoUpdateCheck(false))
+                            .create();
+
+                    if (!mCtx.isFinishing())
+                        dialog.show();
+                } else {
+                    Dialog dialog = new AlertDialog.Builder(mCtx)
+                            .setTitle("发现新版本 : " + newVersion)
+                            .setMessage(updateNotes).
+                            setPositiveButton("前往Google Play",
+                                    (dialog4, which) -> openGooglePlay(mCtx)).create();
+
+                    if (!mCtx.isFinishing())
+                        dialog.show();
+                }
             } else {
-                Dialog dialog = new AlertDialog.Builder(mCtx)
-                        .setTitle("发现新版本 : " + newVersion)
-                        .setMessage(updateNotes).
-                        setPositiveButton("前往Google Play",
-                                (dialog4, which) -> openGooglePlay(mCtx)).create();
-
-                if (!mCtx.isFinishing())
-                    dialog.show();
-            }
-        } else {
-            if (!mSilent) {
-                pd.dismiss("没有发现新版本");
+                if (!mSilent) {
+                    pd.dismiss("没有发现新版本");
+                }
             }
         }
     }
@@ -172,21 +193,21 @@ public class UpdateHelper {
         return false;
     }
 
-    public static boolean updateApp() {
-        HiSettingsHelper.getInstance().migrateEncrytSettings();
+    public boolean updateApp() {
+        mSettings.migrateEncrytSettings();
 
-        final String installedVersion = HiSettingsHelper.getInstance().getInstalledVersion();
+        final String installedVersion = mSettings.getInstalledVersion();
         final String currentVersion = HiApplication.getAppVersion();
 
         if (!currentVersion.equals(installedVersion)) {
             if (newer("5.0.03", installedVersion)) {
-                HiSettingsHelper.getInstance().setForumServer(HiUtils.ForumServer);
-                HiSettingsHelper.getInstance().setImageHost(HiUtils.ImageHost);
-                String tailUrl = HiSettingsHelper.getInstance().getTailUrl();
-                HiSettingsHelper.getInstance()
+                mSettings.setForumServer(HiUtils.ForumServer);
+                mSettings.setImageHost(HiUtils.ImageHost);
+                String tailUrl = mSettings.getTailUrl();
+                mSettings
                         .setTailUrl(HiUtils.replaceOldDomain(tailUrl));
             }
-            HiSettingsHelper.getInstance().setInstalledVersion(currentVersion);
+            mSettings.setInstalledVersion(currentVersion);
         }
         return newer(currentVersion, installedVersion);
     }

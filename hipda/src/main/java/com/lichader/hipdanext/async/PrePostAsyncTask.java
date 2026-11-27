@@ -25,13 +25,18 @@ import okhttp3.Response;
 
 public class PrePostAsyncTask extends AsyncTask<PostBean, Void, PrePostInfoBean> {
 
+    private final HiSettingsHelper mSettings;
+    private final OkHttpHelper mOkHttpHelper;
     private PrePostListener mListener;
     private Context mCtx;
     private int mMode;
     private String mMessage;
 
-    public PrePostAsyncTask(Context ctx, PrePostListener listener, int mode) {
+    public PrePostAsyncTask(Context ctx, HiSettingsHelper settings, OkHttpHelper okHttpHelper,
+                            PrePostListener listener, int mode) {
         mCtx = ctx;
+        mSettings = settings;
+        mOkHttpHelper = okHttpHelper;
         mListener = listener;
         mMode = mode;
     }
@@ -66,7 +71,7 @@ public class PrePostAsyncTask extends AsyncTask<PostBean, Void, PrePostInfoBean>
 
 
         try {
-            Response respObj = OkHttpHelper.getInstance().getAsResponse(url);
+            Response respObj = mOkHttpHelper.getAsResponse(url);
             if (respObj.isSuccessful()) {
                 if (respObj.request().url().toString().contains("memcp.php?action=bind")) {
                     mMessage = "需要通过网页完成实名验证才可以发帖";
@@ -149,7 +154,7 @@ public class PrePostAsyncTask extends AsyncTask<PostBean, Void, PrePostInfoBean>
                             maxFileSize = (int) (size * 1024 * 1024);
                         }
                         if (maxFileSize > 1024)
-                            HiSettingsHelper.getInstance().setMaxUploadFileSize(maxFileSize);
+                            mSettings.setMaxUploadFileSize(maxFileSize);
                     }
                 } catch (Exception ignored) {
                 }

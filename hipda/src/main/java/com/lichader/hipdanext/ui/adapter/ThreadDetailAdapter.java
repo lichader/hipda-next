@@ -40,6 +40,7 @@ import com.lichader.hipdanext.bean.PollBean;
 import com.lichader.hipdanext.bean.PollOptionBean;
 import com.lichader.hipdanext.cache.ImageContainer;
 import com.lichader.hipdanext.glide.GlideHelper;
+import com.lichader.hipdanext.job.JobMgr;
 import com.lichader.hipdanext.ui.ThreadDetailFragment;
 import com.lichader.hipdanext.ui.widget.OnSingleClickListener;
 import com.lichader.hipdanext.ui.widget.TextViewWithEmoticon;
@@ -77,12 +78,19 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
     private WeakHashMap<CompoundButton, Object> mPollOptionsHolder;
     private WeakReference<TextView> mVoteButtonHolder;
 
+    private final HiSettingsHelper mSettings;
+    private final JobMgr mJobMgr;
+
     public ThreadDetailAdapter(ThreadDetailFragment detailFragment,
+                               HiSettingsHelper settings,
+                               JobMgr jobMgr,
                                RecyclerItemClickListener itemClickListener,
                                Button.OnClickListener gotoFloorListener,
                                View.OnClickListener avatarListener,
                                View.OnClickListener warningListener,
                                View.OnClickListener votePollListener) {
+        mSettings = settings;
+        mJobMgr = jobMgr;
         mCtx = detailFragment.getActivity();
         mInflater = LayoutInflater.from(mCtx);
         mItemClickListener = itemClickListener;
@@ -286,7 +294,7 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
             holder.postStatus.setVisibility(View.GONE);
         }
 
-        if (HiSettingsHelper.getInstance().isLoadAvatar()) {
+        if (mSettings.isLoadAvatar()) {
             holder.avatar.setVisibility(View.VISIBLE);
             loadAvatar(detail.getAvatarUrl(), holder.avatar);
         } else {
@@ -307,9 +315,9 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
         if (detail.isSelectMode()) {
             AppCompatTextView tv = (AppCompatTextView) mInflater.inflate(R.layout.item_textview, null, false);
             tv.setText(detail.getContents().getCopyText());
-            tv.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
+            tv.setTextSize(mSettings.getPostTextSize());
             tv.setPadding(8, 8, 8, 8);
-            UIUtils.setLineSpacing(tv);
+            UIUtils.setLineSpacing(tv, mSettings);
             tv.setTextIsSelectable(true);
 
             contentView.addView(tv);
@@ -319,7 +327,7 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
                 if (content instanceof ContentText) {
                     TextViewWithEmoticon tv = (TextViewWithEmoticon) mInflater.inflate(R.layout.item_textview_withemoticon, null, false);
                     tv.setFragment(mDetailFragment);
-                    tv.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
+                    tv.setTextSize(mSettings.getPostTextSize());
                     tv.setPadding(8, 8, 8, 8);
 
                     String cnt = content.getContent();
@@ -333,7 +341,7 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
                 } else if (content instanceof ContentImg) {
                     final ContentImg contentImg = ((ContentImg) content);
 
-                    String policy = HiSettingsHelper.getInstance().getCurrectImagePolicy();
+                    String policy = mSettings.getCurrectImagePolicy();
                     String thumbUrl = contentImg.getThumbUrl();
                     String fullUrl = contentImg.getContent();
                     boolean mIsThumb;
@@ -346,13 +354,13 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
                         mIsThumb = true;
                     }
 
-                    ThreadImageLayout threadImageLayout = new ThreadImageLayout(mDetailFragment.getActivity(), contentImg, mDetailFragment.getImagesInPage(detail.getPage()), mIsThumb);
+                    ThreadImageLayout threadImageLayout = new ThreadImageLayout(mDetailFragment.getActivity(), mSettings, mJobMgr, contentImg, mDetailFragment.getImagesInPage(detail.getPage()), mIsThumb);
 
                     contentView.addView(threadImageLayout);
                 } else if (content instanceof ContentAttach) {
                     TextViewWithEmoticon tv = new TextViewWithEmoticon(mCtx);
                     tv.setFragment(mDetailFragment);
-                    tv.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
+                    tv.setTextSize(mSettings.getPostTextSize());
                     tv.setText(content.getContent());
                     tv.setFocusable(false);
                     contentView.addView(tv);
@@ -362,7 +370,7 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
                     TextViewWithEmoticon tv = quoteLayout.findViewById(R.id.quote_content);
                     tv.setFragment(mDetailFragment);
 
-                    tv.setTextSize(HiSettingsHelper.getInstance().getPostTextSize() - 1);
+                    tv.setTextSize(mSettings.getPostTextSize() - 1);
                     tv.setAutoLinkMask(Linkify.WEB_URLS);
                     tv.setText(Utils.removeLeadingBlank(content.getContent()));
                     tv.setFocusable(false);    // make convertView long clickable.
@@ -428,10 +436,10 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
                     tvContent.setText(Utils.nullToText(text));
                     tvTime.setText(Utils.nullToText(time));
 
-                    tvAuthor.setTextSize(HiSettingsHelper.getInstance().getPostTextSize() - 2);
-                    tvNote.setTextSize(HiSettingsHelper.getInstance().getPostTextSize() - 2);
-                    tvContent.setTextSize(HiSettingsHelper.getInstance().getPostTextSize() - 1);
-                    tvTime.setTextSize(HiSettingsHelper.getInstance().getPostTextSize() - 4);
+                    tvAuthor.setTextSize(mSettings.getPostTextSize() - 2);
+                    tvNote.setTextSize(mSettings.getPostTextSize() - 2);
+                    tvContent.setTextSize(mSettings.getPostTextSize() - 1);
+                    tvTime.setTextSize(mSettings.getPostTextSize() - 4);
 
                     if (floor > 0) {
                         tvNote.setTag(floor);
@@ -468,7 +476,7 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
             TextViewWithEmoticon tvPoll = new TextViewWithEmoticon(mCtx);
             tvPoll.setText(pollBean.getTitle());
             tvPoll.setPadding(pxOf4Dp, 2 * pxOf4Dp, pxOf4Dp, 2 * pxOf4Dp);
-            tvPoll.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
+            tvPoll.setTextSize(mSettings.getPostTextSize());
             holder.pollView.addView(tvPoll);
 
             View.OnClickListener onOptionButtonCheckedListener = new View.OnClickListener() {
@@ -518,7 +526,7 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
                             radioButton.setVisibility(View.GONE);
                             tvText.setVisibility(View.GONE);
                             checkBox.setText(option.getText());
-                            checkBox.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
+                            checkBox.setTextSize(mSettings.getPostTextSize());
                             checkBox.setTextColor(ColorHelper.getTextColorPrimary(mCtx));
                             checkBox.setTag(option.getOptionId());
                             checkBox.setOnClickListener(onOptionButtonCheckedListener);
@@ -534,7 +542,7 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
                             radioButton.setVisibility(View.VISIBLE);
                             tvText.setVisibility(View.GONE);
                             radioButton.setText(option.getText());
-                            radioButton.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
+                            radioButton.setTextSize(mSettings.getPostTextSize());
                             radioButton.setTextColor(ColorHelper.getTextColorPrimary(mCtx));
                             radioButton.setTag(option.getOptionId());
                             radioButton.setOnClickListener(onOptionButtonCheckedListener);
@@ -551,11 +559,11 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
                         radioButton.setVisibility(View.GONE);
                         tvRates.setOnClickListener(null);
                         tvText.setText(option.getText());
-                        tvText.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
+                        tvText.setTextSize(mSettings.getPostTextSize());
                     }
 
                     tvRates.setText(option.getRates());
-                    tvRates.setTextSize(HiSettingsHelper.getInstance().getPostTextSize() - 4);
+                    tvRates.setTextSize(mSettings.getPostTextSize() - 4);
                     int indexOfP = option.getRates().indexOf('%');
                     if (indexOfP > 0) {
                         float percent = Utils.parseFloat(option.getRates().substring(0, indexOfP)) / 100f;
@@ -573,7 +581,7 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
                     AppCompatTextView footer = new AppCompatTextView(mCtx);
                     footer.setPadding(pxOf4Dp, 2 * pxOf4Dp, pxOf4Dp, 2 * pxOf4Dp);
                     footer.setText(pollBean.getFooter());
-                    footer.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
+                    footer.setTextSize(mSettings.getPostTextSize());
                     footer.setTypeface(null, Typeface.BOLD);
                     footer.setGravity(Gravity.CENTER);
                     holder.pollView.addView(footer);
@@ -582,7 +590,7 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
                 if (voteable) {
                     TextView button = new AppCompatTextView(mCtx);
                     button.setText("投票");
-                    button.setTextSize(HiSettingsHelper.getInstance().getPostTextSize() + 1);
+                    button.setTextSize(mSettings.getPostTextSize() + 1);
                     button.setBackground(ContextCompat.getDrawable(mCtx, R.drawable.vote_button_background));
                     button.setEnabled(false);
                     button.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
@@ -620,7 +628,7 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
     }
 
     private void loadAvatar(final String avatarUrl, final ImageView imageView) {
-        GlideHelper.loadAvatar(mDetailFragment, imageView, avatarUrl);
+        GlideHelper.loadAvatar(mDetailFragment, imageView, avatarUrl, mSettings);
     }
 
     private static class ViewHolderImpl extends RecyclerView.ViewHolder {

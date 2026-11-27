@@ -96,10 +96,10 @@ public class SettingMainFragment extends BaseSettingFragment {
         mSettings.reload();
 
         if (mSettings.isCircleAvatar() != mCircleAvatar)
-            GlideHelper.initDefaultFiles();
+            GlideHelper.initDefaultFiles(mSettings);
 
         if (mNotiTaskEnabled != mSettings.isNotiTaskEnabled()) {
-            NotiWorker.scheduleOrCancelWork();
+            NotiWorker.scheduleOrCancelWork(requireContext().getApplicationContext(), mSettings);
         }
 
         if (mCacheCleared
@@ -135,7 +135,7 @@ public class SettingMainFragment extends BaseSettingFragment {
         checkPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
                 //checkPreference.setSummary("上次检查 ：" + Utils.shortyTime(new Date()));
-                //new UpdateHelper(getActivity(), false).check();
+                //mUpdateHelper.check(getActivity(), false);
                 return true;
             }
         });

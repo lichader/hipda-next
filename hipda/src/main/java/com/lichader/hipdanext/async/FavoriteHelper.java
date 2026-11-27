@@ -6,7 +6,6 @@ import android.text.TextUtils;
 
 import com.lichader.hipdanext.okhttp.OkHttpHelper;
 import com.lichader.hipdanext.okhttp.ParamsMap;
-import com.lichader.hipdanext.di.SingletonEntryPoint;
 import com.lichader.hipdanext.utils.HiUtils;
 import com.lichader.hipdanext.utils.Logger;
 import com.lichader.hipdanext.utils.UIUtils;
@@ -53,14 +52,6 @@ public class FavoriteHelper {
         mCachePref = context.getSharedPreferences(FAV_CACHE_PREFS, 0);
         mFavoritesCache = mCachePref.getStringSet(FAVORITES_CACHE_KEY, new HashSet<String>());
         mAttentionCache = mCachePref.getStringSet(ATTENTION_CACHE_KEY, new HashSet<String>());
-    }
-
-    /**
-     * @deprecated inject {@link FavoriteHelper} instead.
-     */
-    @Deprecated
-    public static FavoriteHelper getInstance() {
-        return SingletonEntryPoint.get().favorites();
     }
 
     public void fetchMyFavorites() {

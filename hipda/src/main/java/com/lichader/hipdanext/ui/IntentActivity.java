@@ -9,12 +9,18 @@ import com.lichader.hipdanext.service.NotiHelper;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import dagger.hilt.android.AndroidEntryPoint;
+import javax.inject.Inject;
 
 /**
  * Created by GreenSkinMonster on 2017-06-22.
  */
 
+@AndroidEntryPoint
 public class IntentActivity extends AppCompatActivity {
+
+    @Inject
+    NotiHelper mNotiHelper;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,15 +46,15 @@ public class IntentActivity extends AppCompatActivity {
         boolean finished = false;
         if (BuildConfig.DEBUG) {
             if ("test_sms".equals(intent.getAction())) {
-                NotiHelper.sendNotification(this, 0, 1, "绿皮怪兽", "723379", "测试短消息内容");
+                mNotiHelper.sendNotification(this, 0, 1, "绿皮怪兽", "723379", "测试短消息内容");
                 finished = true;
                 finish();
             } else if ("test_thread".equals(intent.getAction())) {
-                NotiHelper.sendNotification(this, 1, 0, "", "", "");
+                mNotiHelper.sendNotification(this, 1, 0, "", "", "");
                 finished = true;
                 finish();
             } else if ("test_all".equals(intent.getAction())) {
-                NotiHelper.sendNotification(this, 1, 1, "", "", "");
+                mNotiHelper.sendNotification(this, 1, 1, "", "", "");
                 finished = true;
                 finish();
             }

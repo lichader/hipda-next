@@ -46,8 +46,11 @@ public abstract class BaseImageLayout extends RelativeLayout {
     protected String mUrl;
     protected ContentImg mContentImg;
 
-    public BaseImageLayout(Context context) {
+    private final JobMgr mJobMgr;
+
+    public BaseImageLayout(Context context, JobMgr jobMgr) {
         super(context);
+        mJobMgr = jobMgr;
     }
 
     protected abstract boolean isNetworkFetch();
@@ -93,7 +96,7 @@ public abstract class BaseImageLayout extends RelativeLayout {
                 String.valueOf(hashCode()),
                 networkFetch);
         mJobId = job.getId();
-        JobMgr.addJob(job);
+        mJobMgr.addJob(job);
     }
 
     private void onProgress(ImageInfo imageInfo) {

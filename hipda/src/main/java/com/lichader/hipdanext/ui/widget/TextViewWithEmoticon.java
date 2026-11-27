@@ -17,7 +17,10 @@ import android.widget.TextView;
 import com.vanniktech.emoji.EmojiHandler;
 
 import com.lichader.hipdanext.bean.DetailBean;
+import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.cache.SmallImages;
+import com.lichader.hipdanext.di.SingletonEntryPoint;
+import com.lichader.hipdanext.okhttp.OkHttpHelper;
 import com.lichader.hipdanext.ui.BaseFragment;
 import com.lichader.hipdanext.ui.FragmentArgs;
 import com.lichader.hipdanext.ui.FragmentUtils;
@@ -35,6 +38,9 @@ import androidx.core.content.ContextCompat;
 public class TextViewWithEmoticon extends AppCompatTextView {
     private Context mCtx;
     private BaseFragment mFragment;
+    // Inflated from layouts, so Hilt cannot pass the services in.
+    private final HiSettingsHelper mSettings = SingletonEntryPoint.get().settings();
+    private final OkHttpHelper mOkHttpHelper = SingletonEntryPoint.get().okHttpHelper();
 
     private static int TRIM_LENGTH = 80;
     private static final long MIN_CLICK_INTERVAL = 600;
@@ -58,7 +64,7 @@ public class TextViewWithEmoticon extends AppCompatTextView {
         setTextColor(ColorHelper.getTextColorPrimary(mCtx));
         setLinkTextColor(ColorHelper.getColorAccent(mCtx));
 
-        UIUtils.setLineSpacing(this);
+        UIUtils.setLineSpacing(this, mSettings);
     }
 
     public void setFragment(BaseFragment fragment) {
@@ -195,7 +201,7 @@ public class TextViewWithEmoticon extends AppCompatTextView {
                             fileName = fileName.substring(0, fileName.lastIndexOf(" (")).trim();
                     }
                     UIUtils.toast("开始下载 " + fileName + " ...");
-                    Utils.download(mCtx, getURL(), fileName);
+                    Utils.download(mCtx, mOkHttpHelper, getURL(), fileName);
                 } catch (Exception e) {
                     Logger.e(e);
                     UIUtils.toast("下载出现错误，请使用浏览器下载\n" + e.getMessage());

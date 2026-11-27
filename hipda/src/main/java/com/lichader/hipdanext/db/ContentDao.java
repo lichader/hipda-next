@@ -10,19 +10,32 @@ import com.lichader.hipdanext.utils.Logger;
 
 import java.util.LinkedHashSet;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 /**
  * Created by GreenSkinMonster on 2016-07-23.
  */
+@Singleton
 public class ContentDao {
 
     private final static int MAX_SIZE = 10;
 
-    public synchronized static void saveContent(String sessionId, String content) {
-        try (SQLiteDatabase db = ContentDBHelper.getHelper().getWritableDatabase()) {
+    private final ContentDBHelper mDbHelper;
+    private final HiSettingsHelper mSettings;
+
+    @Inject
+    public ContentDao(ContentDBHelper dbHelper, HiSettingsHelper settings) {
+        mDbHelper = dbHelper;
+        mSettings = settings;
+    }
+
+    public synchronized void saveContent(String sessionId, String content) {
+        try (SQLiteDatabase db = mDbHelper.getWritableDatabase()) {
             if (!TextUtils.isEmpty(content)) {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put("session_id", sessionId);
-                contentValues.put("username", HiSettingsHelper.getInstance().getUsername());
+                contentValues.put("username", mSettings.getUsername());
                 contentValues.put("time", System.currentTimeMillis());
                 contentValues.put("content", content);
                 db.replace(ContentDBHelper.TABLE_NAME, null, contentValues);
@@ -34,8 +47,8 @@ public class ContentDao {
         }
     }
 
-    public synchronized static void cleanup() {
-        try (SQLiteDatabase db = ContentDBHelper.getHelper().getWritableDatabase()) {
+    public synchronized void cleanup() {
+        try (SQLiteDatabase db = mDbHelper.getWritableDatabase()) {
             db.execSQL("delete from " + ContentDBHelper.TABLE_NAME
                     + " where session_id not in " +
                     "(select session_id from " + ContentDBHelper.TABLE_NAME +
@@ -47,13 +60,13 @@ public class ContentDao {
         }
     }
 
-    public static Content[] getSavedContents(String currentSessionId) {
+    public Content[] getSavedContents(String currentSessionId) {
         Content[] contents = null;
         SQLiteDatabase db = null;
         Cursor cursor = null;
 
         try {
-            db = ContentDBHelper.getHelper().getReadableDatabase();
+            db = mDbHelper.getReadableDatabase();
 
             String[] projection = {
                     "username",

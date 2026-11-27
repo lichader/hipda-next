@@ -46,7 +46,7 @@ public class BaseActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mSessionId = UUID.randomUUID().toString();
-        UIUtils.setActivityTheme(this);
+        UIUtils.setActivityTheme(this, mSettings);
         getOnBackPressedDispatcher().addCallback(this, mBackCallback);
 
         try {
@@ -67,7 +67,7 @@ public class BaseActivity extends AppCompatActivity {
         super.onPostCreate(savedInstanceState);
         UIUtils.applySystemBarInsets(this);
         if (mAppBarLayout != null) {
-            if (UIUtils.isWhiteTheme(this)) {
+            if (UIUtils.isWhiteTheme(this, mSettings)) {
                 mAppBarLayout.setStateListAnimator(null);
                 mAppBarLayout.setElevation(Utils.dpToPx(2));
             }

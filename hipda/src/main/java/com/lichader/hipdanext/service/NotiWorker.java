@@ -10,6 +10,7 @@ import com.lichader.hipdanext.utils.Logger;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
+import androidx.hilt.work.HiltWorker;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.NetworkType;
@@ -18,20 +19,36 @@ import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedInject;
+
 /**
  * Created by GreenSkinMonster on 2019-03-16.
  */
+@HiltWorker
 public class NotiWorker extends Worker {
 
     private final static String WORK_NAME = "noti_work";
     private final static int NOTI_REPEAT_MINUTTE = 15;
 
+    private final HiSettingsHelper mSettings;
+    private final LoginHelper mLoginHelper;
+    private final NotiHelper mNotiHelper;
+
     /**
      * @param appContext   The application {@link Context}
      * @param workerParams Parameters to setup the internal state of this worker
      */
-    public NotiWorker(@NonNull Context appContext, @NonNull WorkerParameters workerParams) {
+    @AssistedInject
+    public NotiWorker(@Assisted @NonNull Context appContext,
+                      @Assisted @NonNull WorkerParameters workerParams,
+                      HiSettingsHelper settings,
+                      LoginHelper loginHelper,
+                      NotiHelper notiHelper) {
         super(appContext, workerParams);
+        mSettings = settings;
+        mLoginHelper = loginHelper;
+        mNotiHelper = notiHelper;
     }
 
     @NonNull
@@ -39,11 +56,11 @@ public class NotiWorker extends Worker {
     public Result doWork() {
         try {
             if (!HiApplication.isAppVisible()
-                    && LoginHelper.isLoggedIn()
-                    && !HiSettingsHelper.getInstance().isInSilentMode()) {
-                HiSettingsHelper.getInstance().setNotiJobLastRunTime();
-                NotiHelper.fetchNotification(null);
-                NotiHelper.showNotification(HiApplication.getAppContext());
+                    && mLoginHelper.isLoggedIn()
+                    && !mSettings.isInSilentMode()) {
+                mSettings.setNotiJobLastRunTime();
+                mNotiHelper.fetchNotification(null);
+                mNotiHelper.showNotification(getApplicationContext());
             }
         } catch (Exception e) {
             Logger.e(e);
@@ -51,8 +68,8 @@ public class NotiWorker extends Worker {
         return Result.success();
     }
 
-    public static void scheduleOrCancelWork() {
-        if (HiSettingsHelper.getInstance().isNotiTaskEnabled()) {
+    public static void scheduleOrCancelWork(Context context, HiSettingsHelper settings) {
+        if (settings.isNotiTaskEnabled()) {
             Constraints constraints = new Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build();
@@ -62,10 +79,10 @@ public class NotiWorker extends Worker {
                     .Builder(NotiWorker.class, NOTI_REPEAT_MINUTTE, TimeUnit.MINUTES)
                     .setConstraints(constraints)
                     .build();
-            WorkManager.getInstance(HiApplication.getAppContext())
+            WorkManager.getInstance(context)
                     .enqueueUniquePeriodicWork(WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, request);
         } else {
-            WorkManager.getInstance(HiApplication.getAppContext()).cancelUniqueWork(WORK_NAME);
+            WorkManager.getInstance(context).cancelUniqueWork(WORK_NAME);
         }
     }
 }

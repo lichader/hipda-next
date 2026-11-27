@@ -35,19 +35,26 @@ public class ThemeSettingDialog extends BottomDialog {
     private Drawable mWhiteCheckDrawable;
     private Drawable mBlackCheckDrawable;
 
-    private String mThemeMode = HiSettingsHelper.getInstance().getTheme();
-    private String mLightTheme = HiSettingsHelper.getInstance().getLightTheme();
-    private String mDarkTheme = HiSettingsHelper.getInstance().getDarkTheme();
-    private boolean mNavBarColored = HiSettingsHelper.getInstance().isNavBarColored();
+    private final HiSettingsHelper mSettings;
+
+    private String mThemeMode;
+    private String mLightTheme;
+    private String mDarkTheme;
+    private boolean mNavBarColored;
 
     private MainFrameActivity mActivity;
     private final List<AppCompatButton> mThemeModeButtons = new ArrayList<>();
     private final List<AppCompatImageButton> mLightThemeButtons = new ArrayList<>();
     private final List<AppCompatImageButton> mDarkThemeButtons = new ArrayList<>();
 
-    public ThemeSettingDialog(@NonNull Context context) {
+    public ThemeSettingDialog(@NonNull Context context, HiSettingsHelper settings) {
         super(context);
         mActivity = (MainFrameActivity) context;
+        mSettings = settings;
+        mThemeMode = settings.getTheme();
+        mLightTheme = settings.getLightTheme();
+        mDarkTheme = settings.getDarkTheme();
+        mNavBarColored = settings.isNavBarColored();
     }
 
     @Override
@@ -78,26 +85,26 @@ public class ThemeSettingDialog extends BottomDialog {
             darkThemeLabel.setTypeface(null, Typeface.BOLD_ITALIC);
         }
 
-        swNavbarColored.setChecked(HiSettingsHelper.getInstance().isNavBarColored());
+        swNavbarColored.setChecked(mSettings.isNavBarColored());
         swNavbarColored.setOnCheckedChangeListener((buttonView, isChecked) -> mNavBarColored = isChecked);
         btnApply.setOnClickListener((v) -> {
             boolean themeModeChanged = false;
-            if (!mThemeMode.equals(HiSettingsHelper.getInstance().getTheme())) {
-                HiSettingsHelper.getInstance().setTheme(mThemeMode);
+            if (!mThemeMode.equals(mSettings.getTheme())) {
+                mSettings.setTheme(mThemeMode);
                 themeModeChanged = true;
             }
-            boolean otherChanged = !mDarkTheme.equals(HiSettingsHelper.getInstance().getDarkTheme())
-                    || !mLightTheme.equals(HiSettingsHelper.getInstance().getLightTheme())
-                    || mNavBarColored != HiSettingsHelper.getInstance().isNavBarColored();
+            boolean otherChanged = !mDarkTheme.equals(mSettings.getDarkTheme())
+                    || !mLightTheme.equals(mSettings.getLightTheme())
+                    || mNavBarColored != mSettings.isNavBarColored();
 
-            HiSettingsHelper.getInstance().setDarkTheme(mDarkTheme);
-            HiSettingsHelper.getInstance().setLightTheme(mLightTheme);
-            HiSettingsHelper.getInstance().setNavBarColored(mNavBarColored);
+            mSettings.setDarkTheme(mDarkTheme);
+            mSettings.setLightTheme(mLightTheme);
+            mSettings.setNavBarColored(mNavBarColored);
 
             if (otherChanged) {
                 mActivity.recreateActivity();
             } else if (themeModeChanged) {
-                UIUtils.setLightDarkThemeMode();
+                UIUtils.setLightDarkThemeMode(mSettings);
             }
             dismiss();
         });

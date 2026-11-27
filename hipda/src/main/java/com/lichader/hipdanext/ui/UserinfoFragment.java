@@ -62,7 +62,11 @@ import javax.inject.Inject;
 public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.SmsPostListener {
 
     @Inject
-    OkHttpHelper mOkHttpHelper;
+    JobMgr mJobMgr;
+
+    @Inject
+    BlacklistHelper mBlacklistHelper;
+
 
     public static final String ARG_USERNAME = "USERNAME";
     public static final String ARG_UID = "UID";
@@ -107,8 +111,8 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
             mUid = getArguments().getString(ARG_UID);
         }
 
-        RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), new OnItemClickListener());
-        mSimpleListAdapter = new SimpleListAdapter(this, SimpleListJob.TYPE_SEARCH_USER_THREADS, itemClickListener);
+        RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), mSettings, new OnItemClickListener());
+        mSimpleListAdapter = new SimpleListAdapter(this, mSettings, SimpleListJob.TYPE_SEARCH_USER_THREADS, itemClickListener);
     }
 
     @Override
@@ -126,7 +130,7 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
                 public void onSingleClick(View v) {
                     if (!TextUtils.isEmpty(mAvatarUrl)) {
                         GlideHelper.clearAvatarCache(mAvatarUrl);
-                        GlideHelper.loadAvatar(UserinfoFragment.this, mAvatarView, mAvatarUrl);
+                        GlideHelper.loadAvatar(UserinfoFragment.this, mAvatarView, mAvatarUrl, mSettings);
                         UIUtils.toast("头像已经刷新");
                     } else {
                         UIUtils.toast("用户未设置头像");
@@ -179,7 +183,7 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
                                 SimpleListJob.TYPE_SEARCH_USER_THREADS,
                                 mPage,
                                 bean);
-                        JobMgr.addJob(job);
+                        mJobMgr.addJob(job);
                     }
                 } else {
                     mButton.setText("搜索帖子");
@@ -225,7 +229,7 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
         inflater.inflate(R.menu.menu_userinfo, menu);
         menu.findItem(R.id.action_send_sms).setIcon(new IconicsDrawable(getActivity(),
                 GoogleMaterial.Icon.gmd_insert_comment).actionBar()
-                .color(UIUtils.getToolbarTextColor(getActivity())));
+                .color(UIUtils.getToolbarTextColor(getActivity(), mSettings)));
 
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -254,11 +258,11 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
             return true;
         }
         if (itemId == R.id.action_blacklist) {
-            BlacklistHelper.addBlacklist(mFormhash, mUsername);
+            mBlacklistHelper.addBlacklist(mFormhash, mUsername);
             return true;
         }
         if (itemId == R.id.action_remove_blacklist) {
-            BlacklistHelper.delBlacklist(mFormhash, mUsername);
+            mBlacklistHelper.delBlacklist(mFormhash, mUsername);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -278,7 +282,7 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
             if (info != null) {
                 if (mSettings.isLoadAvatar()) {
                     mAvatarView.setVisibility(View.VISIBLE);
-                    GlideHelper.loadAvatar(UserinfoFragment.this, mAvatarView, info.getAvatarUrl());
+                    GlideHelper.loadAvatar(UserinfoFragment.this, mAvatarView, info.getAvatarUrl(), mSettings);
                     mAvatarUrl = info.getAvatarUrl();
                 } else {
                     mAvatarView.setVisibility(View.GONE);
@@ -324,7 +328,7 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
                                     SimpleListJob.TYPE_SEARCH_USER_THREADS,
                                     mPage,
                                     bean);
-                            JobMgr.addJob(job);
+                            mJobMgr.addJob(job);
                         } else {
                             mRecyclerView.setFooterState(XFooterView.STATE_END);
                         }

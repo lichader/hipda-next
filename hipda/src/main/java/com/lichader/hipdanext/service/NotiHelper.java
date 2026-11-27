@@ -40,10 +40,16 @@ import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import dagger.hilt.android.qualifiers.ApplicationContext;
+
 /**
  * parse and fetch notifications
  * Created by GreenSkinMonster on 2015-09-08.
  */
+@Singleton
 public class NotiHelper {
 
     public final static String DEFAUL_SLIENT_BEGIN = "22:00";
@@ -51,23 +57,38 @@ public class NotiHelper {
     public final static String CHANNEL_ID = "HIPDA_NOTI";
     public final static String CHANNEL_NAME = "论坛通知";
 
-    private final static NotificationBean mCurrentBean = new NotificationBean();
+    private final static long HOLD_FETCH_MILLIS = 10 * 1000;
 
-    public static NotificationBean getCurrentNotification() {
+    private final NotificationBean mCurrentBean = new NotificationBean();
+
+    private volatile long mHoldFetchUntil = 0;
+
+    private final Context mContext;
+    private final HiSettingsHelper mSettings;
+    private final OkHttpHelper mOkHttpHelper;
+
+    @Inject
+    public NotiHelper(@ApplicationContext Context context, HiSettingsHelper settings, OkHttpHelper okHttpHelper) {
+        mContext = context;
+        mSettings = settings;
+        mOkHttpHelper = okHttpHelper;
+    }
+
+    public NotificationBean getCurrentNotification() {
         return mCurrentBean;
     }
 
-    public static void fetchNotification(Document doc) {
+    public void fetchNotification(Document doc) {
         int smsCount = -1;
         int threadCount = -1;
         SimpleListItemBean smsBean = null;
 
         try {
             //check new sms
-            if (doc == null || HiSettingsHelper.getInstance().isCheckSms()) {
-                HiSettingsHelper.getInstance().setLastCheckSmsTime(System.currentTimeMillis());
+            if (doc == null || mSettings.isCheckSms()) {
+                mSettings.setLastCheckSmsTime(System.currentTimeMillis());
 
-                String response = OkHttpHelper.getInstance().get(HiUtils.NewSMS);
+                String response = mOkHttpHelper.get(HiUtils.NewSMS);
                 if (!TextUtils.isEmpty(response)) {
                     doc = Jsoup.parse(response);
                     SimpleListBean listBean = HiParser.parseSMS(doc);
@@ -117,7 +138,7 @@ public class NotiHelper {
         }
     }
 
-    public static void showNotification(Context context) {
+    public void showNotification(Context context) {
         if (!HiApplication.isAppVisible()) {
             if (mCurrentBean.hasNew()) {
                 sendNotification(context,
@@ -138,7 +159,7 @@ public class NotiHelper {
         }
     }
 
-    private static void cancelNotification(Context context) {
+    private void cancelNotification(Context context) {
         if (HiApplication.isNotified()) {
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.cancel(0);
@@ -156,7 +177,25 @@ public class NotiHelper {
         return sb.toString();
     }
 
-    public static void sendNotification(final Context context, final int threadCount, final int smsCount, final String username, final String uid, final String smsContent) {
+    /**
+     * Reads the notification counts from a page the app has just loaded, and shows a
+     * notification if the app is in the background. Runs on a new thread.
+     */
+    public void fetchNotificationAsync(final Context context, final Document doc) {
+        new Thread(() -> {
+            if (System.currentTimeMillis() > mHoldFetchUntil) {
+                fetchNotification(doc);
+                showNotification(context);
+            }
+        }).start();
+    }
+
+    /** Skips {@link #fetchNotificationAsync} for the next ten seconds. */
+    public void holdFetchNotify() {
+        mHoldFetchUntil = System.currentTimeMillis() + HOLD_FETCH_MILLIS;
+    }
+
+    public void sendNotification(final Context context, final int threadCount, final int smsCount, final String username, final String uid, final String smsContent) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             sendNotificationInBackground(context, threadCount, smsCount, username, uid, smsContent);
@@ -164,7 +203,7 @@ public class NotiHelper {
     }
 
 
-    private static void sendNotificationInBackground(Context context, int threadCount, int smsCount, String username, String uid, String smsContent) {
+    private void sendNotificationInBackground(Context context, int threadCount, int smsCount, String username, String uid, String smsContent) {
         Intent intent = new Intent(context, IntentActivity.class);
         intent.setAction(Constants.INTENT_NOTIFICATION);
         intent.putExtra(Constants.EXTRA_SMS_COUNT, smsCount);
@@ -208,7 +247,7 @@ public class NotiHelper {
                 .setColor(color)
                 .setLights(color, 1000, 3000);
 
-        String sound = HiSettingsHelper.getInstance().getStringValue(HiSettingsHelper.PERF_NOTI_SOUND, "");
+        String sound = mSettings.getStringValue(HiSettingsHelper.PERF_NOTI_SOUND, "");
         if (!TextUtils.isEmpty(sound))
             builder.setSound(Uri.parse(sound));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
@@ -219,9 +258,9 @@ public class NotiHelper {
         notificationManager.notify(0, builder.build());
     }
 
-    public static void initNotificationChannel() {
+    public void initNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Context context = HiApplication.getAppContext();
+            Context context = mContext;
 
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             if (notificationManager.getNotificationChannel(CHANNEL_ID) == null) {
@@ -236,7 +275,7 @@ public class NotiHelper {
         }
     }
 
-    public static void clearNotification() {
+    public void clearNotification() {
         mCurrentBean.clearSmsCount();
         mCurrentBean.clearThreadCount();
     }

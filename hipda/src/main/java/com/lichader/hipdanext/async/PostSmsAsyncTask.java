@@ -1,13 +1,13 @@
 package com.lichader.hipdanext.async;
 
 import static com.lichader.hipdanext.okhttp.OkHttpHelper.getErrorMessage;
-import static com.lichader.hipdanext.okhttp.OkHttpHelper.getInstance;
 
 import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import androidx.appcompat.app.AlertDialog;
 
+import com.lichader.hipdanext.okhttp.OkHttpHelper;
 import com.lichader.hipdanext.okhttp.ParamsMap;
 import com.lichader.hipdanext.utils.Constants;
 import com.lichader.hipdanext.utils.HiUtils;
@@ -25,6 +25,7 @@ public class PostSmsAsyncTask extends AsyncTask<String, Void, Void> {
     private static long LAST_SMS_TIME = 0;
     private static final long SMS_DELAY_IN_SECS = 15;
 
+    private final OkHttpHelper mOkHttpHelper;
     private String mUid;
     private String mUsername;
 
@@ -34,7 +35,9 @@ public class PostSmsAsyncTask extends AsyncTask<String, Void, Void> {
     private SmsPostListener mPostListenerCallback;
     private AlertDialog mDialog;
 
-    public PostSmsAsyncTask(String uid, String username, SmsPostListener postListener, AlertDialog dialog) {
+    public PostSmsAsyncTask(OkHttpHelper okHttpHelper, String uid, String username,
+                            SmsPostListener postListener, AlertDialog dialog) {
+        mOkHttpHelper = okHttpHelper;
         mUid = uid;
         mUsername = username;
         mPostListenerCallback = postListener;
@@ -47,7 +50,7 @@ public class PostSmsAsyncTask extends AsyncTask<String, Void, Void> {
 
         // fetch a new page and parse formhash
         try {
-            String rspStr = getInstance().get((HiUtils.SMSPreparePostUrl + mUid));
+            String rspStr = mOkHttpHelper.get((HiUtils.SMSPreparePostUrl + mUid));
 
             Document doc = Jsoup.parse(rspStr);
             Elements formhashES = doc.select("input#formhash");
@@ -84,7 +87,7 @@ public class PostSmsAsyncTask extends AsyncTask<String, Void, Void> {
 
         String response = null;
         try {
-            response = getInstance().post(url, params);
+            response = mOkHttpHelper.post(url, params);
 
             //response is in xml format
             if (TextUtils.isEmpty(response)) {

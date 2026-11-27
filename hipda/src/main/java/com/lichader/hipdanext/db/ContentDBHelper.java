@@ -4,11 +4,15 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.lichader.hipdanext.ui.HiApplication;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import dagger.hilt.android.qualifiers.ApplicationContext;
 
 /**
  * Created by GreenSkinMonster on 2016-07-23.
  */
+@Singleton
 public class ContentDBHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 2;
@@ -22,17 +26,9 @@ public class ContentDBHelper extends SQLiteOpenHelper {
                     "time NUMERIC, " +
                     "content TEXT);";
 
-    private static ContentDBHelper instance;
-
-    ContentDBHelper(Context context) {
+    @Inject
+    public ContentDBHelper(@ApplicationContext Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-    }
-
-    public static synchronized ContentDBHelper getHelper() {
-        if (instance == null)
-            instance = new ContentDBHelper(HiApplication.getAppContext());
-
-        return instance;
     }
 
     @Override

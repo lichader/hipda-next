@@ -12,7 +12,6 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 
-import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.cache.ImageContainer;
 import com.lichader.hipdanext.cache.ImageInfo;
 import com.lichader.hipdanext.glide.GlideImageEvent;
@@ -88,7 +87,7 @@ public class GlideImageJob extends BaseJob {
                 Logger.e(e);
                 imageInfo.setStatus(ImageInfo.FAIL);
                 String message = "";
-                if (HiSettingsHelper.getInstance().isErrorReportMode()) {
+                if (mSettings.isErrorReportMode()) {
                     message = "url : " + mUrl + "\n\nmessage : ";
                     if (e instanceof ExecutionException && e.getCause() != null) {
                         message += e.getCause().getMessage();

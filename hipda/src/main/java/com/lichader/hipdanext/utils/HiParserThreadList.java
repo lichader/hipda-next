@@ -16,17 +16,16 @@ import org.jsoup.select.Elements;
 
 public class HiParserThreadList {
 
-    private static long HOLD_FETCH_NOTIFY = 0;
+    public static ThreadListBean parse(Context context, HiSettingsHelper settings,
+                                       NotiHelper notiHelper, Document doc) {
 
-    public static ThreadListBean parse(Context context, Document doc) {
-
-        new Thread(new ParseNotifyRunnable(context, doc)).start();
+        notiHelper.fetchNotificationAsync(context, doc);
         HiSettingsHelper.updateMobileNetworkStatus(context);
 
         ThreadListBean threads = new ThreadListBean();
 
         //parse uid and re-set username if necessary
-        if (TextUtils.isEmpty(HiSettingsHelper.getInstance().getUid())) {
+        if (TextUtils.isEmpty(settings.getUid())) {
             Elements spaceES = doc.select("#umenu cite a");
             if (spaceES.size() == 1) {
                 String spaceUrl = spaceES.first().attr("href");
@@ -35,11 +34,11 @@ public class HiParserThreadList {
                     String username = Utils.nullToText(spaceES.first().text()).trim();
                     if (!TextUtils.isEmpty(uid)
                             && TextUtils.isDigitsOnly(uid)
-                            && !HiSettingsHelper.getInstance().getUid().equals(uid)) {
+                            && !settings.getUid().equals(uid)) {
                         //re-set username if it is not exactly SAME to user inputted with case sensitive
-                        if (!HiSettingsHelper.getInstance().getUsername().equals(username)
-                                && HiSettingsHelper.getInstance().getUsername().equalsIgnoreCase(username))
-                            HiSettingsHelper.getInstance().setUsername(username);
+                        if (!settings.getUsername().equals(username)
+                                && settings.getUsername().equalsIgnoreCase(username))
+                            settings.setUsername(username);
                         //uid will be setted later
                         threads.setUid(uid);
                     }
@@ -62,7 +61,7 @@ public class HiParserThreadList {
                 sticky = imgEl != null && imgEl.attr("src").contains("/pin_");
             }
             thread.setSticky(sticky);
-            if (sticky && !HiSettingsHelper.getInstance().isShowStickThreads()) {
+            if (sticky && !settings.isShowStickThreads()) {
                 continue;
             }
 
@@ -115,8 +114,8 @@ public class HiParserThreadList {
                 continue;
             }
             String author = authorciteAES.first().text();
-            if (!thread.setAuthor(author)) {
-                //author in blacklist
+            thread.setAuthor(author);
+            if (settings.isInBlacklist(author)) {
                 continue;
             }
 
@@ -199,29 +198,6 @@ public class HiParserThreadList {
         }
 
         return threads;
-    }
-
-    public static class ParseNotifyRunnable implements Runnable {
-
-        private Document mDoc;
-        private Context mCtx;
-
-        public ParseNotifyRunnable(Context context, Document doc) {
-            mDoc = doc;
-            mCtx = context;
-        }
-
-        @Override
-        public void run() {
-            if (System.currentTimeMillis() > HOLD_FETCH_NOTIFY + 10 * 1000) {
-                NotiHelper.fetchNotification(mDoc);
-                NotiHelper.showNotification(mCtx);
-            }
-        }
-    }
-
-    public static void holdFetchNotify() {
-        HOLD_FETCH_NOTIFY = System.currentTimeMillis();
     }
 
 }

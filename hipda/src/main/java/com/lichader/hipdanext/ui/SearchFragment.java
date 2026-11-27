@@ -71,6 +71,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 import dagger.hilt.android.AndroidEntryPoint;
+import javax.inject.Inject;
 
 /**
  * Created by GreenSkinMonster on 2017-07-17.
@@ -78,6 +79,9 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
+
+    @Inject
+    JobMgr mJobMgr;
 
     private final int mType = SimpleListJob.TYPE_SEARCH;
     public static final String ARG_QUERY = "QUERY";
@@ -149,11 +153,11 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
 
         mPreferences = getActivity().getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE);
 
-        RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), new OnItemClickListener());
-        mSimpleListAdapter = new SimpleListAdapter(this, mType, itemClickListener);
+        RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), mSettings, new OnItemClickListener());
+        mSimpleListAdapter = new SimpleListAdapter(this, mSettings, mType, itemClickListener);
 
         mHistoryAdapter = new SearchHistoryAdapter(getActivity(),
-                new RecyclerItemClickListener(getActivity(), new HistoryItemClickListener()));
+                new RecyclerItemClickListener(getActivity(), mSettings, new HistoryItemClickListener()));
 
         mIconDrawable = new IconicsDrawable(getActivity(), GoogleMaterial.Icon.gmd_history).sizeDp(16).color(Color.GRAY);
 
@@ -434,7 +438,7 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
         mMaxPage = 0;
         mPage = 1;
         SimpleListJob job = new SimpleListJob(getActivity(), mSessionId, mType, mPage, mSearchBean);
-        JobMgr.addJob(job);
+        mJobMgr.addJob(job);
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -527,7 +531,7 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
                             mPage++;
                             mRecyclerView.setFooterState(XFooterView.STATE_LOADING);
                             SimpleListJob job = new SimpleListJob(getActivity(), mSessionId, mType, mPage, mSearchBean);
-                            JobMgr.addJob(job);
+                            mJobMgr.addJob(job);
                         } else {
                             mRecyclerView.setFooterState(XFooterView.STATE_END);
                         }

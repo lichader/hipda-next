@@ -76,14 +76,6 @@ public class OkHttpHelper {
         return mClient;
     }
 
-    /**
-     * @deprecated inject {@link OkHttpHelper} instead.
-     */
-    @Deprecated
-    public static OkHttpHelper getInstance() {
-        return SingletonEntryPoint.get().okHttpHelper();
-    }
-
     private Request buildGetRequest(String url, Object tag, CacheControl cacheControl) {
         Request.Builder builder = new Request.Builder()
                 .url(url)
@@ -215,12 +207,12 @@ public class OkHttpHelper {
     }
 
 
-    public static String getResponseBody(Response response) throws IOException {
+    public String getResponseBody(Response response) throws IOException {
         if (!response.isSuccessful()) {
             throw new IOException(ERROR_CODE_PREFIX + response.code() + ", " + response.message());
         }
 
-        String encoding = HiSettingsHelper.getInstance().getEncode();
+        String encoding = mSettings.getEncode();
         String contextType = response.headers().get("Content-Type");
         if (!TextUtils.isEmpty(contextType)) {
             if (contextType.toUpperCase().contains("UTF")) {
@@ -289,7 +281,8 @@ public class OkHttpHelper {
         }
         String errorMsg = e.getClass().getName()
                 + "\n" + e.getMessage();
-        if (HiSettingsHelper.getInstance().isErrorReportMode())
+        // A static helper with many callers, so it looks the settings up itself.
+        if (SingletonEntryPoint.get().settings().isErrorReportMode())
             errorMsg += "\n" + Utils.getStackTrace(e);
         return new NetworkError(errCode, msg, errorMsg);
     }

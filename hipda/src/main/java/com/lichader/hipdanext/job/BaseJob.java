@@ -5,12 +5,24 @@ import com.birbit.android.jobqueue.Job;
 import com.birbit.android.jobqueue.Params;
 import com.birbit.android.jobqueue.RetryConstraint;
 
+import com.lichader.hipdanext.bean.HiSettingsHelper;
+import com.lichader.hipdanext.di.SingletonEntryPoint;
+import com.lichader.hipdanext.okhttp.OkHttpHelper;
+
 import androidx.annotation.Nullable;
 
 /**
  * Created by GreenSkinMonster on 2016-03-28.
  */
 public abstract class BaseJob extends Job {
+
+    /**
+     * Jobs are created with {@code new} by the screens that start them, so Hilt cannot
+     * inject them; they look their services up instead. The queue never persists jobs.
+     */
+    protected final transient SingletonEntryPoint mServices = SingletonEntryPoint.get();
+    protected final transient HiSettingsHelper mSettings = mServices.settings();
+    protected final transient OkHttpHelper mOkHttpHelper = mServices.okHttpHelper();
 
     protected String mSessionId;
 

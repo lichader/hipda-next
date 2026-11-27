@@ -48,7 +48,10 @@ public class SimpleGridMenu {
     private LinkedHashMap<String, MenuItem> mMenuItems = new LinkedHashMap<>();
     private List<String> mActionKeys = new ArrayList<>();
 
-    public SimpleGridMenu(BaseFragment fragment) {
+    private final HiSettingsHelper mSettings;
+
+    public SimpleGridMenu(BaseFragment fragment, HiSettingsHelper settings) {
+        mSettings = settings;
         mContext = fragment.getActivity();
         mFragment = fragment;
         mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -73,8 +76,8 @@ public class SimpleGridMenu {
         ImageView avatarView = view.findViewById(R.id.iv_avatar);
         ImageView reportView = view.findViewById(R.id.iv_report);
 
-        if (HiSettingsHelper.getInstance().isLoadAvatar()) {
-            GlideHelper.loadAvatar(mFragment, avatarView, HiUtils.getAvatarUrlByUid(mDetailBean.getUid()));
+        if (mSettings.isLoadAvatar()) {
+            GlideHelper.loadAvatar(mFragment, avatarView, HiUtils.getAvatarUrlByUid(mDetailBean.getUid()), mSettings);
         } else {
             avatarView.setVisibility(View.GONE);
         }
@@ -82,7 +85,7 @@ public class SimpleGridMenu {
         gridView.setAdapter(new MenuActionAdapter(mContext));
         tvTitle.setText(mDetailBean.getFloor() + "# " + mDetailBean.getAuthor());
 
-        if (HiSettingsHelper.getInstance().getUid().equals(mDetailBean.getUid()))
+        if (mSettings.getUid().equals(mDetailBean.getUid()))
             reportView.setVisibility(View.INVISIBLE);
         reportView.setOnClickListener(mReportListener);
 

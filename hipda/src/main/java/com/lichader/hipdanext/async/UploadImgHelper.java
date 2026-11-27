@@ -1,5 +1,6 @@
 package com.lichader.hipdanext.async;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
@@ -9,7 +10,6 @@ import android.text.TextUtils;
 
 import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.okhttp.OkHttpHelper;
-import com.lichader.hipdanext.ui.HiApplication;
 import com.lichader.hipdanext.utils.CursorUtils;
 import com.lichader.hipdanext.utils.HiUtils;
 import com.lichader.hipdanext.utils.ImageFileInfo;
@@ -26,6 +26,10 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import id.zelory.compressor.Compressor;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -40,6 +44,9 @@ public class UploadImgHelper {
     private static final int THUMB_SIZE = 256;
 
     private int mMaxUploadSize = 2048 * 1024;
+
+    private final Context mContext;
+    private final OkHttpHelper mOkHttpHelper;
 
     private UploadImgListener mListener;
 
@@ -57,14 +64,34 @@ public class UploadImgHelper {
     private File mTempFile;
     private File mCompressedFile;
 
-    public UploadImgHelper(UploadImgListener v, String uid, String hash, Uri[] uris, boolean original) {
+    /** Creates an {@link UploadImgHelper} for one batch of images. */
+    @AssistedFactory
+    public interface Factory {
+        UploadImgHelper create(UploadImgListener listener,
+                               @Assisted("uid") String uid,
+                               @Assisted("hash") String hash,
+                               Uri[] uris,
+                               boolean original);
+    }
+
+    @AssistedInject
+    public UploadImgHelper(@ApplicationContext Context context,
+                           HiSettingsHelper settings,
+                           OkHttpHelper okHttpHelper,
+                           @Assisted UploadImgListener v,
+                           @Assisted("uid") String uid,
+                           @Assisted("hash") String hash,
+                           @Assisted Uri[] uris,
+                           @Assisted boolean original) {
+        mContext = context;
+        mOkHttpHelper = okHttpHelper;
         mListener = v;
         mUid = uid;
         mHash = hash;
         mUris = uris;
         mOriginal = original;
 
-        int maxUploadSize = HiSettingsHelper.getInstance().getMaxUploadFileSize();
+        int maxUploadSize = settings.getMaxUploadFileSize();
         if (maxUploadSize > 0) {
             mMaxUploadSize = maxUploadSize;
         }
@@ -202,7 +229,7 @@ public class UploadImgHelper {
                 .post(builder.build())
                 .build();
 
-        Response response = OkHttpHelper.getInstance().getClient().newCall(request).execute();
+        Response response = mOkHttpHelper.getClient().newCall(request).execute();
         if (!response.isSuccessful())
             throw new IOException(OkHttpHelper.ERROR_CODE_PREFIX + response.networkResponse().code());
 
@@ -233,7 +260,7 @@ public class UploadImgHelper {
         String compressedFilename = getRandonTempFilename(Uri.fromFile(mTempFile));
         for (int i = 0; i < 5; i++) {
             int dimension = (int) (maxDimension * (5 - i) * 0.1);
-            File compressedFile = new Compressor(HiApplication.getAppContext())
+            File compressedFile = new Compressor(mContext)
                     .setMaxWidth(dimension)
                     .setMaxHeight(dimension)
                     .setQuality(MAX_QUALITY)

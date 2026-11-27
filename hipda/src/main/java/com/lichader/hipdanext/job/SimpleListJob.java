@@ -9,7 +9,6 @@ import com.lichader.hipdanext.bean.SearchBean;
 import com.lichader.hipdanext.bean.SimpleListBean;
 import com.lichader.hipdanext.bean.SimpleListItemBean;
 import com.lichader.hipdanext.db.History;
-import com.lichader.hipdanext.db.HistoryDao;
 import com.lichader.hipdanext.okhttp.NetworkError;
 import com.lichader.hipdanext.okhttp.OkHttpHelper;
 import com.lichader.hipdanext.utils.Constants;
@@ -96,7 +95,7 @@ public class SimpleListJob extends BaseJob {
 
         if (mType == TYPE_HISTORIES) {
             data = new SimpleListBean();
-            List<History> histories = HistoryDao.getHistories();
+            List<History> histories = mServices.historyDao().getHistories();
             for (History history : histories) {
                 SimpleListItemBean bean = new SimpleListItemBean();
                 String forumName = "";
@@ -116,7 +115,7 @@ public class SimpleListJob extends BaseJob {
                 Document doc = Jsoup.parse(fetchSimpleList(mType));
                 boolean loggedin = LoginHelper.checkLoggedin(doc);
                 if (!loggedin) {
-                    int status = new LoginHelper().login();
+                    int status = mServices.loginHelper().login();
                     if (status == Constants.STATUS_FAIL_ABORT) {
                         eventStatus = Constants.STATUS_FAIL_RELOGIN;
                         eventMessage = "请重新登录";
@@ -126,7 +125,7 @@ public class SimpleListJob extends BaseJob {
                     }
                 }
                 if (loggedin) {
-                    data = HiParser.parseSimpleList(mCtx, mType, doc, (mType == TYPE_SEARCH && mSearchBean != null && mSearchBean.isFulltext()));
+                    data = HiParser.parseSimpleList(mCtx, mServices.notiHelper(), mType, doc, (mType == TYPE_SEARCH && mSearchBean != null && mSearchBean.isFulltext()));
                     formhash = HiParser.parseFormhash(doc);
                     eventStatus = Constants.STATUS_SUCCESS;
                 }
@@ -211,6 +210,6 @@ public class SimpleListJob extends BaseJob {
             default:
                 break;
         }
-        return OkHttpHelper.getInstance().get(url, mSessionId);
+        return mOkHttpHelper.get(url, mSessionId);
     }
 }

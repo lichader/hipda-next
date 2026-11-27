@@ -5,18 +5,26 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.robolectric.Shadows.shadowOf;
 
 import android.content.Context;
+import android.os.Looper;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.work.ListenableWorker;
+import androidx.work.testing.TestListenableWorkerBuilder;
 
 import com.lichader.hipdanext.async.FavoriteHelper;
+import com.lichader.hipdanext.async.LoginHelper;
 import com.lichader.hipdanext.bean.HiSettingsHelper;
+import com.lichader.hipdanext.bean.PostBean;
+import com.lichader.hipdanext.db.History;
+import com.lichader.hipdanext.db.HistoryDao;
 import com.lichader.hipdanext.di.SingletonEntryPoint;
-import com.lichader.hipdanext.okhttp.CachedDns;
 import com.lichader.hipdanext.okhttp.OkHttpHelper;
 import com.lichader.hipdanext.okhttp.RetryIntercepter;
+import com.lichader.hipdanext.service.NotiWorker;
 import com.lichader.hipdanext.ui.HiApplication;
 import com.lichader.hipdanext.utils.HiUtils;
 
@@ -57,30 +65,62 @@ public class AppStartupTest {
 
     @Test
     public void coreServicesAreSingletons() {
-        assertSame(OkHttpHelper.getInstance(), OkHttpHelper.getInstance());
-        assertSame(CachedDns.getInstance(), CachedDns.getInstance());
-        assertSame(HiSettingsHelper.getInstance(), HiSettingsHelper.getInstance());
-        assertSame(FavoriteHelper.getInstance(), FavoriteHelper.getInstance());
-    }
-
-    @Test
-    public void networkServicesComeFromHilt() {
         SingletonEntryPoint hilt = SingletonEntryPoint.get();
-        assertSame(hilt.okHttpHelper(), OkHttpHelper.getInstance());
-        assertSame(hilt.cachedDns(), CachedDns.getInstance());
         assertSame(hilt.okHttpHelper(), hilt.okHttpHelper());
+        assertSame(hilt.cachedDns(), hilt.cachedDns());
+        assertSame(hilt.settings(), hilt.settings());
+        assertSame(hilt.favorites(), hilt.favorites());
     }
 
     @Test
-    public void settingsAndFavoritesComeFromHilt() {
+    public void asyncHelpersComeFromHilt() {
         SingletonEntryPoint hilt = SingletonEntryPoint.get();
-        assertSame(hilt.settings(), HiSettingsHelper.getInstance());
-        assertSame(hilt.favorites(), FavoriteHelper.getInstance());
+        assertSame(hilt.loginHelper(), hilt.loginHelper());
+        assertSame(hilt.notiHelper(), hilt.notiHelper());
+        PostBean post = new PostBean();
+        post.setTid("1");
+        assertNotNull(hilt.postHelperFactory().create(0, null, post));
+    }
+
+    @Test
+    public void logoutClearsLoginState() {
+        SingletonEntryPoint hilt = SingletonEntryPoint.get();
+        LoginHelper login = hilt.loginHelper();
+        hilt.settings().setUsername("someone");
+        hilt.notiHelper().getCurrentNotification().setSmsCount(3);
+        login.logout();
+        assertFalse(login.isLoggedIn());
+        assertEquals("", hilt.settings().getUsername());
+        assertEquals(0, hilt.notiHelper().getCurrentNotification().getSmsCount());
+    }
+
+    @Test
+    public void notiWorkerIsCreatedByHilt() {
+        Context app = ApplicationProvider.getApplicationContext();
+        NotiWorker worker = TestListenableWorkerBuilder.from(app, NotiWorker.class)
+                .setWorkerFactory(((HiApplication) app).getWorkManagerConfiguration().getWorkerFactory())
+                .build();
+        // Logged out, so the worker checks nothing and succeeds offline.
+        SingletonEntryPoint.get().loginHelper().logout();
+        assertEquals(ListenableWorker.Result.success(), worker.doWork());
+    }
+
+    @Test
+    public void historyIsSavedThroughHilt() {
+        HistoryDao history = SingletonEntryPoint.get().historyDao();
+        assertSame(history, SingletonEntryPoint.get().historyDao());
+        history.saveHistoryInBackground("424242", "2", "smoke", "1", "someone", "");
+        shadowOf(Looper.getMainLooper()).idle();
+        boolean found = false;
+        for (History h : history.getHistories()) {
+            if ("424242".equals(h.getTid())) found = true;
+        }
+        assertTrue("saved thread must be in the history", found);
     }
 
     @Test
     public void favoritesCacheRoundTrip() {
-        FavoriteHelper favorites = FavoriteHelper.getInstance();
+        FavoriteHelper favorites = SingletonEntryPoint.get().favorites();
         favorites.addToCahce(FavoriteHelper.TYPE_FAVORITE, "12345");
         assertTrue(favorites.isInFavorite("12345"));
         favorites.removeFromCahce(FavoriteHelper.TYPE_FAVORITE, "12345");
@@ -89,7 +129,7 @@ public class AppStartupTest {
 
     @Test
     public void settingsKeepTextSizeAdjustment() {
-        HiSettingsHelper settings = HiSettingsHelper.getInstance();
+        HiSettingsHelper settings = SingletonEntryPoint.get().settings();
         int base = settings.getPostTextSize() - settings.getPostTextSizeAdj();
         int old = settings.getPostTextSizeAdj();
         settings.setPostTextSizeAdj(old + 2);
@@ -99,8 +139,8 @@ public class AppStartupTest {
 
     @Test
     public void httpClientIsConfigured() {
-        OkHttpClient client = OkHttpHelper.getInstance().getClient();
-        assertSame(CachedDns.getInstance(), client.dns());
+        OkHttpClient client = SingletonEntryPoint.get().okHttpHelper().getClient();
+        assertSame(SingletonEntryPoint.get().cachedDns(), client.dns());
         assertNotNull(client.cache());
         assertEquals(OkHttpHelper.CONNECT_TIMEOUT_SECS * 1000, client.connectTimeoutMillis());
         assertEquals(OkHttpHelper.READ_TIMEOUT_SECS * 1000, client.readTimeoutMillis());
@@ -114,7 +154,7 @@ public class AppStartupTest {
 
     @Test
     public void authCookieIsStoredAndCleared() {
-        OkHttpHelper http = OkHttpHelper.getInstance();
+        OkHttpHelper http = SingletonEntryPoint.get().okHttpHelper();
         http.clearCookies();
         assertFalse(http.hasAuthCookie());
 
@@ -132,7 +172,7 @@ public class AppStartupTest {
 
     @Test
     public void settingsPersistToSharedPreferences() {
-        HiSettingsHelper settings = HiSettingsHelper.getInstance();
+        HiSettingsHelper settings = SingletonEntryPoint.get().settings();
         String old = settings.getStringValue(HiSettingsHelper.PERF_TAILTEXT, "");
         settings.setStringValue(HiSettingsHelper.PERF_TAILTEXT, "smoke");
         assertEquals("smoke", settings.getStringValue(HiSettingsHelper.PERF_TAILTEXT, ""));

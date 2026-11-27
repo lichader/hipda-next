@@ -116,9 +116,9 @@ public class HiUtils {
         }
     }
 
-    public static void updateBaseUrls() {
-        String imageHost = HiSettingsHelper.getInstance().getImageHost();
-        String forumServer = HiSettingsHelper.getInstance().getForumServer();
+    public static void updateBaseUrls(HiSettingsHelper settings) {
+        String imageHost = settings.getImageHost();
+        String forumServer = settings.getForumServer();
 
         BaseUrl = forumServer + "/forum/";
         ImageBaseUrl = imageHost + "/forum/";
@@ -230,8 +230,8 @@ public class HiUtils {
         return userAgent;
     }
 
-    public static String getForumsSummary() {
-        List<Integer> fids = HiSettingsHelper.getInstance().getForums();
+    public static String getForumsSummary(HiSettingsHelper settings) {
+        List<Integer> fids = settings.getForums();
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < fids.size(); i++) {
             int fid = fids.get(i);

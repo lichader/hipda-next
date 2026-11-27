@@ -79,6 +79,9 @@ import io.github.inflationx.calligraphy3.TypefaceUtils;
 public class SettingNestedFragment extends BaseSettingFragment {
 
     @Inject
+    TaskHelper mTaskHelper;
+
+    @Inject
     OkHttpHelper mOkHttpHelper;
 
     public static final int SCREEN_TAIL = 1;
@@ -155,8 +158,8 @@ public class SettingNestedFragment extends BaseSettingFragment {
                 bindPreferenceSummaryToValue(findPreference(HiSettingsHelper.PERF_TAILURL));
 
                 Preference forumsPreference = findPreference(HiSettingsHelper.PERF_FORUMS);
-                forumsPreference.setOnPreferenceClickListener(new ForumSelectListener(getActivity()));
-                forumsPreference.setSummary(HiUtils.getForumsSummary());
+                forumsPreference.setOnPreferenceClickListener(new ForumSelectListener(getActivity(), mSettings));
+                forumsPreference.setSummary(HiUtils.getForumsSummary(mSettings));
 
                 final Preference tailTextPreference = findPreference(HiSettingsHelper.PERF_TAILTEXT);
                 tailTextPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -260,11 +263,11 @@ public class SettingNestedFragment extends BaseSettingFragment {
                 final Preference silentEndPreference = findPreference(HiSettingsHelper.PERF_NOTI_SILENT_END);
 
                 silentBeginPreference.setOnPreferenceClickListener(
-                        new TimePickerListener(mSettings.getSilentBegin()));
+                        new TimePickerListener(mSettings, mSettings.getSilentBegin()));
                 silentBeginPreference.setSummary(mSettings.getSilentBegin());
 
                 silentEndPreference.setOnPreferenceClickListener(
-                        new TimePickerListener(mSettings.getSilentEnd()));
+                        new TimePickerListener(mSettings, mSettings.getSilentEnd()));
                 silentEndPreference.setSummary(mSettings.getSilentEnd());
 
                 enableNotiItems(notiEnablePreference, mSettings.isNotiTaskEnabled());
@@ -288,7 +291,7 @@ public class SettingNestedFragment extends BaseSettingFragment {
                 forumServerPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        TaskHelper.updateImageHost(getActivity(), preference);
+                        mTaskHelper.updateImageHost(getActivity(), preference);
                         return true;
                     }
                 });
@@ -450,7 +453,7 @@ public class SettingNestedFragment extends BaseSettingFragment {
         final LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View viewlayout = inflater.inflate(R.layout.dialog_font_selector, null);
 
-        RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(),
+        RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), mSettings,
                 new RecyclerItemClickListener.SimpleOnItemClickListener() {
                 });
         FontsAdapter fontsAdapter = new FontsAdapter(getActivity(), itemClickListener);
@@ -651,7 +654,7 @@ public class SettingNestedFragment extends BaseSettingFragment {
         final LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View viewlayout = inflater.inflate(R.layout.dialog_crash_logs, null);
 
-        RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(),
+        RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), mSettings,
                 new RecyclerItemClickListener.SimpleOnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {

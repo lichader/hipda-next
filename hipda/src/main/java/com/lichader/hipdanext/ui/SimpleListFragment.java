@@ -60,6 +60,12 @@ public class SimpleListFragment extends BaseFragment
         implements SwipeRefreshLayout.OnRefreshListener, PostSmsAsyncTask.SmsPostListener {
 
     @Inject
+    JobMgr mJobMgr;
+
+    @Inject
+    NotiHelper mNotiHelper;
+
+    @Inject
     FavoriteHelper mFavoriteHelper;
 
     public static final String ARG_TYPE = "type";
@@ -92,8 +98,8 @@ public class SimpleListFragment extends BaseFragment
             mType = getArguments().getInt(ARG_TYPE);
         }
 
-        RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), new OnItemClickListener());
-        mSimpleListAdapter = new SimpleListAdapter(this, mType, itemClickListener);
+        RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), mSettings, new OnItemClickListener());
+        mSimpleListAdapter = new SimpleListAdapter(this, mSettings, mType, itemClickListener);
     }
 
     @Override
@@ -158,7 +164,7 @@ public class SimpleListFragment extends BaseFragment
                     mRecyclerView.setFooterState(XFooterView.STATE_HIDDEN);
                     mLoadingView.setState(ContentLoadingView.LOADING);
                     SimpleListJob job = new SimpleListJob(getActivity(), mSessionId, mType, mPage, mSearchId);
-                    JobMgr.addJob(job);
+                    mJobMgr.addJob(job);
                 }
                 break;
         }
@@ -180,7 +186,7 @@ public class SimpleListFragment extends BaseFragment
                 inflater.inflate(R.menu.menu_sms_list, menu);
                 menu.findItem(R.id.action_send_sms).setIcon(new IconicsDrawable(getActivity(),
                         GoogleMaterial.Icon.gmd_insert_comment).actionBar()
-                        .color(UIUtils.getToolbarTextColor(getActivity())));
+                        .color(UIUtils.getToolbarTextColor(getActivity(), mSettings)));
                 break;
             case SimpleListJob.TYPE_THREAD_NOTIFY:
                 setActionBarTitle(R.string.title_drawer_notify);
@@ -250,7 +256,7 @@ public class SimpleListFragment extends BaseFragment
         mMaxPage = 0;
         mPage = 1;
         SimpleListJob job = new SimpleListJob(getActivity(), mSessionId, mType, mPage, mSearchId);
-        JobMgr.addJob(job);
+        mJobMgr.addJob(job);
     }
 
     @Override
@@ -285,7 +291,7 @@ public class SimpleListFragment extends BaseFragment
                             mPage++;
                             mRecyclerView.setFooterState(XFooterView.STATE_LOADING);
                             SimpleListJob job = new SimpleListJob(getActivity(), mSessionId, mType, mPage, mSearchId);
-                            JobMgr.addJob(job);
+                            mJobMgr.addJob(job);
                         } else {
                             mRecyclerView.setFooterState(XFooterView.STATE_END);
                         }
@@ -478,9 +484,9 @@ public class SimpleListFragment extends BaseFragment
             }
 
             if (mType == SimpleListJob.TYPE_SMS)
-                NotiHelper.getCurrentNotification().clearSmsCount();
+                mNotiHelper.getCurrentNotification().clearSmsCount();
             if (mType == SimpleListJob.TYPE_THREAD_NOTIFY)
-                NotiHelper.getCurrentNotification().setThreadCount(0);
+                mNotiHelper.getCurrentNotification().setThreadCount(0);
             if (mType == SimpleListJob.TYPE_NEW_POSTS)
                 mSearchId = list.getSearchId();
 

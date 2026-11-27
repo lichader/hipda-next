@@ -73,10 +73,21 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 import dagger.hilt.android.AndroidEntryPoint;
+import javax.inject.Inject;
 
 @AndroidEntryPoint
 public class ThreadListFragment extends BaseFragment
         implements SwipeRefreshLayout.OnRefreshListener {
+
+    @Inject
+    JobMgr mJobMgr;
+    @Inject
+    HistoryDao mHistoryDao;
+
+    @Inject
+    LoginHelper mLoginHelper;
+    @Inject
+    NotiHelper mNotiHelper;
 
     private final static int MIN_TREADS_IN_PAGE = 10;
     public static final String ARG_FID_KEY = "fid";
@@ -119,7 +130,7 @@ public class ThreadListFragment extends BaseFragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
-        setHasOptionsMenu(LoginHelper.isLoggedIn());
+        setHasOptionsMenu(mLoginHelper.isLoggedIn());
 
         View view = inflater.inflate(R.layout.fragment_thread_list, parent, false);
         mRecyclerView = view.findViewById(R.id.rv_threads);
@@ -127,9 +138,9 @@ public class ThreadListFragment extends BaseFragment
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecyclerView.addItemDecoration(new SimpleDivider(getActivity()));
 
-        RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), new OnItemClickListener());
+        RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), mSettings, new OnItemClickListener());
 
-        mThreadListAdapter = new ThreadListAdapter(Glide.with(getActivity()), itemClickListener);
+        mThreadListAdapter = new ThreadListAdapter(Glide.with(getActivity()), mSettings, itemClickListener);
         mThreadListAdapter.setDatas(mThreadBeans);
 
         mRecyclerView.setAdapter(mThreadListAdapter);
@@ -191,7 +202,7 @@ public class ThreadListFragment extends BaseFragment
                 mLoadingView.setState(ContentLoadingView.LOAD_NOW);
                 mInloading = true;
                 ThreadListJob job = new ThreadListJob(getActivity(), mSessionId, mForumId, mPage);
-                JobMgr.addJob(job);
+                mJobMgr.addJob(job);
             } else {
                 swipeLayout.setRefreshing(false);
                 mLoadingView.setState(ContentLoadingView.CONTENT);
@@ -201,7 +212,7 @@ public class ThreadListFragment extends BaseFragment
         if (getActivity() != null && getActivity() instanceof MainFrameActivity) {
             ((MainFrameActivity) getActivity()).setDrawerSelection(mForumId);
         }
-        if (LoginHelper.isLoggedIn()) {
+        if (mLoginHelper.isLoggedIn()) {
             showNotification();
         }
     }
@@ -228,12 +239,12 @@ public class ThreadListFragment extends BaseFragment
             int typeIdIndex = HiUtils.getBSTypeIndexByFid(typeId);
             if (typeIdIndex == -1) typeIdIndex = 0;
             mForumTypeMenuItem.setIcon(new IconicsDrawable(getActivity(), HiUtils.BS_TYPE_ICONS[typeIdIndex])
-                    .color(UIUtils.getToolbarTextColor(getActivity())).sizeDp(18));
+                    .color(UIUtils.getToolbarTextColor(getActivity(), mSettings)).sizeDp(18));
         }
 
         mSearchMenuItem = menu.findItem(R.id.action_search);
         mSearchMenuItem.setIcon(new IconicsDrawable(getActivity(), GoogleMaterial.Icon.gmd_search)
-                .color(UIUtils.getToolbarTextColor(getActivity())).sizeDp(18));
+                .color(UIUtils.getToolbarTextColor(getActivity(), mSettings)).sizeDp(18));
 
         MenuItem showStickItem = menu.findItem(R.id.action_show_stick_threads);
         showStickItem.setChecked(mSettings.isShowStickThreads());
@@ -318,18 +329,18 @@ public class ThreadListFragment extends BaseFragment
             mNotificationFab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    NotificationBean bean = NotiHelper.getCurrentNotification();
+                    NotificationBean bean = mNotiHelper.getCurrentNotification();
                     if (bean.getSmsCount() == 1
                             && bean.getThreadCount() == 0
                             && HiUtils.isValidId(bean.getUid())
                             && !TextUtils.isEmpty(bean.getUsername())) {
                         FragmentUtils.showSmsActivity(getActivity(), false, bean.getUid(), bean.getUsername());
-                        NotiHelper.getCurrentNotification().clearSmsCount();
+                        mNotiHelper.getCurrentNotification().clearSmsCount();
                         showNotification();
                     } else if (bean.getSmsCount() > 0) {
                         FragmentUtils.showSimpleListActivity(getActivity(), false, SimpleListJob.TYPE_SMS);
                     } else if (bean.getThreadCount() > 0) {
-                        NotiHelper.getCurrentNotification().setThreadCount(0);
+                        mNotiHelper.getCurrentNotification().setThreadCount(0);
                         FragmentUtils.showSimpleListActivity(getActivity(), false, SimpleListJob.TYPE_THREAD_NOTIFY);
                         showNotification();
                     } else {
@@ -350,7 +361,7 @@ public class ThreadListFragment extends BaseFragment
             FABHideOnScrollBehavior.hideFab(mMainFab);
         }
         ThreadListJob job = new ThreadListJob(getActivity(), mSessionId, mForumId, mPage);
-        JobMgr.addJob(job);
+        mJobMgr.addJob(job);
     }
 
     @Override
@@ -385,7 +396,7 @@ public class ThreadListFragment extends BaseFragment
                         mInloading = true;
                         mRecyclerView.setFooterState(XFooterView.STATE_LOADING);
                         ThreadListJob job = new ThreadListJob(getActivity(), mSessionId, mForumId, mPage);
-                        JobMgr.addJob(job);
+                        mJobMgr.addJob(job);
                     }
                 }
             }
@@ -401,7 +412,7 @@ public class ThreadListFragment extends BaseFragment
                 String tid = thread.getTid();
                 String title = thread.getTitle();
                 FragmentUtils.showThreadActivity(getActivity(), false, tid, title, -1, -1, null, thread.getMaxPage());
-                HistoryDao.saveHistoryInBackground(tid, mFidHolder[0] + "",
+                mHistoryDao.saveHistoryInBackground(tid, mFidHolder[0] + "",
                         title, thread.getAuthorId(), thread.getAuthor(), thread.getTimeCreate());
             }
         }
@@ -418,7 +429,7 @@ public class ThreadListFragment extends BaseFragment
                     page = (int) Math.ceil((Integer.parseInt(thread.getCountCmts()) + 1) * 1.0f / maxPostsInPage);
                 }
                 FragmentUtils.showThreadActivity(getActivity(), false, tid, title, page, ThreadDetailFragment.LAST_FLOOR_OF_PAGE, null, thread.getMaxPage());
-                HistoryDao.saveHistoryInBackground(tid, "", title, thread.getAuthorId(), thread.getAuthor(), thread.getTimeCreate());
+                mHistoryDao.saveHistoryInBackground(tid, "", title, thread.getAuthorId(), thread.getAuthor(), thread.getTimeCreate());
             }
         }
 
@@ -454,7 +465,7 @@ public class ThreadListFragment extends BaseFragment
                     mSettings.setBSTypeId(HiUtils.BS_TYPE_IDS[position]);
                     if (mForumTypeMenuItem != null) {
                         mForumTypeMenuItem.setIcon(new IconicsDrawable(getActivity(), HiUtils.BS_TYPE_ICONS[position])
-                                .color(UIUtils.getToolbarTextColor(getActivity())).actionBar());
+                                .color(UIUtils.getToolbarTextColor(getActivity(), mSettings)).actionBar());
                     }
                     refresh();
                 }
@@ -517,8 +528,8 @@ public class ThreadListFragment extends BaseFragment
 
     public void showNotification() {
         if (mNotificationFab != null) {
-            int smsCount = NotiHelper.getCurrentNotification().getSmsCount();
-            int threadCount = NotiHelper.getCurrentNotification().getThreadCount();
+            int smsCount = mNotiHelper.getCurrentNotification().getSmsCount();
+            int threadCount = mNotiHelper.getCurrentNotification().getThreadCount();
             if (smsCount > 0) {
                 mNotificationFab.hide(); //avoid desgin lib bug cause image lost
                 mNotificationFab.setImageResource(R.drawable.ic_mail_white_24dp);
@@ -586,7 +597,7 @@ public class ThreadListFragment extends BaseFragment
                     && !TextUtils.isEmpty(threads.getUid())) {
                 mSettings.setUid(threads.getUid());
                 mSettings.saveCurrentProfile();
-                GlideHelper.refreshUserIcon(getActivity());
+                GlideHelper.refreshUserIcon(getActivity(), mSettings);
                 if (getActivity() != null)
                     ((MainFrameActivity) getActivity()).updateAccountHeader();
             }
@@ -623,7 +634,7 @@ public class ThreadListFragment extends BaseFragment
                 mPage++;
                 mInloading = true;
                 ThreadListJob job = new ThreadListJob(getActivity(), mSessionId, mForumId, mPage);
-                JobMgr.addJob(job);
+                mJobMgr.addJob(job);
             }
         }
 

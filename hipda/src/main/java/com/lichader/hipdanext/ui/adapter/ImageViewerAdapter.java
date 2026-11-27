@@ -11,6 +11,7 @@ import com.lichader.hipdanext.bean.ContentImg;
 import com.lichader.hipdanext.cache.ImageContainer;
 import com.lichader.hipdanext.cache.ImageInfo;
 import com.lichader.hipdanext.glide.GlideHelper;
+import com.lichader.hipdanext.job.JobMgr;
 import com.lichader.hipdanext.ui.widget.ImageViewerLayout;
 
 import java.util.List;
@@ -28,8 +29,11 @@ public class ImageViewerAdapter extends PagerAdapter {
 
     private boolean mFirstShow = true;
 
-    public ImageViewerAdapter(Activity activity, List<ContentImg> images) {
+    private final JobMgr mJobMgr;
+
+    public ImageViewerAdapter(Activity activity, JobMgr jobMgr, List<ContentImg> images) {
         mActivity = activity;
+        mJobMgr = jobMgr;
         mImages = images;
     }
 
@@ -50,7 +54,7 @@ public class ImageViewerAdapter extends PagerAdapter {
         final String imageUrl = contentImg.getContent();
         ImageInfo imageInfo = ImageContainer.getImageInfo(imageUrl);
 
-        final ImageViewerLayout imageLayout = new ImageViewerLayout(mActivity, contentImg);
+        final ImageViewerLayout imageLayout = new ImageViewerLayout(mActivity, mJobMgr, contentImg);
         imageLayout.setTag(position);
 
         //ScaleImageView has about 100ms delay, so show image with normal ImageView first

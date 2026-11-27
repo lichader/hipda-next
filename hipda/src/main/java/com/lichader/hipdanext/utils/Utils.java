@@ -526,8 +526,8 @@ public class Utils {
         }
     }
 
-    public static void download(Context ctx, String url, String filename) {
-        String authCookie = OkHttpHelper.getInstance().getAuthCookie();
+    public static void download(Context ctx, OkHttpHelper okHttpHelper, String url, String filename) {
+        String authCookie = okHttpHelper.getAuthCookie();
 
         if (TextUtils.isEmpty(url) || TextUtils.isEmpty(filename)
                 || (url.contains(HiUtils.ForumUrlPattern) && TextUtils.isEmpty(authCookie))) {
