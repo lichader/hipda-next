@@ -78,13 +78,21 @@ public class NotiHelper {
     }
 
     public void fetchNotification(Document doc) {
+        fetchNotification(doc, -1);
+    }
+
+    /**
+     * @param pageNoticeCount the notice count already read from a page's header by the site
+     *                        adapter, with a null doc; -1 to read it from doc
+     */
+    private void fetchNotification(Document doc, int pageNoticeCount) {
         int smsCount = -1;
-        int threadCount = -1;
+        int threadCount = pageNoticeCount;
         SimpleListItemBean smsBean = null;
 
         try {
             //check new sms
-            if (doc == null || mSettings.isCheckSms()) {
+            if ((doc == null && pageNoticeCount < 0) || mSettings.isCheckSms()) {
                 mSettings.setLastCheckSmsTime(System.currentTimeMillis());
 
                 String response = mOkHttpHelper.get(HiUtils.NewSMS);
@@ -184,6 +192,19 @@ public class NotiHelper {
         new Thread(() -> {
             if (System.currentTimeMillis() > mHoldFetchUntil) {
                 fetchNotification(doc);
+                showNotification(context);
+            }
+        }).start();
+    }
+
+    /**
+     * {@link #fetchNotificationAsync(Context, Document)} for a page the site adapter has parsed:
+     * takes the header's notice count instead of the page.
+     */
+    public void fetchNotificationAsync(final Context context, final int pageNoticeCount) {
+        new Thread(() -> {
+            if (System.currentTimeMillis() > mHoldFetchUntil) {
+                fetchNotification(null, pageNoticeCount);
                 showNotification(context);
             }
         }).start();

@@ -19,6 +19,13 @@ class HiPdaEndpoints(private val config: ForumConfig) {
 
     fun home(): String = baseUrl + "index.php"
 
+    fun threadList(forumId: Int, page: Int, typeId: String?, orderByPostTime: Boolean): String {
+        var url = baseUrl + "forumdisplay.php?fid=" + forumId + "&page=" + page
+        if (typeId != null) url += "&filter=type&typeid=" + typeId
+        if (orderByPostTime) url += "&orderby=dateline"
+        return url
+    }
+
     fun loginForm(): String = baseUrl + "logging.php?action=login"
 
     fun loginSubmit(): String = baseUrl + "logging.php?action=login&loginsubmit=yes&inajax=1"

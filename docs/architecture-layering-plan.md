@@ -111,7 +111,6 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 
 | ID | Item | Needs from the owner | Status |
 | --- | --- | --- | --- |
-| W5 | Migrate the **thread list** (`ThreadListFragment`, `ThreadListJob`) | – | Not started |
 | W6 | Migrate **simple lists and search**, including the user info screen's list of a user's threads (still `SimpleListJob` after W3); keeps the search query across rotation ([W1 result](#w1-result)) | – | Not started |
 | W7 | Migrate **private messages**, including the send dialog that user info opens (`BaseFragment.showSendSmsDialog`) | Test with a message to the owner's own account only | Not started |
 | W8 | Migrate **favorites** | – | Not started |
@@ -132,7 +131,8 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 | T1 | Response recorder for capturing real pages (debug builds) | #24; [how to use it](capturing-forum-pages.md) |
 | W3 | User info: profile and blacklist menu on the new layers; parity with the old parser checked on real pages | #25 |
 | W4a | Login layer: `:forum` `AuthApi` and `AccountRepository` with an account generation; `LoginHelper` is a bridge. Refused-login replies are synthetic fixtures, because capturing one needs a wrong password on the owner's account | #26 |
-| W4b | Session recovery: `SessionGuard` logs in again once when a page comes back logged out (blacklist and user info use it); automatic logins are single-flight; the blacklist is not stored across an account change (TD-22) | #27 |
+| W4b | Session recovery: `SessionGuard` logs in again once when a page comes back logged out (blacklist and user info use it); automatic logins are single-flight; the blacklist is not stored across an account change (TD-22) | #27; #28 fixed automatic logins counting as an account change |
+| W5 | Thread list on the new layers. Parity with the old parser checked on real Discovery and Buy & Sell pages. Java screens collect ViewModel flows with `FlowObservers.collect()`, and `PageHeader` passes the header's notice count to `NotiHelper` | #29 |
 | W1 | Fix the app-wide crash on configuration changes | #18; [W1 result](#w1-result) |
 | W2 | Check the Blacklist PoC with a logged-in account | #19; [W2 result](#w2-result) |
 | D2 | Decide about the dead update check | 2026-11-28: remove `UpdateHelper` (S4); the owner plans a new update mechanism |
@@ -198,7 +198,7 @@ Done on 2026-11-28 in #18.
 **What a configuration change still loses** (no crash; fix with each screen's ViewModel):
 - **Thread detail** reloads from its arguments, so the reader returns to the page the thread was opened on, not the page they were reading. Author-only mode switched on later is also lost.
 - **Search** clears the typed query and results, because the query box lives in the toolbar menu, which is rebuilt. Restoring it here would start a search automatically, because of how a query passed in is handled.
-- **Thread list, simple lists, private messages and user info** reload their data, and the scroll position is lost.
+- **Simple lists, private messages and user info** reload their data, and the scroll position is lost. (The thread list keeps both since W5.)
 - **Post editor:** typed text is restored by its views, and the draft is kept, being keyed by session ID. The thumbnails of images uploaded in this session are lost, but the forum lists those images as unused attachments, and the editor already offers to add them again.
 
 ### W2. Check the Blacklist PoC with a logged-in account
@@ -260,7 +260,7 @@ On the first pass the log showed no removal from user info; it was repeated, and
 | --- | --- | --- | --- |
 | Blacklist | `BlacklistFragment`; `UserinfoFragment` (add/remove); `TaskHelper` (daily sync) | `BlacklistHelper` + inline Jsoup in fragment | **Migrated (PoC, #16)**, checked with a logged-in account ([W2](#w2-result)); `BlacklistHelper` bridge remains for `TaskHelper`'s daily sync (W11) |
 | User info | `UserinfoFragment` | `asyncGet` + `HiParser.parseUserInfo` in fragment; `SimpleListJob` for threads | **Migrated (W3, #25)**; its threads list moves with W6, its send dialog with W7 |
-| Thread list | `ThreadListFragment` | `ThreadListJob` + EventBus | Not started (W5) |
+| Thread list | `ThreadListFragment` | `ThreadListJob` + EventBus | **Migrated (W5, #29)** |
 | Simple lists, search | `SimpleListFragment`, `SearchFragment` | `SimpleListJob` (11 types) + EventBus | Not started (W6) |
 | Private messages | `SmsFragment`, `BaseFragment` SMS dialog | `SimpleListJob`, `PostSmsAsyncTask`, `asyncGet` | Not started (W7) |
 | Favorites | Thread detail menu, lists | `FavoriteHelper` | Not started (W8) |
