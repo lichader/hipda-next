@@ -1,6 +1,6 @@
 # Architecture layering plan
 
-Status: **in progress**, started on 2026-11-28. The **Blacklist PoC was merged in #16**. [Open work items](#next-work): W1 is fixed on branch `claude/fix-config-change-crash`; W2 is next.
+Status: **in progress**, started on 2026-11-28. The **Blacklist PoC was merged in #16**. [Open work items](#next-work): W1 was fixed in #18; W2 is next.
 
 This plan prepares the app for a UI redesign. It puts the code that talks to the forum website behind one abstraction layer and drives each screen from a ViewModel. Then a new UI can be built on stable models without touching HTML, URLs or HTTP. The plan is incremental: every step ships on its own and keeps the app working.
 
@@ -99,7 +99,7 @@ These are open items found during the PoC. Fix them one at a time, in this order
 
 | ID | Item | Priority | Needs | Status |
 | --- | --- | --- | --- | --- |
-| W1 | [Fix the app-wide crash on configuration changes](#w1-fix-the-app-wide-crash-on-configuration-changes) | P1: crashes for every user who rotates the screen or changes dark mode or font size | Code change, emulator | **Fixed** on branch `claude/fix-config-change-crash`. See [result](#w1-result) |
+| W1 | [Fix the app-wide crash on configuration changes](#w1-fix-the-app-wide-crash-on-configuration-changes) | P1: crashes for every user who rotates the screen or changes dark mode or font size | Code change, emulator | **Fixed** in #18. See [result](#w1-result) |
 | W2 | [Check the Blacklist PoC with a logged-in account](#w2-check-the-blacklist-poc-with-a-logged-in-account) | Before the next feature migrates, because it covers the adapter's write path and the formhash handling | The account owner; a test account is better, because this edits the forum's blacklist | Not started |
 
 ### W1. Fix the app-wide crash on configuration changes
@@ -131,7 +131,7 @@ Fixing W1 also resolves most of [TD-25](technical-debt/td-25-retained-fragments-
 
 #### W1 result
 
-Done on 2026-11-28 on branch `claude/fix-config-change-crash`.
+Done on 2026-11-28 in #18.
 
 **Changes**
 - `BaseFragment` no longer calls `setRetainInstance(true)`. It saves `mSessionId` in `onSaveInstanceState()` and restores it in `onCreate()`. `BlacklistFragment`'s own opt-out is removed.
