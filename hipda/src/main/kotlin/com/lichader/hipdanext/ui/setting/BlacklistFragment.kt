@@ -35,15 +35,6 @@ class BlacklistFragment : BaseFragment() {
 
     private val viewModel: BlacklistViewModel by viewModels()
 
-    @Suppress("DEPRECATION")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // BaseFragment retains every fragment, which crashes Hilt fragments on any
-        // configuration change. This screen's state lives in its ViewModel, so it is not
-        // retained.
-        retainInstance = false
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
         inflater.inflate(R.layout.fragment_blacklist, container, false)
 

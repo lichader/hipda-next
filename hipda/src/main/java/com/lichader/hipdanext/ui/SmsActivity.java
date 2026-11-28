@@ -28,7 +28,10 @@ public class SmsActivity extends SwipeBaseActivity {
         if (getSupportActionBar() != null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        showFragment();
+        // Recreated after a configuration change: keep the restored fragment and its state.
+        if (savedInstanceState == null) {
+            showFragment();
+        }
     }
 
     @Override

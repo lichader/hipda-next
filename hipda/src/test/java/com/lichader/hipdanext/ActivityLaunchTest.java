@@ -1,5 +1,6 @@
 package com.lichader.hipdanext;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -42,9 +43,13 @@ import org.robolectric.shadows.ShadowLooper;
 
 import dagger.hilt.internal.GeneratedComponentManagerHolder;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * Opens every screen of the app and checks that it gets to the resumed state
- * without crashing. Network calls fail offline; the screens must cope with that.
+ * Opens every screen of the app and checks that it gets to the resumed state, and survives
+ * being recreated by a configuration change, without crashing. Network calls fail offline;
+ * the screens must cope with that.
  */
 @RunWith(AndroidJUnit4.class)
 public class ActivityLaunchTest {
@@ -62,11 +67,36 @@ public class ActivityLaunchTest {
         try (ActivityScenario<A> scenario = ActivityScenario.launch(intent)) {
             ShadowLooper.idleMainLooper();
             scenario.moveToState(Lifecycle.State.RESUMED);
+            Map<String, String> sessions = new HashMap<>();
             scenario.onActivity(a -> {
                 assertNotNull(a.getWindow().getDecorView());
                 assertInjected(a);
+                sessions.putAll(sessionIds(a));
+            });
+
+            // A configuration change, such as a rotation or a dark mode switch, recreates the
+            // activity and its fragments. Hilt fragments crash here if they are retained.
+            scenario.recreate();
+            ShadowLooper.idleMainLooper();
+            scenario.onActivity(a -> {
+                assertInjected(a);
+                // Job results and drafts are keyed by the session ID, so it must survive.
+                assertEquals(sessions, sessionIds(a));
             });
         }
+    }
+
+    /** The session ID of each {@link BaseFragment} on the screen, by fragment class. */
+    private static Map<String, String> sessionIds(Activity activity) {
+        Map<String, String> ids = new HashMap<>();
+        if (activity instanceof FragmentActivity) {
+            for (Fragment f : ((FragmentActivity) activity).getSupportFragmentManager().getFragments()) {
+                if (f instanceof BaseFragment) {
+                    ids.put(f.getClass().getName(), ((BaseFragment) f).mSessionId);
+                }
+            }
+        }
+        return ids;
     }
 
     /**
@@ -116,22 +146,6 @@ public class ActivityLaunchTest {
     public void settingsBlacklist() {
         assertLaunches(new Intent(context(), SettingActivity.class)
                 .putExtra(BlacklistFragment.TAG_KEY, BlacklistFragment.TAG_KEY));
-    }
-
-    /**
-     * A configuration change, such as a rotation, recreates the activity. Hilt fragments that
-     * are retained crash at that point. The blacklist keeps its state in a ViewModel instead.
-     */
-    @Test
-    public void settingsBlacklistSurvivesRecreation() {
-        Intent intent = new Intent(context(), SettingActivity.class)
-                .putExtra(BlacklistFragment.TAG_KEY, BlacklistFragment.TAG_KEY);
-        try (ActivityScenario<Activity> scenario = ActivityScenario.launch(intent)) {
-            ShadowLooper.idleMainLooper();
-            scenario.recreate();
-            ShadowLooper.idleMainLooper();
-            scenario.onActivity(a -> assertInjected(a));
-        }
     }
 
     @Test
