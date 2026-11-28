@@ -66,6 +66,16 @@ class AccountRepositoryTest {
     }
 
     @Test
+    fun anAutomaticLoginRenewsTheSessionAndKeepsTheGeneration() = runBlocking {
+        val before = account.generation.value
+
+        assertEquals(LoginOutcome.Success, account.login(manual = false))
+
+        assertEquals(listOf("token", "submit t1 user_1 secret 1 answer"), api.calls)
+        assertEquals(before, account.generation.value)
+    }
+
+    @Test
     fun refusalIsReportedAndKeepsTheGeneration() = runBlocking {
         api.result = LoginResult.Rejected("登录失败，您还可以尝试 4 次")
         val before = account.generation.value

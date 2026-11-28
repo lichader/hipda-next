@@ -57,7 +57,7 @@ Model         :forum module: data classes, ForumException (sealed)
 6. **Repositories are interfaces with a `Default…` implementation**, so ViewModel tests use plain fakes.
 7. **Legacy Java callers that can't call `suspend` functions get a thin Kotlin bridge** that launches on the `@ApplicationScope` scope (for example `async/BlacklistHelper`). A bridge is deleted when its last caller gets a ViewModel.
 8. **No fragment is retained** (`setRetainInstance`), because Hilt crashes retained fragments on configuration changes. A screen's state lives in its ViewModel, or in saved instance state for legacy screens. Activities add their fragment only when `savedInstanceState` is null, so a restored fragment is kept. `ActivityLaunchTest` recreates every screen; new screens get a test there too.
-9. **Pages that need a session are fetched with `SessionGuard.page()`.** If a page comes back logged out, the guard logs in again once and fetches it again; form submissions are not retried. A repository that stores a result checks `AccountRepository.generation` before and after the request, and drops the result if the account changed (TD-22).
+9. **Pages that need a session are fetched with `SessionGuard.page()`.** If a page comes back logged out, the guard logs in again once and fetches it again; form submissions are not retried. A repository that stores a result checks `AccountRepository.generation` before and after the request, and drops the result if the account changed (TD-22). The guard's own login doesn't change the generation: it renews the stored account's session.
 
 ### Package layout
 
