@@ -32,10 +32,6 @@ public class HiUtils {
 
     public static String ThreadListUrl;
     public static String DetailListUrl;
-    public static String ReplyUrl;
-    public static String EditUrl;
-    public static String VotePollUrl;
-    public static String NewThreadUrl;
     public static String RedirectToPostUrl;
     public static String CheckSMS;
     public static String UserWarningUrl;
@@ -99,10 +95,6 @@ public class HiUtils {
 
         ThreadListUrl = BaseUrl + "forumdisplay.php?fid=";
         DetailListUrl = BaseUrl + "viewthread.php?tid=";
-        ReplyUrl = BaseUrl + "post.php?action=reply&tid=";
-        EditUrl = BaseUrl + "post.php?action=edit";
-        VotePollUrl = BaseUrl + "misc.php?action=votepoll&fid={fid}&tid={tid}&pollsubmit=yes&quickforward=yes&inajax=1";
-        NewThreadUrl = BaseUrl + "post.php?action=newthread&fid=";
         RedirectToPostUrl = BaseUrl + "redirect.php?goto=findpost&pid={pid}&ptid={tid}";
         CheckSMS = BaseUrl + "pm.php?checknewpm";
         UserWarningUrl = BaseUrl + "misc.php?action=viewwarning&tid={tid}&uid={uid}";

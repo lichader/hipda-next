@@ -169,11 +169,6 @@ public class OkHttpHelper {
         return getResponseBody(response);
     }
 
-    public Response postAsResponse(String url, ParamsMap params) throws IOException {
-        Request request = buildPostFormRequest(url, params, null);
-        return mClient.newCall(request).execute();
-    }
-
     public void asyncPost(String url, ParamsMap params, ResultCallback callback)
             throws UnsupportedEncodingException {
         if (callback == null) callback = DEFAULT_CALLBACK;

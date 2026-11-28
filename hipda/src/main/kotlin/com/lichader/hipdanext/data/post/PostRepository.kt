@@ -8,10 +8,13 @@ import com.lichader.hipdanext.forum.post.EditorKind
 import com.lichader.hipdanext.forum.post.EditorPage
 import com.lichader.hipdanext.forum.post.ImageUpload
 import com.lichader.hipdanext.forum.post.PostApi
+import com.lichader.hipdanext.forum.post.PostForm
+import com.lichader.hipdanext.forum.post.PostResult
+import com.lichader.hipdanext.forum.post.PostTarget
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/** The post editor and image uploads. Main-safe; throws [ForumException] if a request fails. */
+/** The post editor, image uploads and posting. Main-safe; throws [ForumException] if a request fails. */
 interface PostRepository {
 
     /**
@@ -22,6 +25,9 @@ interface PostRepository {
     suspend fun editor(kind: EditorKind): EditorPage
 
     suspend fun uploadImage(uid: String, hash: String, fileName: String, mimeType: String, bytes: ByteArray): ImageUpload
+
+    /** Sends a post, once. */
+    suspend fun submit(target: PostTarget, form: PostForm): PostResult
 }
 
 @Singleton
@@ -41,4 +47,6 @@ class DefaultPostRepository @Inject constructor(
 
     override suspend fun uploadImage(uid: String, hash: String, fileName: String, mimeType: String, bytes: ByteArray) =
         api.uploadImage(uid, hash, fileName, mimeType, bytes)
+
+    override suspend fun submit(target: PostTarget, form: PostForm) = api.submit(target, form)
 }

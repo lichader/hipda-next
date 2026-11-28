@@ -47,6 +47,52 @@ class EditorPage(
     val typeId: String?,
 )
 
+/** Where a post is sent. */
+sealed interface PostTarget {
+
+    /** A reply to the thread, or to one of its posts. */
+    data class Reply(val tid: String) : PostTarget
+
+    data class NewThread(val fid: Int, val typeId: String?) : PostTarget
+
+    /** Changes, or with [PostForm.delete] deletes, post [pid] shown on [page]. */
+    data class Edit(val fid: Int, val tid: String, val pid: String, val page: Int) : PostTarget
+
+    data class Vote(val fid: Int, val tid: String) : PostTarget
+}
+
+/** What a post sends, from the editor ([EditorPage]) and what was written. */
+class PostForm(
+    val formhash: String,
+    val message: String,
+    /** A new thread's subject; an edit sends it when not empty. */
+    val subject: String? = null,
+    /** An edit's thread type, sent with a subject. */
+    val typeId: String? = null,
+    /** For an edit: delete the post. */
+    val delete: Boolean = false,
+    val newAttachments: List<String> = emptyList(),
+    val deletedAttachments: List<String> = emptyList(),
+    val pollAnswers: List<String> = emptyList(),
+    /** For a reply to a post: notifies its author when not empty. */
+    val noticeAuthor: String? = null,
+    val noticeAuthorMsg: String? = null,
+    val noticeTrimStr: String? = null,
+)
+
+/** The forum's answer to a post. */
+sealed interface PostResult {
+
+    /** Posted: the forum went on to thread [tid], whose page is [html]. */
+    data class Posted(val tid: String, val html: String) : PostResult
+
+    /** The deleted post was the thread's first, so the thread is gone. */
+    object ThreadDeleted : PostResult
+
+    /** Not posted; [message] is the forum's reason, if it gave one. */
+    data class Refused(val message: String?) : PostResult
+}
+
 /** The forum's answer to an image upload. */
 sealed interface ImageUpload {
 

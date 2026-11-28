@@ -40,7 +40,10 @@ class ForumTransport(
      * Posts [form] as `application/x-www-form-urlencoded`. Values are percent-encoded in
      * [ForumConfig.charset] (the forum expects GBK by default); names are sent as given.
      */
-    suspend fun post(url: String, form: Map<String, String>): String {
+    suspend fun post(url: String, form: Map<String, String>): String = send(url, form.toList()).body
+
+    /** Like [post], for a form whose names may repeat, with the URL the response came from after redirects. */
+    suspend fun send(url: String, form: List<Pair<String, String>>): Fetched {
         // URLEncoder.encode(String, Charset) needs API 33; the String overload exists on API 21.
         val charsetName = config.charset.name()
         val body = FormBody.Builder().apply {
@@ -48,7 +51,7 @@ class ForumTransport(
                 addEncoded(name, URLEncoder.encode(value, charsetName))
             }
         }.build()
-        return execute(newRequest(url).post(body).build()).body
+        return execute(newRequest(url).post(body).build())
     }
 
     /** Posts [fields] and one file as `multipart/form-data`. */

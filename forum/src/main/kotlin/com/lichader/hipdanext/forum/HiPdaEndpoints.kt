@@ -1,6 +1,7 @@
 package com.lichader.hipdanext.forum
 
 import com.lichader.hipdanext.forum.post.EditorKind
+import com.lichader.hipdanext.forum.post.PostTarget
 import java.net.URLEncoder
 
 /**
@@ -126,4 +127,12 @@ class HiPdaEndpoints(private val config: ForumConfig) {
     }
 
     fun uploadImage(): String = baseUrl + "misc.php?action=swfupload&operation=upload&simple=1&type=image"
+
+    fun submit(target: PostTarget): String = when (target) {
+        is PostTarget.Reply -> baseUrl + "post.php?action=reply&tid=" + target.tid + "&replysubmit=yes"
+        is PostTarget.NewThread -> baseUrl + "post.php?action=newthread&fid=" + target.fid + "&typeid=" + target.typeId + "&topicsubmit=yes"
+        is PostTarget.Edit -> baseUrl + "post.php?action=edit&extra=&editsubmit=yes&mod=&editsubmit=yes&fid=" + target.fid +
+            "&tid=" + target.tid + "&pid=" + target.pid + "&page=" + target.page
+        is PostTarget.Vote -> baseUrl + "misc.php?action=votepoll&fid=" + target.fid + "&tid=" + target.tid + "&pollsubmit=yes&quickforward=yes&inajax=1"
+    }
 }
