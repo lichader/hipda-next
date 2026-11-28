@@ -1,6 +1,6 @@
 # Architecture layering plan
 
-Status: **in progress**, started on 2026-11-28. The **Blacklist PoC was merged in #16**. Next are the [open work items](#next-work) W1 and W2, fixed one at a time with one PR each.
+Status: **in progress**, started on 2026-11-28. The **Blacklist PoC was merged in #16**. [Open work items](#next-work): W1 is fixed on branch `claude/fix-config-change-crash`; W2 is next.
 
 This plan prepares the app for a UI redesign. It puts the code that talks to the forum website behind one abstraction layer and drives each screen from a ViewModel. Then a new UI can be built on stable models without touching HTML, URLs or HTTP. The plan is incremental: every step ships on its own and keeps the app working.
 
@@ -56,7 +56,7 @@ Model         :forum module: data classes, ForumException (sealed)
 5. **ViewModels expose an immutable `StateFlow<UiState>` and a one-shot `Flow<String>` for messages.** The messages come from a buffered `Channel`, so messages sent while the screen is stopped are delivered on return.
 6. **Repositories are interfaces with a `Default…` implementation**, so ViewModel tests use plain fakes.
 7. **Legacy Java callers that can't call `suspend` functions get a thin Kotlin bridge** that launches on the `@ApplicationScope` scope (for example `async/BlacklistHelper`). A bridge is deleted when its last caller gets a ViewModel.
-8. **A migrated fragment turns off `BaseFragment`'s instance retention (`retainInstance = false`).** Its state lives in the ViewModel, and Hilt crashes retained fragments on configuration changes. Add an `ActivityLaunchTest` that recreates the screen. Once [W1](#w1-fix-the-app-wide-crash-on-configuration-changes) removes retention from `BaseFragment`, this rule is dropped.
+8. **No fragment is retained** (`setRetainInstance`), because Hilt crashes retained fragments on configuration changes. A screen's state lives in its ViewModel, or in saved instance state for legacy screens. Activities add their fragment only when `savedInstanceState` is null, so a restored fragment is kept. `ActivityLaunchTest` recreates every screen; new screens get a test there too.
 
 ### Package layout
 
@@ -99,7 +99,7 @@ These are open items found during the PoC. Fix them one at a time, in this order
 
 | ID | Item | Priority | Needs | Status |
 | --- | --- | --- | --- | --- |
-| W1 | [Fix the app-wide crash on configuration changes](#w1-fix-the-app-wide-crash-on-configuration-changes) | P1: crashes for every user who rotates the screen or changes dark mode or font size | Code change, emulator | Not started |
+| W1 | [Fix the app-wide crash on configuration changes](#w1-fix-the-app-wide-crash-on-configuration-changes) | P1: crashes for every user who rotates the screen or changes dark mode or font size | Code change, emulator | **Fixed** on branch `claude/fix-config-change-crash`. See [result](#w1-result) |
 | W2 | [Check the Blacklist PoC with a logged-in account](#w2-check-the-blacklist-poc-with-a-logged-in-account) | Before the next feature migrates, because it covers the adapter's write path and the formhash handling | The account owner; a test account is better, because this edits the forum's blacklist | Not started |
 
 ### W1. Fix the app-wide crash on configuration changes
@@ -128,6 +128,40 @@ These are open items found during the PoC. Fix them one at a time, in this order
 - Confirm that a request in progress during the change still finishes on the recreated screen.
 
 Fixing W1 also resolves most of [TD-25](technical-debt/td-25-retained-fragments-outlive-their-view-and-activity-references.md); update that file in the same PR.
+
+#### W1 result
+
+Done on 2026-11-28 on branch `claude/fix-config-change-crash`.
+
+**Changes**
+- `BaseFragment` no longer calls `setRetainInstance(true)`. It saves `mSessionId` in `onSaveInstanceState()` and restores it in `onCreate()`. `BlacklistFragment`'s own opt-out is removed.
+- `SimpleListActivity` and `SmsActivity` replaced their fragment in every `onCreate()`, even when it had just been restored. They now add it only when `savedInstanceState` is null, like the other activities.
+- `ActivityLaunchTest.assertLaunches()` now recreates every screen after launching it. It checks that the screen is still injected and that each `BaseFragment` keeps its session ID. This replaces `settingsBlacklistSurvivesRecreation`.
+
+**Tests**
+- Before the fix, 8 of the 10 screen tests failed: seven with "Hilt Fragments should not be retained", and the blacklist with a changed session ID. The first run with the fix also caught the `SimpleListActivity`/`SmsActivity` replacement.
+- After the fix, 68/68 pass (26 `:forum`, 42 app). Debug and release builds pass; lint finds nothing in the changed files.
+
+**Device checks (2026-11-28).** Each step was checked for an app crash by process ID and log, and a recreation by the activity's identity hash in `dumpsys activity top`.
+- **`hipda-api21` (logged out):**
+  - main screen: rotation both ways;
+  - main → settings → 论坛选项 → 黑名单: rotation both ways, then Back through all screens;
+  - history list and About: rotation;
+  - "Don't keep activities" on: `dumpsys` confirmed the three screens below the blacklist were destroyed with saved state, and Back rebuilt each one with its content.
+  - Changing `font_scale` through `settings` has no effect on API 21, so font scale was not tested there.
+- **`hipda-api37`** (logged in; read-only actions only):
+  - main screen: rotation, dark mode and font scale, each both ways, each recreating the activity;
+  - a thread rotated half a second after opening, so the page was still loading: it loaded and showed on the recreated screen;
+  - main → thread → user info: rotation, dark mode and font scale, both ways; light and dark rendering correct; Back rebuilt the thread with content, then main;
+  - search: rotation and dark mode. The same `SearchFragment` instance was kept.
+- No app crash in any of these steps. All emulator settings were restored to their recorded values.
+- Not tested on a device: the post editor and private messages, to keep the logged-in account read-only. Both are covered by the recreation tests in `ActivityLaunchTest`.
+
+**What a configuration change still loses** (no crash; fix with each screen's ViewModel):
+- **Thread detail** reloads from its arguments, so the reader returns to the page the thread was opened on, not the page they were reading. Author-only mode switched on later is also lost.
+- **Search** clears the typed query and results, because the query box lives in the toolbar menu, which is rebuilt. Restoring it here would start a search automatically, because of how a query passed in is handled.
+- **Thread list, simple lists, private messages and user info** reload their data, and the scroll position is lost.
+- **Post editor:** typed text is restored by its views, and the draft is kept, being keyed by session ID. The thumbnails of images uploaded in this session are lost, but the forum lists those images as unused attachments, and the editor already offers to add them again.
 
 ### W2. Check the Blacklist PoC with a logged-in account
 
@@ -211,7 +245,7 @@ The Blacklist feature was chosen because it is the smallest complete slice. It h
   - It is reproduced on the unchanged main screen (`ThreadListFragment`).
   - `BlacklistFragment` now opts out (`retainInstance = false`), and `ActivityLaunchTest.settingsBlacklistSurvivesRecreation` covers it. The test fails with this exact crash when the opt-out is removed.
   - The app as a whole still crashes on rotation from the blacklist screen. The swipe-back activities are translucent, so `MainFrameActivity` underneath is recreated as well and crashes.
-  - The fix for the whole app is [W1](#w1-fix-the-app-wide-crash-on-configuration-changes).
+  - Fixed for the whole app by [W1](#w1-fix-the-app-wide-crash-on-configuration-changes). `BlacklistFragment`'s opt-out has been removed with the rest of the retention.
 
 ## Decisions
 
