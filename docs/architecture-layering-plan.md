@@ -111,12 +111,11 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 
 | ID | Item | Needs from the owner | Status |
 | --- | --- | --- | --- |
-| W7-check | **Owner checks private messages** (W7, #32): send a message that arrives, reply in a conversation, clear a conversation. The forum refuses messages to oneself, so an agent can't check these | The owner sends and clears; the steps are in #32 | Open |
+| T2 | **Owner's final test** when the migration is done: every migrated screen, plus the steps an agent can't do. These are sending a message that arrives, replying and clearing a conversation (W7, #32; the forum refuses messages to oneself) and every posting step (W9). On 2026-11-28 the owner chose one final test instead of checks after each item | The owner tests | Open |
 | W9 | Migrate **posting and image upload** (`PrePostAsyncTask`, `PostJob`, `ImageUploadJob`) | The owner does every step that posts | Not started |
 | W10 | Migrate **thread detail**; keeps the reading position across rotation ([W1 result](#w1-result)) | The owner votes, if a poll needs checking | Not started |
 | W12 | **Remove the old plumbing** (phase 5): EventBus, read jobs, `AsyncTask`s, `HiUtils` URL statics, `SingletonEntryPoint` callers, the last bridges | – | Not started |
 | D1 | **Decide:** Compose or Views for the redesign | Decision, before the first redesigned screen | Open |
-| S1 | Lint for `:forum`: API-level checks against the app's minSdk. **Needs a decision** (found 2026-11-28): Android lint skips API checks (NewApi) in plain JVM modules, even with `checkDependencies`; a probe calling an API 24 method was flagged in app code but not in `:forum`. Options: check `:forum`'s bytecode against Android API 21 signatures with the Animal Sniffer plugin (as OkHttp does), or make `:forum` an Android library with minSdk 21 | The owner picks an option | Open |
 
 ### Done
 
@@ -136,6 +135,7 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 | S6 | Refreshing new posts starts a new search instead of reusing the first page's `searchid`, so it shows posts made since | #35 |
 | S2 | Real blacklist add and remove replies as fixtures, captured through the app with the recorder; they replace the synthetic success reply. The rejected reply stays synthetic: the app always sends a valid token | #36 |
 | W11 | Notifications and daily tasks on the new layers: `NotiHelper` reads the new-messages page through `NewMessagesCheck` (rule 7 bridge) and the site adapter; `TaskHelper` is Kotlin and syncs the blacklist through its repository, which removes the `BlacklistHelper` bridge; the image host comes from `SiteApi` (`config.php`). A new-messages page without new messages now sets the count to 0 | #37 |
+| S1 | API-level checks for `:forum`: Animal Sniffer checks the module against Android API 21 signatures (`gummy-bears-api-21`, without desugaring) as part of `:forum:check`, which CI now runs. An API 24 call fails the build | #38 |
 | W1 | Fix the app-wide crash on configuration changes | #18; [W1 result](#w1-result) |
 | W2 | Check the Blacklist PoC with a logged-in account | #19; [W2 result](#w2-result) |
 | D2 | Decide about the dead update check | 2026-11-28: remove `UpdateHelper` (S4); the owner plans a new update mechanism |
@@ -320,6 +320,8 @@ The Blacklist feature was chosen because it is the smallest complete slice. It h
 | 2026-11-28 | The site adapter lives in its own pure Kotlin/JVM module `:forum` from the start, so the compiler enforces the boundary |
 | 2026-11-28 | Model classes are new Kotlin data classes per feature, created as each feature migrates; the old `bean` classes stay until their last user moves |
 | 2026-11-28 | The formhash is an adapter detail. APIs fetch and cache it themselves, keyed by the `cdb_auth` cookie so a new login never reuses an old token |
+| 2026-11-28 | `:forum` is checked against Android API 21 with Animal Sniffer (S1), since Android lint skips API checks in plain JVM modules; `:forum` stays a plain JVM module |
+| 2026-11-28 | Thread detail (W10) gets a structured content model in `:forum` (text runs with styles, links and smilies, images, quotes, attachments, polls). The app renders it into today's HTML for the current adapter, and parity is checked on that HTML, so a Compose or Views redesign can render the model directly |
 
 ## Open questions
 
