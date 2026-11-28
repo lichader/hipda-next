@@ -110,15 +110,14 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 
 | ID | Item | Needs from the owner | Status |
 | --- | --- | --- | --- |
-| W3 | Migrate **user info** (`UserinfoFragment`): profile page and the user's threads; removes the `BlacklistHelper` bridge for this screen | – | Not started |
 | W4 | **Session layer:** `SessionGuard` (log-in detection and one retry, now copied into each job) and `AccountRepository` with an account generation ([TD-22](technical-debt/td-22-jobs-and-caches-are-not-scoped-to-an-account-generation.md)) | – | Not started |
 | W5 | Migrate the **thread list** (`ThreadListFragment`, `ThreadListJob`) | – | Not started |
-| W6 | Migrate **simple lists and search**; keeps the search query across rotation ([W1 result](#w1-result)) | – | Not started |
-| W7 | Migrate **private messages** | Test with a message to the owner's own account only | Not started |
+| W6 | Migrate **simple lists and search**, including the user info screen's list of a user's threads (still `SimpleListJob` after W3); keeps the search query across rotation ([W1 result](#w1-result)) | – | Not started |
+| W7 | Migrate **private messages**, including the send dialog that user info opens (`BaseFragment.showSendSmsDialog`) | Test with a message to the owner's own account only | Not started |
 | W8 | Migrate **favorites** | – | Not started |
 | W9 | Migrate **posting and image upload** (`PrePostAsyncTask`, `PostJob`, `ImageUploadJob`) | The owner does every step that posts | Not started |
 | W10 | Migrate **thread detail**; keeps the reading position across rotation ([W1 result](#w1-result)) | The owner votes, if a poll needs checking | Not started |
-| W11 | Migrate **notifications** (`NotiWorker`, `NotiHelper`) | – | Not started |
+| W11 | Migrate **notifications** (`NotiWorker`, `NotiHelper`) and `TaskHelper`'s daily tasks, which removes the last `BlacklistHelper` bridge | – | Not started |
 | W12 | **Remove the old plumbing** (phase 5): EventBus, read jobs, `AsyncTask`s, `HiUtils` URL statics, `SingletonEntryPoint` callers, the last bridges | – | Not started |
 | D1 | **Decide:** Compose or Views for the redesign | Decision, before the first redesigned screen | Open |
 | S1 | Lint for `:forum`: API-level checks, which app lint doesn't apply to the module | – | Not started |
@@ -131,6 +130,7 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 | --- | --- | --- |
 | PoC | Blacklist on the new layers | #16; [PoC](#poc-blacklist) |
 | T1 | Response recorder for capturing real pages (debug builds) | #24; [how to use it](capturing-forum-pages.md) |
+| W3 | User info: profile and blacklist menu on the new layers; parity with the old parser checked on real pages | #25 |
 | W1 | Fix the app-wide crash on configuration changes | #18; [W1 result](#w1-result) |
 | W2 | Check the Blacklist PoC with a logged-in account | #19; [W2 result](#w2-result) |
 | D2 | Decide about the dead update check | 2026-11-28: remove `UpdateHelper` (S4); the owner plans a new update mechanism |
@@ -256,8 +256,8 @@ On the first pass the log showed no removal from user info; it was repeated, and
 
 | Feature | Screens and callers | Old path | Status |
 | --- | --- | --- | --- |
-| Blacklist | `BlacklistFragment`; `UserinfoFragment` (add/remove); `TaskHelper` (daily sync) | `BlacklistHelper` + inline Jsoup in fragment | **Migrated (PoC, #16)**, checked with a logged-in account ([W2](#w2-result)); `BlacklistHelper` bridge remains until `UserinfoFragment` and `TaskHelper` migrate |
-| User info | `UserinfoFragment` | `asyncGet` + `HiParser.parseUserInfo` in fragment; `SimpleListJob` for threads | Not started (W3) |
+| Blacklist | `BlacklistFragment`; `UserinfoFragment` (add/remove); `TaskHelper` (daily sync) | `BlacklistHelper` + inline Jsoup in fragment | **Migrated (PoC, #16)**, checked with a logged-in account ([W2](#w2-result)); `BlacklistHelper` bridge remains for `TaskHelper`'s daily sync (W11) |
+| User info | `UserinfoFragment` | `asyncGet` + `HiParser.parseUserInfo` in fragment; `SimpleListJob` for threads | **Migrated (W3, #25)**; its threads list moves with W6, its send dialog with W7 |
 | Thread list | `ThreadListFragment` | `ThreadListJob` + EventBus | Not started (W5) |
 | Simple lists, search | `SimpleListFragment`, `SearchFragment` | `SimpleListJob` (11 types) + EventBus | Not started (W6) |
 | Private messages | `SmsFragment`, `BaseFragment` SMS dialog | `SimpleListJob`, `PostSmsAsyncTask`, `asyncGet` | Not started (W7) |
