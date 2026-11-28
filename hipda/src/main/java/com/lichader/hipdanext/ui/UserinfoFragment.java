@@ -74,7 +74,6 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
     private String mUid;
     private String mUsername;
     private String mAvatarUrl;
-    private String mFormhash;
 
     private ImageView mAvatarView;
     private TextView mDetailView;
@@ -258,11 +257,11 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
             return true;
         }
         if (itemId == R.id.action_blacklist) {
-            mBlacklistHelper.addBlacklist(mFormhash, mUsername);
+            mBlacklistHelper.addBlacklist(mUsername);
             return true;
         }
         if (itemId == R.id.action_remove_blacklist) {
-            mBlacklistHelper.delBlacklist(mFormhash, mUsername);
+            mBlacklistHelper.delBlacklist(mUsername);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -291,7 +290,6 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
                 mDetailView.setText((!TextUtils.isEmpty(sig) ? "签名: " + sig + "\n\n" : "") + info.getDetail());
                 mUsername = info.getUsername();
                 mUsernameView.setText(mUsername);
-                mFormhash = info.getFormhash();
                 if (info.isOnline()) {
                     mOnlineView.setVisibility(View.VISIBLE);
                 } else {

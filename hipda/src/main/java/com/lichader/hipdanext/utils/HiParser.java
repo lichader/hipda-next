@@ -804,25 +804,4 @@ public class HiParser {
         }
         return null;
     }
-
-    public static List<String> parseBlacklist(Document doc) throws Exception {
-        Elements divs = doc.select("div.blacklist");
-        if (divs.size() > 0) {
-            List<String> blacklists = new ArrayList<>();
-            Elements elements = doc.select("ul.commonlist a");
-            for (Element el : elements) {
-                String spaceUrl = el.attr("href");
-                if (spaceUrl.contains("space.php")) {
-                    String username = Utils.getMiddleString(spaceUrl, "username=", "&");
-                    if (!blacklists.contains(username))
-                        blacklists.add(username);
-                }
-            }
-            if (blacklists.size() == 0 && !divs.text().contains("暂无数据")) {
-                throw new Exception("黑名单数据解析错误");
-            }
-            return blacklists;
-        }
-        throw new Exception("页面解析错误");
-    }
 }
