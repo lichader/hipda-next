@@ -15,6 +15,7 @@ import net.gotev.cookiestore.okhttp.JavaNetCookieJar;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.CookieStore;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Singleton;
@@ -25,6 +26,7 @@ import dagger.hilt.InstallIn;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.components.SingletonComponent;
 import okhttp3.Cache;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 
 /** HTTP client and cookie storage for forum requests. */
@@ -47,7 +49,8 @@ public final class NetworkModule {
     @Singleton
     static OkHttpClient provideOkHttpClient(@ApplicationContext Context context,
                                             CachedDns dns,
-                                            CookieStore cookieStore) {
+                                            CookieStore cookieStore,
+                                            @ExtraInterceptors Set<Interceptor> extraInterceptors) {
         CookieManager cookieManager = new CookieManager(cookieStore, CookiePolicy.ACCEPT_ALL);
         Cache cache = new Cache(Glide.getPhotoCacheDir(context, OkHttpHelper.CACHE_DIR_NAME), HTTP_CACHE_SIZE);
 
@@ -59,6 +62,11 @@ public final class NetworkModule {
                 .cache(cache)
                 .cookieJar(new JavaNetCookieJar(cookieManager));
 
+        // Debug builds add the response recorder here (debug source set); release adds none.
+        // First, so it sees the final response after the retries below.
+        for (Interceptor interceptor : extraInterceptors) {
+            builder.addInterceptor(interceptor);
+        }
         if (Logger.isDebug()) {
             builder.addInterceptor(new LoggingInterceptor());
         }

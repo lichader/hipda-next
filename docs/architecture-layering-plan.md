@@ -110,7 +110,6 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 
 | ID | Item | Needs from the owner | Status |
 | --- | --- | --- | --- |
-| T1 | **Response recorder:** in debug builds only, save the forum's responses on the device, so real pages (HTML, `inajax` XML, JSON) can be captured as fixtures | – | **In progress** |
 | W3 | Migrate **user info** (`UserinfoFragment`): profile page and the user's threads; removes the `BlacklistHelper` bridge for this screen | – | Not started |
 | W4 | **Session layer:** `SessionGuard` (log-in detection and one retry, now copied into each job) and `AccountRepository` with an account generation ([TD-22](technical-debt/td-22-jobs-and-caches-are-not-scoped-to-an-account-generation.md)) | – | Not started |
 | W5 | Migrate the **thread list** (`ThreadListFragment`, `ThreadListJob`) | – | Not started |
@@ -131,12 +130,13 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 | ID | Item | Result |
 | --- | --- | --- |
 | PoC | Blacklist on the new layers | #16; [PoC](#poc-blacklist) |
+| T1 | Response recorder for capturing real pages (debug builds) | #24; [how to use it](capturing-forum-pages.md) |
 | W1 | Fix the app-wide crash on configuration changes | #18; [W1 result](#w1-result) |
 | W2 | Check the Blacklist PoC with a logged-in account | #19; [W2 result](#w2-result) |
 | D2 | Decide about the dead update check | 2026-11-28: remove `UpdateHelper` (S4); the owner plans a new update mechanism |
 | S3 | Remove the fake report-post action (D3, TD-08) | #22 |
 | S4 | Remove `UpdateHelper` (D2); the settings migration moved to `UpgradeMigration` | #21 |
-| D3 | Decide about report post | 2026-11-28: remove the fake action (S3). A working one is a Backlog task in the owner's "Hi-pda next v2" GitHub project |
+| D3 | Decide about report post | 2026-11-28: remove the fake action (S3). A working one is a Backlog task in the owner's "Hi-pda next v2" GitHub project; the forum does have a report action (`misc.php?action=report`), as a page captured with T1 showed |
 
 ### W1. Fix the app-wide crash on configuration changes
 
