@@ -90,9 +90,11 @@ class SimpleListViewModel @Inject constructor(
         if (_state.value.items.isEmpty() && !isLoading) load(1)
     }
 
+    /** Loads page 1 again; new posts start a new search, so they show posts made since (S6). */
     fun refresh() {
         loadJob?.cancel()
         maxPage = 0
+        searchId = null
         load(1)
     }
 
