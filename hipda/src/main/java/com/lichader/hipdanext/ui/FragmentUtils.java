@@ -8,7 +8,6 @@ import android.text.TextUtils;
 
 import com.lichader.hipdanext.R;
 import com.lichader.hipdanext.async.PostHelper;
-import com.lichader.hipdanext.job.SimpleListJob;
 import com.lichader.hipdanext.utils.Constants;
 import com.lichader.hipdanext.utils.HiUtils;
 import com.lichader.hipdanext.utils.Utils;
@@ -240,7 +239,7 @@ public class FragmentUtils {
 
     public static void showThreadNotify(FragmentManager fragmentManager, boolean skipEnterAnim) {
         Bundle notifyBundle = new Bundle();
-        notifyBundle.putInt(SimpleListFragment.ARG_TYPE, SimpleListJob.TYPE_THREAD_NOTIFY);
+        notifyBundle.putInt(SimpleListFragment.ARG_TYPE, SimpleListTypes.TYPE_THREAD_NOTIFY);
         SimpleListFragment fragment = new SimpleListFragment();
         fragment.setArguments(notifyBundle);
         showFragment(fragmentManager, fragment, skipEnterAnim);
@@ -248,7 +247,7 @@ public class FragmentUtils {
 
     public static void showSmsList(FragmentManager fragmentManager, boolean skipEnterAnim) {
         Bundle smsBundle = new Bundle();
-        smsBundle.putInt(SimpleListFragment.ARG_TYPE, SimpleListJob.TYPE_SMS);
+        smsBundle.putInt(SimpleListFragment.ARG_TYPE, SimpleListTypes.TYPE_SMS);
         SimpleListFragment fragment = new SimpleListFragment();
         fragment.setArguments(smsBundle);
         showFragment(fragmentManager, fragment, skipEnterAnim);
@@ -272,7 +271,7 @@ public class FragmentUtils {
 
     public static void showSearchActivity(Activity activity, boolean skipEnterAnim, int fid, String query) {
         Intent intent = new Intent(activity, SimpleListActivity.class);
-        intent.putExtra(SimpleListFragment.ARG_TYPE, SimpleListJob.TYPE_SEARCH);
+        intent.putExtra(SimpleListFragment.ARG_TYPE, SimpleListTypes.TYPE_SEARCH);
         intent.putExtra(SearchFragment.ARG_FID, fid);
         intent.putExtra(SearchFragment.ARG_QUERY, query);
         ActivityCompat.startActivity(activity, intent, getAnimBundle(activity, skipEnterAnim));
@@ -338,21 +337,21 @@ public class FragmentUtils {
         } else if (args.getType() == FragmentArgs.TYPE_USER_INFO) {
             showUserInfoActivity(activity, args.isSkipEnterAnim(), args.getUid(), args.getUsername());
         } else if (args.getType() == FragmentArgs.TYPE_SMS) {
-            showSimpleListActivity(activity, args.isSkipEnterAnim(), SimpleListJob.TYPE_SMS);
+            showSimpleListActivity(activity, args.isSkipEnterAnim(), SimpleListTypes.TYPE_SMS);
         } else if (args.getType() == FragmentArgs.TYPE_SEARCH) {
-            showSimpleListActivity(activity, args.isSkipEnterAnim(), SimpleListJob.TYPE_SEARCH);
+            showSimpleListActivity(activity, args.isSkipEnterAnim(), SimpleListTypes.TYPE_SEARCH);
         } else if (args.getType() == FragmentArgs.TYPE_FAVORITE) {
-            showSimpleListActivity(activity, args.isSkipEnterAnim(), SimpleListJob.TYPE_FAVORITES);
+            showSimpleListActivity(activity, args.isSkipEnterAnim(), SimpleListTypes.TYPE_FAVORITES);
         } else if (args.getType() == FragmentArgs.TYPE_SMS_DETAIL) {
             showSmsActivity(activity, args.isSkipEnterAnim(), args.getUid(), args.getUsername());
         } else if (args.getType() == FragmentArgs.TYPE_THREAD_NOTIFY) {
-            showSimpleListActivity(activity, args.isSkipEnterAnim(), SimpleListJob.TYPE_THREAD_NOTIFY);
+            showSimpleListActivity(activity, args.isSkipEnterAnim(), SimpleListTypes.TYPE_THREAD_NOTIFY);
         } else if (args.getType() == FragmentArgs.TYPE_FORUM) {
             showForum(activity.getSupportFragmentManager(), args.getFid());
         } else if (args.getType() == FragmentArgs.TYPE_NEW_THREAD) {
             showNewPostActivity(activity, args.getFid(), args.getParentId());
         } else if (args.getType() == FragmentArgs.TYPE_NEW_POSTS) {
-            showSimpleListActivity(activity, args.isSkipEnterAnim(), SimpleListJob.TYPE_NEW_POSTS);
+            showSimpleListActivity(activity, args.isSkipEnterAnim(), SimpleListTypes.TYPE_NEW_POSTS);
         }
     }
 

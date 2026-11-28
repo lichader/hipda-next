@@ -20,8 +20,7 @@ import javax.inject.Inject
 
 /**
  * The user info screen: loads a user's profile, and adds them to or removes them from the
- * blacklist. The list of the user's threads still runs through `SimpleListJob` in the fragment
- * until simple lists and search migrate (W6).
+ * blacklist. The list of the user's threads has its own [SimpleListViewModel] in the fragment.
  */
 @HiltViewModel
 class UserInfoViewModel @Inject constructor(

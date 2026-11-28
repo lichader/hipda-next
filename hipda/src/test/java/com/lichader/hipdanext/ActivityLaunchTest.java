@@ -16,7 +16,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.lichader.hipdanext.async.PostHelper;
-import com.lichader.hipdanext.job.SimpleListJob;
+import com.lichader.hipdanext.ui.SimpleListTypes;
 import com.lichader.hipdanext.ui.BaseActivity;
 import com.lichader.hipdanext.ui.BaseFragment;
 import com.lichader.hipdanext.ui.MainFrameActivity;
@@ -172,9 +172,9 @@ public class ActivityLaunchTest {
 
     @Test
     public void simpleLists() {
-        int[] types = {SimpleListJob.TYPE_MYREPLY, SimpleListJob.TYPE_MYPOST, SimpleListJob.TYPE_SMS,
-                SimpleListJob.TYPE_THREAD_NOTIFY, SimpleListJob.TYPE_FAVORITES,
-                SimpleListJob.TYPE_ATTENTION, SimpleListJob.TYPE_HISTORIES};
+        int[] types = {SimpleListTypes.TYPE_MYREPLY, SimpleListTypes.TYPE_MYPOST, SimpleListTypes.TYPE_SMS,
+                SimpleListTypes.TYPE_THREAD_NOTIFY, SimpleListTypes.TYPE_FAVORITES,
+                SimpleListTypes.TYPE_ATTENTION, SimpleListTypes.TYPE_HISTORIES};
         for (int type : types) {
             assertLaunches(new Intent(context(), SimpleListActivity.class)
                     .putExtra(SimpleListFragment.ARG_TYPE, type));

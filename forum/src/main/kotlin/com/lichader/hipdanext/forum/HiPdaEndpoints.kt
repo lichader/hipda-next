@@ -70,6 +70,17 @@ class HiPdaEndpoints(private val config: ForumConfig) {
         return url
     }
 
+    fun conversation(uid: String): String = baseUrl + "pm.php?daterange=5&uid=" + uid
+
+    /** The message form, whose token the old send read; [uid] is empty for a message to a username. */
+    fun messageForm(uid: String): String = baseUrl + "pm.php?daterange=1&uid=" + uid
+
+    /** Sends a message to [uid], or, with null, to the username in the form's `msgto`. */
+    fun sendMessage(uid: String?): String =
+        baseUrl + "pm.php?action=send&pmsubmit=yes&infloat=yes&inajax=1" + (if (uid != null) "&uid=$uid" else "")
+
+    fun clearConversation(uid: String): String = baseUrl + "pm.php?action=del&uid=" + uid + "&filter=privatepm"
+
     fun threadList(forumId: Int, page: Int, typeId: String?, orderByPostTime: Boolean): String {
         var url = baseUrl + "forumdisplay.php?fid=" + forumId + "&page=" + page
         if (typeId != null) url += "&filter=type&typeid=" + typeId

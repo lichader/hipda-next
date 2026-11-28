@@ -16,7 +16,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
@@ -25,15 +27,10 @@ import com.mikepenz.iconics.IconicsDrawable;
 import com.vanniktech.emoji.EmojiEditText;
 
 import com.lichader.hipdanext.R;
-import com.lichader.hipdanext.async.PostSmsAsyncTask;
-import com.lichader.hipdanext.bean.SimpleListBean;
 import com.lichader.hipdanext.bean.SimpleListItemBean;
-import com.lichader.hipdanext.job.EventCallback;
-import com.lichader.hipdanext.job.JobMgr;
-import com.lichader.hipdanext.job.SimpleListEvent;
-import com.lichader.hipdanext.job.SimpleListJob;
+import com.lichader.hipdanext.async.SmsPostListener;
+import com.lichader.hipdanext.forum.lists.ListItem;
 import com.lichader.hipdanext.job.SmsRefreshEvent;
-import com.lichader.hipdanext.okhttp.OkHttpHelper;
 import com.lichader.hipdanext.ui.adapter.RecyclerItemClickListener;
 import com.lichader.hipdanext.ui.adapter.SmsAdapter;
 import com.lichader.hipdanext.ui.widget.ContentLoadingView;
@@ -49,23 +46,15 @@ import com.lichader.hipdanext.utils.UIUtils;
 import com.lichader.hipdanext.utils.Utils;
 
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import okhttp3.Request;
 import dagger.hilt.android.AndroidEntryPoint;
-import javax.inject.Inject;
 
 @AndroidEntryPoint
-public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPostListener {
-
-    @Inject
-    JobMgr mJobMgr;
-
+public class SmsFragment extends BaseFragment implements SmsPostListener {
 
     public static final String ARG_AUTHOR = "AUTHOR";
     public static final String ARG_UID = "UID";
@@ -81,7 +70,8 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
     private CountdownButton mCountdownButton;
 
     private ContentLoadingView mLoadingView;
-    private SmsEventCallback mEventCallback = new SmsEventCallback();
+    private ConversationViewModel mViewModel;
+    private HiProgressDialog mClearProgress;
     private boolean mSending = false;
 
     @Override
@@ -96,6 +86,8 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
         if (getArguments().containsKey(ARG_UID)) {
             mUid = getArguments().getString(ARG_UID);
         }
+        mViewModel = new ViewModelProvider(this).get(ConversationViewModel.class);
+        mViewModel.setUser(mUid);
 
         RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), mSettings, new OnItemClickListener());
         mSmsAdapter = new SmsAdapter(this, mSettings, new AvatarOnClickListener(), itemClickListener);
@@ -115,8 +107,7 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
             @Override
             public void onClick(View view) {
                 mLoadingView.setState(ContentLoadingView.LOAD_NOW);
-                SimpleListJob job = new SimpleListJob(getActivity(), mSessionId, SimpleListJob.TYPE_SMS_DETAIL, 1, mUid);
-                mJobMgr.addJob(job);
+                mViewModel.refresh();
             }
         });
 
@@ -145,7 +136,7 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
 
     private void sendSms(String replyText) {
         mSending = true;
-        new PostSmsAsyncTask(mOkHttpHelper, mUid, null, SmsFragment.this, null).execute(replyText);
+        mSmsSender.send(mUid, null, replyText, SmsFragment.this, null);
         mEtSms.setText("");
         mCountdownButton.setEnabled(false);
         SimpleListItemBean bean = new SimpleListItemBean();
@@ -183,24 +174,20 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
 
         mRecyclerView.setAdapter(mSmsAdapter);
 
-        if (mSmsBeans.size() == 0) {
+        // The view model's conversation, which outlives the view: mSmsBeans is empty until it renders.
+        if (mViewModel.getMessages().getValue().isEmpty()) {
             mLoadingView.setState(ContentLoadingView.LOADING);
-            SimpleListJob job = new SimpleListJob(getActivity(), mSessionId, SimpleListJob.TYPE_SMS_DETAIL, 1, mUid);
-            mJobMgr.addJob(job);
+            mViewModel.refresh();
+        } else {
+            mLoadingView.setState(ContentLoadingView.CONTENT);
         }
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        if (!EventBus.getDefault().isRegistered(this))
-            EventBus.getDefault().register(this);
-    }
-
-    @Override
-    public void onPause() {
-        EventBus.getDefault().unregister(this);
-        super.onPause();
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        FlowObservers.collect(getViewLifecycleOwner(), mViewModel.getMessages(), this::render);
+        FlowObservers.collect(getViewLifecycleOwner(), mViewModel.getEvents(), this::onViewModelEvent);
     }
 
     @Override
@@ -240,25 +227,8 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        final HiProgressDialog progress = HiProgressDialog.show(getActivity(), "正在处理...");
-
-                        String url = HiUtils.ClearSMS.replace("{uid}", mUid);
-
-                        mOkHttpHelper.asyncGet(url, new OkHttpHelper.ResultCallback() {
-                            @Override
-                            public void onError(Request request, Exception e) {
-                                progress.dismissError("操作时发生错误 : " + OkHttpHelper.getErrorMessage(e));
-                                EventBus.getDefault().postSticky(new SmsRefreshEvent());
-                                ((BaseActivity) getActivity()).finishWithNoSlide();
-                            }
-
-                            @Override
-                            public void onResponse(String response) {
-                                progress.dismiss("操作完成");
-                                EventBus.getDefault().postSticky(new SmsRefreshEvent());
-                                ((BaseActivity) getActivity()).finishWithNoSlide();
-                            }
-                        });
+                        mClearProgress = HiProgressDialog.show(getActivity(), "正在处理...");
+                        mViewModel.clear();
 
                     }
                 });
@@ -286,11 +256,7 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
                 }
 
                 public void onFinish() {
-                    try {
-                        SimpleListJob job = new SimpleListJob(getActivity(), mSessionId, SimpleListJob.TYPE_SMS_DETAIL, 1, mUid);
-                        mJobMgr.addJob(job);
-                    } catch (Exception ignored) {
-                    }
+                    mViewModel.refresh();
                 }
             }.start();
         } else {
@@ -302,7 +268,7 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
     }
 
     private void showSendButton() {
-        mCountdownButton.setCountdown(PostSmsAsyncTask.getWaitTimeToSendSms());
+        mCountdownButton.setCountdown(mSmsSender.getWaitSecondsToSend());
     }
 
     private class AvatarOnClickListener extends OnSingleClickListener {
@@ -341,11 +307,11 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
                         }
                     }
                 });
-                if (!mSending && bean.getStatus() == Constants.STATUS_FAIL && PostSmsAsyncTask.getWaitTimeToSendSms() <= 0) {
+                if (!mSending && bean.getStatus() == Constants.STATUS_FAIL && mSmsSender.getWaitSecondsToSend() <= 0) {
                     popupMenu.add("resend", "重新发送", new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            if (!mSending && PostSmsAsyncTask.getWaitTimeToSendSms() <= 0) {
+                            if (!mSending && mSmsSender.getWaitSecondsToSend() <= 0) {
                                 String content = bean.getInfo();
                                 removeFailedSms(rvPosition);
                                 sendSms(content);
@@ -370,42 +336,35 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
             mRecyclerView.scrollToPosition(0);
     }
 
-    private class SmsEventCallback extends EventCallback<SimpleListEvent> {
-        @Override
-        public void onSuccess(SimpleListEvent event) {
+    /** Shows the view model's conversation in the legacy adapter, scrolled to the newest message. */
+    private void render(List<ListItem> messages) {
+        mSmsBeans.clear();
+        mSmsBeans.addAll(ListBeans.of(messages));
+        mSmsAdapter.setDatas(mSmsBeans);
+        if (!messages.isEmpty())
+            mRecyclerView.scrollToBottom();
+    }
 
-            SimpleListBean list = event.mData;
-            if (list == null || list.getCount() == 0) {
-                mLoadingView.setState(ContentLoadingView.NO_DATA);
-            } else {
-                mLoadingView.setState(ContentLoadingView.CONTENT);
-                mSmsBeans.clear();
-                mSmsBeans.addAll(list.getAll());
-                mSmsAdapter.setDatas(mSmsBeans);
-                mRecyclerView.scrollToBottom();
-            }
-        }
-
-        @Override
-        public void onFail(SimpleListEvent event) {
+    private void onViewModelEvent(ConversationViewModel.Event event) {
+        if (event instanceof ConversationViewModel.Event.Loaded) {
+            mLoadingView.setState(((ConversationViewModel.Event.Loaded) event).getEmpty()
+                    ? ContentLoadingView.NO_DATA : ContentLoadingView.CONTENT);
+        } else if (event instanceof ConversationViewModel.Event.LoadFailed) {
             mLoadingView.setState(ContentLoadingView.ERROR);
-            UIUtils.toast(event.mMessage);
-        }
-
-        @Override
-        public void onFailRelogin(SimpleListEvent event) {
-            mSmsBeans.clear();
-            mSmsAdapter.notifyDataSetChanged();
+            UIUtils.toast(((ConversationViewModel.Event.LoadFailed) event).getMessage());
+        } else if (event instanceof ConversationViewModel.Event.NotLoggedIn) {
             mLoadingView.setState(ContentLoadingView.NOT_LOGIN);
+        } else if (event instanceof ConversationViewModel.Event.Cleared) {
+            ConversationViewModel.Event.Cleared cleared = (ConversationViewModel.Event.Cleared) event;
+            if (mClearProgress != null) {
+                if (cleared.getFailed())
+                    mClearProgress.dismissError(cleared.getMessage());
+                else
+                    mClearProgress.dismiss(cleared.getMessage());
+            }
+            EventBus.getDefault().postSticky(new SmsRefreshEvent());
+            ((BaseActivity) getActivity()).finishWithNoSlide();
         }
     }
 
-    @SuppressWarnings("unused")
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEvent(SimpleListEvent event) {
-        if (!mSessionId.equals(event.mSessionId))
-            return;
-        EventBus.getDefault().removeStickyEvent(event);
-        mEventCallback.process(event);
-    }
 }
