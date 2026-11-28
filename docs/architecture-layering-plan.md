@@ -122,11 +122,11 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 | W11 | Migrate **notifications** (`NotiWorker`, `NotiHelper`) | – | Not started |
 | W12 | **Remove the old plumbing** (phase 5): EventBus, read jobs, `AsyncTask`s, `HiUtils` URL statics, `SingletonEntryPoint` callers, the last bridges | – | Not started |
 | D1 | **Decide:** Compose or Views for the redesign | Decision, before the first redesigned screen | Open |
-| D3 | **Decide:** report post ([TD-08](technical-debt/td-08-the-report-post-action-does-not-submit-a-report.md)). Remove the button, open the post in a browser, or send a real report | Decision; T1 shows whether the forum has a report link | Open |
 | S1 | Lint for `:forum`: API-level checks, which app lint doesn't apply to the module | – | Not started |
 | S2 | Real blacklist add/remove replies and a rejected-request reply as fixtures (with T1) | – | Not started |
-| S3 | Act on D3 | – | Waiting for D3 |
-| S4 | **Remove `UpdateHelper`** (D2): delete the dead update check and its unused settings and settings item. Keep the settings migration that runs after an upgrade | – | **In progress** |
+| S3 | **Remove the fake report-post action** (D3, [TD-08](technical-debt/td-08-the-report-post-action-does-not-submit-a-report.md)) | – | **In review**: #22 |
+| S4 | **Remove `UpdateHelper`** (D2): delete the dead update check and its unused settings and settings item. Keep the settings migration that runs after an upgrade | – | **In review**: #21 |
+| S5 | **Fix the version comparison** ([TD-46](technical-debt/td-46-crash-handling-obsolete-code-and-setup-documentation-need-cleanup.md)): `UpgradeMigration.isNewer()` compares `5.1.0` lower than `5.0.05`. Needed before any release leaves the `#.#.##` format | – | Not started |
 
 ### Done
 
@@ -136,6 +136,7 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 | W1 | Fix the app-wide crash on configuration changes | #18; [W1 result](#w1-result) |
 | W2 | Check the Blacklist PoC with a logged-in account | #19; [W2 result](#w2-result) |
 | D2 | Decide about the dead update check | 2026-11-28: remove `UpdateHelper` (S4); the owner plans a new update mechanism |
+| D3 | Decide about report post | 2026-11-28: remove the fake action (S3). A working one is a Backlog task in the owner's "Hi-pda next v2" GitHub project |
 
 ### W1. Fix the app-wide crash on configuration changes
 
