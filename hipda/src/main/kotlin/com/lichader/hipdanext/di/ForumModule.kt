@@ -10,7 +10,11 @@ import com.lichader.hipdanext.forum.auth.HiPdaAuthApi
 import com.lichader.hipdanext.forum.blacklist.BlacklistApi
 import com.lichader.hipdanext.forum.blacklist.HiPdaBlacklistApi
 import com.lichader.hipdanext.forum.http.ForumTransport
+import com.lichader.hipdanext.async.LoginHelper
 import com.lichader.hipdanext.forum.session.FormhashCache
+import com.lichader.hipdanext.forum.session.SessionGuard
+import com.lichader.hipdanext.forum.session.SessionRenewer
+import com.lichader.hipdanext.utils.Constants
 import com.lichader.hipdanext.forum.user.HiPdaUserApi
 import com.lichader.hipdanext.forum.user.UserApi
 import com.lichader.hipdanext.ui.ForumErrorFormatter
@@ -50,13 +54,28 @@ object ForumModule {
     @Singleton
     fun provideFormhashCache(config: ForumConfig): FormhashCache = FormhashCache(config)
 
+    /**
+     * Logs in again through [LoginHelper], so a renewal looks to the UI like the jobs' relogin:
+     * the same `LoginEvent`s reach `MainFrameActivity`.
+     */
+    @Provides
+    @Singleton
+    fun provideSessionRenewer(loginHelper: dagger.Lazy<LoginHelper>): SessionRenewer =
+        SessionRenewer { loginHelper.get().loginAndAnnounce(manual = false) == Constants.STATUS_SUCCESS }
+
+    @Provides
+    @Singleton
+    fun provideSessionGuard(transport: ForumTransport, renewer: SessionRenewer): SessionGuard =
+        SessionGuard(transport, renewer)
+
     @Provides
     @Singleton
     fun provideBlacklistApi(
         transport: ForumTransport,
         endpoints: HiPdaEndpoints,
         formhash: FormhashCache,
-    ): BlacklistApi = HiPdaBlacklistApi(transport, endpoints, formhash)
+        session: SessionGuard,
+    ): BlacklistApi = HiPdaBlacklistApi(transport, endpoints, formhash, session)
 
     @Provides
     @Singleton
@@ -66,10 +85,10 @@ object ForumModule {
     @Provides
     @Singleton
     fun provideUserApi(
-        transport: ForumTransport,
         endpoints: HiPdaEndpoints,
         formhash: FormhashCache,
-    ): UserApi = HiPdaUserApi(transport, endpoints, formhash)
+        session: SessionGuard,
+    ): UserApi = HiPdaUserApi(endpoints, formhash, session)
 
     @Provides
     @Singleton

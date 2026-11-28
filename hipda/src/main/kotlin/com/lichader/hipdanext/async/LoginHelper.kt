@@ -33,11 +33,14 @@ class LoginHelper @Inject constructor(
      * @return `Constants.STATUS_SUCCESS`, `STATUS_FAIL_ABORT` (refused, or nothing to try) or
      * `STATUS_FAIL` (the request failed)
      */
-    fun login(manual: Boolean): Int {
+    fun login(manual: Boolean): Int = runBlocking { loginAndAnnounce(manual) }
+
+    /** [login] for coroutines, such as the site adapter's session renewal. Main-safe. */
+    suspend fun loginAndAnnounce(manual: Boolean): Int {
         if (!manual && !account.hasStoredCredentials()) return Constants.STATUS_FAIL_ABORT
 
         post(manual, Constants.STATUS_IN_PROGRESS, "")
-        val outcome = runBlocking { account.login(manual) }
+        val outcome = account.login(manual)
         val (status, message) = when (outcome) {
             LoginOutcome.Success -> Constants.STATUS_SUCCESS to ""
             LoginOutcome.NoCredentials -> Constants.STATUS_FAIL_ABORT to ""

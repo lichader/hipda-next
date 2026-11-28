@@ -12,9 +12,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.net.CookieStore
 import javax.inject.Inject
 import javax.inject.Singleton
+
+/**
+ * The logged-in account changed while a request ran, so its result belongs to the previous account
+ * and was not stored (TD-22).
+ */
+class AccountChangedException : Exception("The account changed while the request ran")
 
 /** How a login ended. */
 sealed interface LoginOutcome {
@@ -54,7 +62,10 @@ interface AccountRepository {
     /** Whether a username and password are stored, so an automatic login can be tried. */
     fun hasStoredCredentials(): Boolean
 
-    /** Logs in with the stored credentials. Main-safe. */
+    /**
+     * Logs in with the stored credentials. Main-safe. Logins run one at a time; an automatic login
+     * that waited while another one succeeded reuses that session instead of logging in again.
+     */
     suspend fun login(manual: Boolean): LoginOutcome
 
     /** Forgets the account: credentials, session cookies and the account's cached data. */
@@ -74,6 +85,9 @@ class DefaultAccountRepository @Inject constructor(
     private val _generation = MutableStateFlow(0)
     override val generation: StateFlow<Int> = _generation.asStateFlow()
 
+    /** One login at a time: the jobs' relogin and the site adapter's session renewal can coincide. */
+    private val loginLock = Mutex()
+
     override fun isLoggedIn(): Boolean = !settings.username.isNullOrEmpty() && config.sessionKey != null
 
     override fun hasStoredCredentials(): Boolean =
@@ -81,6 +95,14 @@ class DefaultAccountRepository @Inject constructor(
 
     override suspend fun login(manual: Boolean): LoginOutcome {
         if (!manual && !hasStoredCredentials()) return LoginOutcome.NoCredentials
+        val seen = _generation.value
+        return loginLock.withLock {
+            // Another login finished while this one waited; for an automatic login, its session will do.
+            if (!manual && _generation.value != seen && isLoggedIn()) LoginOutcome.Success else submitLogin()
+        }
+    }
+
+    private suspend fun submitLogin(): LoginOutcome {
         val token = try {
             api.loginToken()
         } catch (e: ForumException) {

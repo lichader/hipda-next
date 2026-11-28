@@ -22,6 +22,9 @@ sealed class ForumException(message: String?, cause: Throwable? = null) : Except
     /** The forum rejected the request and said why (its `div.alert_error` text). */
     class Server(override val message: String) : ForumException(message)
 
+    /** The forum served a logged-out page, and logging in again with the stored credentials failed. */
+    class NotLoggedIn : ForumException("Not logged in")
+
     /** The page did not have the expected structure. */
     class Parse(override val message: String) : ForumException(message)
 
