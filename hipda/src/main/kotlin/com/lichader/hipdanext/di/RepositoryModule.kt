@@ -1,5 +1,7 @@
 package com.lichader.hipdanext.di
 
+import com.lichader.hipdanext.data.account.AccountRepository
+import com.lichader.hipdanext.data.account.DefaultAccountRepository
 import com.lichader.hipdanext.data.blacklist.BlacklistRepository
 import com.lichader.hipdanext.data.blacklist.DefaultBlacklistRepository
 import com.lichader.hipdanext.data.user.DefaultUserRepository
@@ -12,6 +14,9 @@ import dagger.hilt.components.SingletonComponent
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
+
+    @Binds
+    abstract fun bindAccountRepository(impl: DefaultAccountRepository): AccountRepository
 
     @Binds
     abstract fun bindBlacklistRepository(impl: DefaultBlacklistRepository): BlacklistRepository

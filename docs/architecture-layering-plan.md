@@ -110,7 +110,7 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 
 | ID | Item | Needs from the owner | Status |
 | --- | --- | --- | --- |
-| W4 | **Session layer:** `SessionGuard` (log-in detection and one retry, now copied into each job) and `AccountRepository` with an account generation ([TD-22](technical-debt/td-22-jobs-and-caches-are-not-scoped-to-an-account-generation.md)) | – | Not started |
+| W4b | **Session recovery:** `SessionGuard` in `:forum`. An API that receives a logged-out page logs in again once (through `AccountRepository`) and retries. Blacklist and user info get it first, then each migrated feature. Results from an older account generation are dropped ([TD-22](technical-debt/td-22-jobs-and-caches-are-not-scoped-to-an-account-generation.md)) | – | Not started |
 | W5 | Migrate the **thread list** (`ThreadListFragment`, `ThreadListJob`) | – | Not started |
 | W6 | Migrate **simple lists and search**, including the user info screen's list of a user's threads (still `SimpleListJob` after W3); keeps the search query across rotation ([W1 result](#w1-result)) | – | Not started |
 | W7 | Migrate **private messages**, including the send dialog that user info opens (`BaseFragment.showSendSmsDialog`) | Test with a message to the owner's own account only | Not started |
@@ -131,6 +131,7 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 | PoC | Blacklist on the new layers | #16; [PoC](#poc-blacklist) |
 | T1 | Response recorder for capturing real pages (debug builds) | #24; [how to use it](capturing-forum-pages.md) |
 | W3 | User info: profile and blacklist menu on the new layers; parity with the old parser checked on real pages | #25 |
+| W4a | Login layer: `:forum` `AuthApi` and `AccountRepository` with an account generation; `LoginHelper` is a bridge. Refused-login replies are synthetic fixtures, because capturing one needs a wrong password on the owner's account | this PR |
 | W1 | Fix the app-wide crash on configuration changes | #18; [W1 result](#w1-result) |
 | W2 | Check the Blacklist PoC with a logged-in account | #19; [W2 result](#w2-result) |
 | D2 | Decide about the dead update check | 2026-11-28: remove `UpdateHelper` (S4); the owner plans a new update mechanism |
@@ -264,7 +265,7 @@ On the first pass the log showed no removal from user info; it was repeated, and
 | Favorites | Thread detail menu, lists | `FavoriteHelper` | Not started (W8) |
 | Posting, upload | `PostFragment`, quick reply, vote, delete | `PrePostAsyncTask`, `PostJob`, `ImageUploadJob` | Not started (W9) |
 | Thread detail | `ThreadDetailFragment` | `ThreadDetailJob` + EventBus, `asyncGet` for warnings | Not started (W10) |
-| Login, session | `LoginDialog`, jobs' relogin | `LoginHelper` | Not started (W4) |
+| Login, session | `LoginDialog`, jobs' relogin | `LoginHelper` | **Login migrated (W4a)**; `LoginHelper` bridges the Java callers; relogin in APIs is W4b |
 | Notifications | `NotiWorker`, parser side effects | `NotiHelper` | Not started (W11) |
 
 ### PoC: Blacklist
