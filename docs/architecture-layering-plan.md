@@ -1,6 +1,6 @@
 # Architecture layering plan
 
-Status: **in progress**, started on 2026-11-28. Current milestone: **PoC, Blacklist feature**. Implemented and tested, and checked on the API 21 emulator while logged out; a check with a logged-in account is still outstanding ([status](#status)).
+Status: **in progress**, started on 2026-11-28. The **Blacklist PoC was merged in #16**. Next are the [open work items](#next-work) W1 and W2, fixed one at a time with one PR each.
 
 This plan prepares the app for a UI redesign. It puts the code that talks to the forum website behind one abstraction layer and drives each screen from a ViewModel. Then a new UI can be built on stable models without touching HTML, URLs or HTTP. The plan is incremental: every step ships on its own and keeps the app working.
 
@@ -56,7 +56,7 @@ Model         :forum module: data classes, ForumException (sealed)
 5. **ViewModels expose an immutable `StateFlow<UiState>` and a one-shot `Flow<String>` for messages.** The messages come from a buffered `Channel`, so messages sent while the screen is stopped are delivered on return.
 6. **Repositories are interfaces with a `Default…` implementation**, so ViewModel tests use plain fakes.
 7. **Legacy Java callers that can't call `suspend` functions get a thin Kotlin bridge** that launches on the `@ApplicationScope` scope (for example `async/BlacklistHelper`). A bridge is deleted when its last caller gets a ViewModel.
-8. **A migrated fragment turns off `BaseFragment`'s instance retention (`retainInstance = false`).** Its state lives in the ViewModel, and Hilt crashes retained fragments on configuration changes. Add an `ActivityLaunchTest` that recreates the screen.
+8. **A migrated fragment turns off `BaseFragment`'s instance retention (`retainInstance = false`).** Its state lives in the ViewModel, and Hilt crashes retained fragments on configuration changes. Add an `ActivityLaunchTest` that recreates the screen. Once [W1](#w1-fix-the-app-wide-crash-on-configuration-changes) removes retention from `BaseFragment`, this rule is dropped.
 
 ### Package layout
 
@@ -93,13 +93,78 @@ The phases are layers. The PoC goes through all of them for one feature, and eac
 
 **How this relates to the redesign:** screens that will be redesigned don't need their old fragment converted. Build the ViewModel together with the new UI, then delete the old fragment.
 
+## Next work
+
+These are open items found during the PoC. Fix them one at a time, in this order, each in its own worktree, branch and PR. Then update the **Status** column here and in the step or note it refers to.
+
+| ID | Item | Priority | Needs | Status |
+| --- | --- | --- | --- | --- |
+| W1 | [Fix the app-wide crash on configuration changes](#w1-fix-the-app-wide-crash-on-configuration-changes) | P1: crashes for every user who rotates the screen or changes dark mode or font size | Code change, emulator | Not started |
+| W2 | [Check the Blacklist PoC with a logged-in account](#w2-check-the-blacklist-poc-with-a-logged-in-account) | Before the next feature migrates, because it covers the adapter's write path and the formhash handling | The account owner; a test account is better, because this edits the forum's blacklist | Not started |
+
+### W1. Fix the app-wide crash on configuration changes
+
+**Symptom.** The app crashes on rotation, a dark mode switch, a font size change or any other configuration change: "IllegalStateException: onAttach called multiple times with different Context! Hilt Fragments should not be retained." On 2026-11-28 it was reproduced on the API 21 emulator by rotating the main screen (`Hilt_ThreadListFragment.onAttach`). It has existed since the fragments became `@AndroidEntryPoint` (#12).
+
+**Cause.** `BaseFragment.onCreate()` calls `setRetainInstance(true)` for every subclass, and Hilt refuses retained fragments.
+- **Affected fragments:** eight Hilt fragments extending `BaseFragment` are still retained: `AboutFragment`, `PostFragment`, `SearchFragment`, `SimpleListFragment`, `SmsFragment`, `ThreadDetailFragment`, `ThreadListFragment` and `UserinfoFragment`. `BlacklistFragment` already opts out (rule 8).
+- **Why it reaches every screen:** the swipe-back activities (`ThreadDetailActivity`, `PostActivity`, `SimpleListActivity`, `SmsActivity`, `UserInfoActivity`, `SettingActivity`) are translucent. A configuration change also recreates the activities below them, so one retained fragment anywhere in the back stack crashes the app. That is why rotating on the migrated blacklist screen still crashes.
+
+**Plan.**
+1. **Failing tests first.** Extend `ActivityLaunchTest` so every screen is also recreated (`scenario.recreate()`), as `settingsBlacklistSurvivesRecreation` does. These tests fail today with the Hilt error.
+2. **Remove retention.** Delete `setRetainInstance(true)` from `BaseFragment.onCreate()`. Remove the opt-out in `BlacklistFragment` and rule 8, which are then redundant.
+3. **Keep in-flight results.** `BaseFragment.onCreate()` gives every instance a new `mSessionId`, and job results arrive as sticky EventBus events filtered by that ID. Without retention, results of requests started before the change would be dropped and could leave a screen loading forever. Save `mSessionId` in `onSaveInstanceState()` and restore it in `onCreate()`, so the recreated fragment still receives them.
+4. **Check what each screen loses.** Only `PostFragment` saves its own state (`onSaveInstanceState`). The other seven reload their data after a configuration change, and may lose positions:
+   - thread detail: page cache, goto floor, author-only mode, quick reply;
+   - thread list and simple lists: list and page;
+   - search: query and results;
+   - SMS: the conversation.
+   Reloading is acceptable as a first fix, because it replaces a crash. Save small state, such as the page or the query, where losing it is annoying. The real fix for state is each screen's ViewModel (phase 4).
+5. **Rejected alternative:** `android:configChanges` on the activities. It hides recreation but stops resources from reloading for dark mode, font scale and landscape layouts, and the app would still break when the system recreates activities.
+
+**Verify.**
+- `./gradlew :forum:test :hipda:testDebugUnitTest`, including the new recreation tests.
+- On the `hipda-api21` and `hipda-api37` emulators, on every screen and in a deep swipe-back stack (main → thread → user info → private message): rotate, toggle dark mode, and change the font size. Repeat with the developer option "Don't keep activities" on.
+- Confirm that a request in progress during the change still finishes on the recreated screen.
+
+Fixing W1 also resolves most of [TD-25](technical-debt/td-25-retained-fragments-outlive-their-view-and-activity-references.md); update that file in the same PR.
+
+### W2. Check the Blacklist PoC with a logged-in account
+
+**Why.** The PoC was checked only while logged out (PoC step 14). The listing of real entries, the remove and add requests, the formhash handling across sessions and the `BlacklistHelper` bridge have been tested only against synthetic pages. Agents and tests cannot log in, so the account owner has to do this. Use a test account and a throwaway username where possible, because the steps change the forum's blacklist.
+
+**Checklist** (debug build of current `master`):
+1. **Open the list:** settings → 论坛选项 → 黑名单.
+   - The list matches the forum's own page (`pm.php?action=viewblack` in a browser).
+   - "黑名单数据已同步" appears.
+   - Back in settings, the summary shows the right count and the new sync time.
+2. **Pull to refresh:** the list reloads once.
+3. **Remove a user:**
+   - The remove button hides while the request runs, and the row then disappears.
+   - The settings count drops.
+   - The user's threads appear again in thread lists.
+4. **Failed removal:** turn on airplane mode and remove a user. "请检查网络连接" appears and the remove button returns.
+5. **From user info:** open a user's page and use the menu.
+   - "加入黑名单" shows "已经将用户 <name> 添加至黑名单", and the menu switches to remove.
+   - Removing shows "已经将用户 <name> 从黑名单移除".
+   - The forum's web page agrees.
+6. **New session:** log out and log in again, as another account if possible, then add and remove once more. Both must work; `FormhashCache` must not reuse the old session's token.
+7. **Background sync:** the app syncs the blacklist through `BlacklistHelper.syncBlacklists()` right after every login (`TaskHelper.runDailyTask(true)`). It also syncs at start-up when the last sync is more than 24 hours old. After logging in, the sync time in the settings summary updates.
+8. **Real fixtures:**
+   - From a logged-in browser, save the blacklist page with entries and when empty, and the replies to an add and a remove that succeeded and that failed.
+   - Convert them to UTF-8 (`iconv -f GBK -t UTF-8`) and scrub usernames, uids and formhash values.
+   - Replace the synthetic pages in `forum/src/test/resources/fixtures/blacklist/` and update its README.
+   - `./gradlew :forum:test` must still pass. Where it fails, the real markup differs from the assumptions, and the parser needs a fix.
+
+**Record** the results in PoC step 14 and the PoC notes. Fix anything found in a separate PR.
+
 ## Status
 
 ### Feature migration tracker
 
 | Feature | Screens and callers | Old path | Status |
 | --- | --- | --- | --- |
-| Blacklist | `BlacklistFragment`; `UserinfoFragment` (add/remove); `TaskHelper` (daily sync) | `BlacklistHelper` + inline Jsoup in fragment | **Migrated (PoC)**. Logged-in device check outstanding; `BlacklistHelper` bridge remains until `UserinfoFragment` and `TaskHelper` migrate |
+| Blacklist | `BlacklistFragment`; `UserinfoFragment` (add/remove); `TaskHelper` (daily sync) | `BlacklistHelper` + inline Jsoup in fragment | **Migrated (PoC, #16)**. Logged-in check is [W2](#w2-check-the-blacklist-poc-with-a-logged-in-account); `BlacklistHelper` bridge remains until `UserinfoFragment` and `TaskHelper` migrate |
 | User info | `UserinfoFragment` | `asyncGet` + `HiParser.parseUserInfo` in fragment; `SimpleListJob` for threads | Not started |
 | Thread list | `ThreadListFragment` | `ThreadListJob` + EventBus | Not started |
 | Simple lists, search | `SimpleListFragment`, `SearchFragment` | `SimpleListJob` (11 types) + EventBus | Not started |
@@ -129,7 +194,7 @@ The Blacklist feature was chosen because it is the smallest complete slice. It h
 | 11 | `BlacklistHelper` turned into a bridge; `UserinfoFragment` and `TaskHelper` moved to it | Done. `UserinfoFragment` no longer keeps a formhash |
 | 12 | Old code removed: `HiParser.parseBlacklist`, blacklist URLs in `HiUtils`, unused `addBlacklist2` | Done |
 | 13 | Build, unit tests, lint, release build (R8) | Done: debug and release builds pass, 69/69 unit tests pass (26 `:forum`, 43 app). Lint finds nothing new in changed files |
-| 14 | Device check: open the blacklist, pull to refresh, remove a user; add/remove from user info | **Partly done.** On the API 21 emulator, logged out: open, refresh and rotation work. Listing and removing real entries, and add/remove from user info, still need a logged-in account. See [PoC notes](#poc-notes) |
+| 14 | Device check: open the blacklist, pull to refresh, remove a user; add/remove from user info | **Partly done.** On the API 21 emulator, logged out: open, refresh and rotation work. The logged-in part is [W2](#w2-check-the-blacklist-poc-with-a-logged-in-account). See [PoC notes](#poc-notes) |
 
 ### PoC notes
 
@@ -146,7 +211,7 @@ The Blacklist feature was chosen because it is the smallest complete slice. It h
   - It is reproduced on the unchanged main screen (`ThreadListFragment`).
   - `BlacklistFragment` now opts out (`retainInstance = false`), and `ActivityLaunchTest.settingsBlacklistSurvivesRecreation` covers it. The test fails with this exact crash when the opt-out is removed.
   - The app as a whole still crashes on rotation from the blacklist screen. The swipe-back activities are translucent, so `MainFrameActivity` underneath is recreated as well and crashes.
-  - Fixing it for good means removing `setRetainInstance(true)` from `BaseFragment`, and checking each screen that relies on retention (see TD-25). That is a separate change; each screen moved to a ViewModel needs retention no more.
+  - The fix for the whole app is [W1](#w1-fix-the-app-wide-crash-on-configuration-changes).
 
 ## Decisions
 
@@ -162,4 +227,4 @@ The Blacklist feature was chosen because it is the smallest complete slice. It h
 ## Open questions
 
 - **Compose or Views for the redesign?** This doesn't affect the layers below the ViewModel, since both consume `StateFlow`.
-- **Real fixtures.** The PoC fixtures are synthetic. They were written from the parser's selectors because the tests cannot log in to the forum. Replace them with captured, scrubbed pages when possible.
+- **Real fixtures.** The PoC fixtures are synthetic, because the tests cannot log in to the forum. Replacing the blacklist fixtures is step 8 of [W2](#w2-check-the-blacklist-poc-with-a-logged-in-account). Each later feature should start from captured, scrubbed pages (phase 0).
