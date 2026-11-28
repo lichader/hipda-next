@@ -30,9 +30,6 @@ import com.bumptech.glide.Glide;
 import com.lichader.hipdanext.okhttp.OkHttpHelper;
 import com.lichader.hipdanext.ui.HiApplication;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.safety.Whitelist;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -55,14 +52,12 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.regex.Pattern;
 
 /**
  * Common utils
  */
 public class Utils {
 
-    private static Whitelist mWhitelist = null;
     private static int mScreenWidth = -1;
     private static int mScreenHeight = -1;
 
@@ -72,7 +67,6 @@ public class Utils {
     private static long UPDATE_TIME = 0;
 
     public final static String URL_REGEX = "[(http(s)?):\\/\\/(www\\.)?a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)";
-    public final static Pattern URL_PATTERN = Pattern.compile(URL_REGEX);
     public final static String REPLACE_URL_REGEX = "(" + URL_REGEX + ")";
 
     public static String nullToText(CharSequence text) {
@@ -124,22 +118,6 @@ public class Utils {
     /**
      * return parsable html for TextViewWithEmoticon
      */
-    public static String clean(String html) {
-        if (mWhitelist == null) {
-            mWhitelist = new Whitelist();
-            mWhitelist.addTags(
-                            "a",
-                            "br", "p",
-                            "b", "i", "strike", "strong", "u",
-                            "font")
-
-                    .addAttributes("a", "href")
-                    .addAttributes("font", "color")
-
-                    .addProtocols("a", "href", "http", "https");
-        }
-        return Jsoup.clean(html, "", mWhitelist, new Document.OutputSettings().prettyPrint(false));
-    }
 
     public static CharSequence fromHtmlAndStrip(String s) {
         return HtmlCompat.fromHtml(s).toString().replace((char) 160, (char) 32).replace((char) 65532, (char) 32);
@@ -414,24 +392,6 @@ public class Utils {
     }
 
 
-    public static long parseSizeText(String sizeText) {
-        //708 Bytes
-        //100.1 KB
-        //2.22 MB
-        sizeText = Utils.nullToText(sizeText).trim().toUpperCase();
-        try {
-            if (sizeText.endsWith("KB")) {
-                return Math.round(Double.parseDouble(sizeText.replace("KB", "").trim()) * 1024);
-            } else if (sizeText.endsWith("MB")) {
-                return Math.round(Double.parseDouble(sizeText.replace("MB", "").trim()) * 1024 * 1024);
-            } else if (sizeText.endsWith("BYTES")) {
-                return Long.parseLong(sizeText.replace("BYTES", "").trim());
-            }
-        } catch (Exception ignored) {
-        }
-        return -1;
-    }
-
     public static String toSizeText(long fileSize) {
         DecimalFormat df = new DecimalFormat("#.#");
         if (fileSize > 1024 * 1024) {
@@ -498,15 +458,6 @@ public class Utils {
             return "";
         }
         return source.substring(start_idx, end_idx);
-    }
-
-    public static int getIntFromString(String s) {
-        String tmp = s.replaceAll("[^\\d]", "");
-        if (!TextUtils.isEmpty(tmp) && TextUtils.isDigitsOnly(tmp)) {
-            return parseInt(tmp);
-        } else {
-            return 0;
-        }
     }
 
     public static int parseInt(String s) {

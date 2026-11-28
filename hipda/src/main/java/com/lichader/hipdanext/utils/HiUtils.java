@@ -24,7 +24,6 @@ public class HiUtils {
     public static final String AvatarSuffix = "_avatar_middle.jpg";
     public static final String NewPMImage = "images/default/notice_newpm.gif";
     public static final String SmiliesPattern = CookieDomain + "/forum/images/smilies/";
-    public static final String ForumImagePattern = CookieDomain + "/forum/images/";
     public static final String ForumUrlPattern = "." + CookieDomain + "/forum/";
 
     public static final int CLIENT_TID = 1579403;
@@ -37,9 +36,7 @@ public class HiUtils {
     public static String EditUrl;
     public static String VotePollUrl;
     public static String NewThreadUrl;
-    public static String LastPageUrl;
     public static String RedirectToPostUrl;
-    public static String GotoPostUrl;
     public static String CheckSMS;
     public static String UploadImgUrl;
     public static String UserWarningUrl;
@@ -107,9 +104,7 @@ public class HiUtils {
         EditUrl = BaseUrl + "post.php?action=edit";
         VotePollUrl = BaseUrl + "misc.php?action=votepoll&fid={fid}&tid={tid}&pollsubmit=yes&quickforward=yes&inajax=1";
         NewThreadUrl = BaseUrl + "post.php?action=newthread&fid=";
-        LastPageUrl = BaseUrl + "redirect.php?goto=lastpost&from=fastpost&tid=";
         RedirectToPostUrl = BaseUrl + "redirect.php?goto=findpost&pid={pid}&ptid={tid}";
-        GotoPostUrl = BaseUrl + "gotopost.php?pid={pid}";
         CheckSMS = BaseUrl + "pm.php?checknewpm";
         UploadImgUrl = BaseUrl + "misc.php?action=swfupload&operation=upload&simple=1&type=image";
         UserWarningUrl = BaseUrl + "misc.php?action=viewwarning&tid={tid}&uid={uid}";

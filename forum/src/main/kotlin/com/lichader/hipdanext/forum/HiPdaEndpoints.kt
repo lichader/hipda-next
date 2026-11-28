@@ -92,6 +92,19 @@ class HiPdaEndpoints(private val config: ForumConfig) {
 
     fun clearConversation(uid: String): String = baseUrl + "pm.php?action=del&uid=" + uid + "&filter=privatepm"
 
+    /** A thread page; with a valid [authorId], only that author's posts. */
+    fun threadPage(tid: String, page: Int, authorId: String?): String {
+        var url = baseUrl + "viewthread.php?tid=" + tid + "&page=" + page
+        if (authorId != null && (authorId.trim().toIntOrNull() ?: 0) > 0) url += "&authorid=" + authorId
+        return url
+    }
+
+    fun threadLastPage(tid: String): String = baseUrl + "redirect.php?goto=lastpost&from=fastpost&tid=" + tid
+
+    /** The page holding post [pid]; without [tid], the forum finds the thread. */
+    fun threadPageOfPost(pid: String, tid: String?): String =
+        if (tid.isNullOrEmpty()) baseUrl + "gotopost.php?pid=" + pid else baseUrl + "redirect.php?goto=findpost&pid=" + pid + "&ptid=" + tid
+
     fun threadList(forumId: Int, page: Int, typeId: String?, orderByPostTime: Boolean): String {
         var url = baseUrl + "forumdisplay.php?fid=" + forumId + "&page=" + page
         if (typeId != null) url += "&filter=type&typeid=" + typeId
