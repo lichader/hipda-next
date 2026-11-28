@@ -28,7 +28,7 @@ Priority indicates suggested order, not a claim that an incident has occurred:
 | P2 | Important correctness, reliability, security hardening, or compatibility work | 34 |
 | P3 | Incremental design, performance, and maintenance improvements | 4 |
 
-Existing focused documents: [Android 17 migration](../android-17-migration.md) and [swipe-back flash investigation](../swipe-back-flash.md). The reported flash remains **unconfirmed as to root cause**; animation overrides and hidden translucency APIs are investigation targets, not a proven diagnosis. Its dedicated device-validation checklist remains open.
+Existing focused documents: [Android 17 migration](../android-17-migration.md) (remaining work and release gate) and [swipe-back flash investigation](../swipe-back-flash.md). The reported flash remains **unconfirmed as to root cause**; animation overrides and hidden translucency APIs are investigation targets, not a proven diagnosis. Its dedicated device-validation checklist remains open.
 
 ## First Work Packages
 
