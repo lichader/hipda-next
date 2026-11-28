@@ -19,7 +19,6 @@ import com.lichader.hipdanext.data.favorites.FavoritesCache;
 import com.lichader.hipdanext.forum.lists.SavedThreads;
 import com.lichader.hipdanext.async.LoginHelper;
 import com.lichader.hipdanext.bean.HiSettingsHelper;
-import com.lichader.hipdanext.bean.PostBean;
 import com.lichader.hipdanext.db.History;
 import com.lichader.hipdanext.db.HistoryDao;
 import com.lichader.hipdanext.di.SingletonEntryPoint;
@@ -78,9 +77,6 @@ public class AppStartupTest {
         SingletonEntryPoint hilt = SingletonEntryPoint.get();
         assertSame(hilt.loginHelper(), hilt.loginHelper());
         assertSame(hilt.notiHelper(), hilt.notiHelper());
-        PostBean post = new PostBean();
-        post.setTid("1");
-        assertNotNull(hilt.postHelperFactory().create(0, null, post));
     }
 
     @Test

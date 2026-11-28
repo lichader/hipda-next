@@ -9,6 +9,9 @@ import com.lichader.hipdanext.forum.post.EditorKind
 import com.lichader.hipdanext.forum.post.EditorPage
 import com.lichader.hipdanext.forum.post.ImageUpload
 import com.lichader.hipdanext.forum.post.PostApi
+import com.lichader.hipdanext.forum.post.PostForm
+import com.lichader.hipdanext.forum.post.PostResult
+import com.lichader.hipdanext.forum.post.PostTarget
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -47,6 +50,11 @@ class DefaultPostRepositoryTest {
     }
 
     @Test
+    fun postsGoToTheForum() = runBlocking {
+        assertEquals(PostResult.Refused("Reply(tid=1) m"), repository.submit(PostTarget.Reply("1"), PostForm("f", "m")))
+    }
+
+    @Test
     fun uploadsGoToTheForum() = runBlocking {
         assertEquals(ImageUpload.Uploaded("9000001"), repository.uploadImage("100001", "h", "a.png", "image/png", byteArrayOf(1)))
         assertEquals("100001 h a.png image/png 1", api.upload)
@@ -64,6 +72,7 @@ class DefaultPostRepositoryTest {
             upload = "$uid $hash $fileName $mimeType ${bytes.size}"
             return ImageUpload.Uploaded("9000001")
         }
+        override suspend fun submit(target: PostTarget, form: PostForm): PostResult = PostResult.Refused("$target ${form.message}")
     }
 
     private class FakeAccount : AccountRepository {

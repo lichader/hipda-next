@@ -40,6 +40,7 @@ import com.lichader.hipdanext.R;
 import com.lichader.hipdanext.async.FavoriteHelper;
 import com.lichader.hipdanext.async.NetworkReadyEvent;
 import com.lichader.hipdanext.async.PostHelper;
+import com.lichader.hipdanext.async.PostSender;
 import com.lichader.hipdanext.bean.ContentImg;
 import com.lichader.hipdanext.bean.DetailBean;
 import com.lichader.hipdanext.bean.DetailListBean;
@@ -51,7 +52,6 @@ import com.lichader.hipdanext.db.ContentDao;
 import com.lichader.hipdanext.db.HistoryDao;
 import com.lichader.hipdanext.job.JobMgr;
 import com.lichader.hipdanext.job.PostEvent;
-import com.lichader.hipdanext.job.PostJob;
 import com.lichader.hipdanext.okhttp.OkHttpHelper;
 import com.lichader.hipdanext.ui.adapter.RecyclerItemClickListener;
 import com.lichader.hipdanext.ui.adapter.ThreadDetailAdapter;
@@ -101,6 +101,8 @@ public class ThreadDetailFragment extends BaseFragment {
 
     @Inject
     JobMgr mJobMgr;
+    @Inject
+    PostSender mPostSender;
     @Inject
     ContentDao mContentDao;
     @Inject
@@ -323,7 +325,7 @@ public class ThreadDetailFragment extends BaseFragment {
                         postBean.setFloor(mQuickReplyToPost.getFloor());
                     }
 
-                    mJobMgr.addJob(new PostJob(mSessionId, mQuickReplyMode, null, postBean, true));
+                    mPostSender.send(mSessionId, mQuickReplyMode, null, postBean, true);
 
                     UIUtils.hideSoftKeyboard(getActivity());
                     scrollToBottom();
@@ -813,7 +815,7 @@ public class ThreadDetailFragment extends BaseFragment {
                         if (detailBean.getFloor() == 1)
                             postBean.setSubject(mTitle);
 
-                        mJobMgr.addJob(new PostJob(mSessionId, PostHelper.MODE_QUICK_DELETE, null, postBean, false));
+                        mPostSender.send(mSessionId, PostHelper.MODE_QUICK_DELETE, null, postBean, false);
                     }
                 });
         popDialog.setIcon(new IconicsDrawable(getActivity(), FontAwesome.Icon.faw_exclamation_circle).sizeDp(24).color(Color.RED));
@@ -1272,7 +1274,7 @@ public class ThreadDetailFragment extends BaseFragment {
                 PollBean pollBean = mCache.get(1).getAll().get(0).getPoll();
                 prePostInfo.setFormhash(pollBean.getFormhash());
             }
-            mJobMgr.addJob(new PostJob(mSessionId, PostHelper.MODE_VOTE_POLL, prePostInfo, postBean, false));
+            mPostSender.send(mSessionId, PostHelper.MODE_VOTE_POLL, prePostInfo, postBean, false);
         }
     }
 

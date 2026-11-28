@@ -42,15 +42,12 @@ import com.vdurmont.emoji.EmojiParser;
 
 import com.lichader.hipdanext.R;
 import com.lichader.hipdanext.async.PostHelper;
+import com.lichader.hipdanext.async.PostSender;
 import com.lichader.hipdanext.bean.Forum;
 import com.lichader.hipdanext.bean.PostBean;
 import com.lichader.hipdanext.bean.PrePostInfoBean;
 import com.lichader.hipdanext.db.Content;
 import com.lichader.hipdanext.db.ContentDao;
-import com.lichader.hipdanext.job.ImageUploadEvent;
-import com.lichader.hipdanext.job.ImageUploadJob;
-import com.lichader.hipdanext.job.JobMgr;
-import com.lichader.hipdanext.job.PostJob;
 import com.lichader.hipdanext.job.UploadImage;
 import com.lichader.hipdanext.ui.adapter.GridImageAdapter;
 import com.lichader.hipdanext.ui.adapter.ThreadTypeAdapter;
@@ -64,9 +61,6 @@ import com.lichader.hipdanext.utils.HtmlCompat;
 import com.lichader.hipdanext.utils.UIUtils;
 import com.lichader.hipdanext.utils.Utils;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -81,7 +75,7 @@ public class PostFragment extends BaseFragment {
 
 
     @Inject
-    JobMgr mJobMgr;
+    PostSender mPostSender;
     @Inject
     ContentDao mContentDao;
 
@@ -288,6 +282,7 @@ public class PostFragment extends BaseFragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         FlowObservers.collect(getViewLifecycleOwner(), mViewModel.getEditorEvents(), this::onEditorEvent);
+        FlowObservers.collect(getViewLifecycleOwner(), mViewModel.getUploadEvents(), this::onUploadEvent);
     }
 
     private void savePostConent(boolean force) {
@@ -305,8 +300,6 @@ public class PostFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (!EventBus.getDefault().isRegistered(this))
-            EventBus.getDefault().register(this);
         if (mPrePostInfo == null) {
             fetchPrePostInfo(false);
         } else {
@@ -339,7 +332,6 @@ public class PostFragment extends BaseFragment {
 
     @Override
     public void onPause() {
-        EventBus.getDefault().unregister(this);
         mContentPosition = mEtContent.getSelectionStart();
         savePostConent(true);
         if (mPrePostInfo != null) {
@@ -529,7 +521,7 @@ public class PostFragment extends BaseFragment {
         postBean.setFloor(mFloor);
         postBean.setDelete(mDeleteMode);
 
-        mJobMgr.addJob(new PostJob(mParentSessionId, mMode, mPrePostInfo, postBean, false));
+        mPostSender.send(mParentSessionId, mMode, mPrePostInfo, postBean, false);
         getActivity().finish();
     }
 
@@ -563,7 +555,7 @@ public class PostFragment extends BaseFragment {
 
         mProgressDialog = HiProgressDialog.show(getActivity(), "正在上传...");
         if (mPrePostInfo != null) {
-            mJobMgr.addJob(new ImageUploadJob(mSessionId, mPrePostInfo.getUid(), mPrePostInfo.getHash(), uris.toArray(new Uri[0]), original));
+            mViewModel.uploadImages(mPrePostInfo.getUid(), mPrePostInfo.getHash(), new ArrayList<>(uris), original);
         } else {
             UIUtils.toast("无法获取发帖信息");
         }
@@ -832,18 +824,18 @@ public class PostFragment extends BaseFragment {
 
     }
 
-    private void imageProcess(int total, int current, int percentage) {
+    private void imageProcess(int total, int current) {
         mProgressDialog.setMessage("正在上传... (" + (current + 1) + "/" + total + ")");
     }
 
-    private void imageDone(ImageUploadEvent event) {
-        UploadImage image = event.mImage;
+    private void imageDone(PostViewModel.UploadEvent.ImageDone event) {
+        UploadImage image = event.getImage();
         if (isValidImgId(image.getImgId())) {
             mUploadImages.put(image.getUri(), image);
             mEmojiPopup.addImage(image.getImgId(), image.getThumb());
             appendImage(image.getImgId());
         } else {
-            UIUtils.errorSnack(getView(), "图片上传失败：" + Utils.nullToText(event.mMessage), event.mDetail);
+            UIUtils.errorSnack(getView(), "图片上传失败：" + Utils.nullToText(event.getMessage()), event.getDetail());
         }
         updateImageInfo();
     }
@@ -854,28 +846,15 @@ public class PostFragment extends BaseFragment {
         updateImageInfo();
     }
 
-    @SuppressWarnings("unused")
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEvent(ImageUploadEvent event) {
-        if (!mSessionId.equals(event.mSessionId))
-            return;
-
-        Collection<ImageUploadEvent> events = new ArrayList<>();
-        if (event.holdEvents != null && event.holdEvents.size() > 0) {
-            events.addAll(event.holdEvents);
+    private void onUploadEvent(PostViewModel.UploadEvent event) {
+        if (event instanceof PostViewModel.UploadEvent.Progress) {
+            PostViewModel.UploadEvent.Progress progress = (PostViewModel.UploadEvent.Progress) event;
+            imageProcess(progress.getTotal(), progress.getCurrent());
+        } else if (event instanceof PostViewModel.UploadEvent.ImageDone) {
+            imageDone((PostViewModel.UploadEvent.ImageDone) event);
+        } else {
+            imageAllDone();
         }
-        events.add(event);
-
-        for (ImageUploadEvent evt : events) {
-            if (evt.mType == ImageUploadEvent.UPLOADING) {
-                imageProcess(evt.mTotal, evt.mCurrent, evt.mPercentage);
-            } else if (evt.mType == ImageUploadEvent.ITEM_DONE) {
-                imageDone(evt);
-            } else if (evt.mType == ImageUploadEvent.ALL_DONE) {
-                imageAllDone();
-            }
-        }
-        EventBus.getDefault().removeStickyEvent(event);
     }
 
     private class SavedContentsAdapter extends ArrayAdapter {
