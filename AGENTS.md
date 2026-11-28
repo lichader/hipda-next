@@ -34,7 +34,7 @@ Kotlin is compiled by AGP's built-in Kotlin support, so no `kotlin-android` plug
 
 ## Architecture
 
-The app is moving one feature at a time to layers: Fragment → ViewModel → repository → `:forum` site adapter. The plan, its rules and the migration status are in `docs/architecture-layering-plan.md`; update the status there as features move. In new code, don't call `OkHttpHelper`, Jsoup or `HiUtils.*Url` from UI classes. Add the request to a `:forum` API, put the app's policy in a repository under `data/`, and drive the screen from a `@HiltViewModel` that exposes `StateFlow` state. `:forum` has no DI of its own and is wired in `di/ForumModule.kt`. Because lint does not check its API levels, call only `java.*` APIs that exist on API 21.
+The app is moving one feature at a time to layers: Fragment → ViewModel → repository → `:forum` site adapter. The plan, its rules and the migration status are in `docs/architecture-layering-plan.md`. Its "Next work" section is the project's to-do list: take work from it, update the status there, and add new findings to it. That section also sets the rules for testing with the owner's real forum account: never post, vote or message anyone else. In new code, don't call `OkHttpHelper`, Jsoup or `HiUtils.*Url` from UI classes. Add the request to a `:forum` API, put the app's policy in a repository under `data/`, and drive the screen from a `@HiltViewModel` that exposes `StateFlow` state. `:forum` has no DI of its own and is wired in `di/ForumModule.kt`. Because lint does not check its API levels, call only `java.*` APIs that exist on API 21.
 
 ## Dependency Injection
 

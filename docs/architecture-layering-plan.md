@@ -1,6 +1,6 @@
 # Architecture layering plan
 
-Status: **in progress**, started on 2026-11-28. The **Blacklist PoC was merged in #16**. [Open work items](#next-work): W1 was fixed in #18, and W2 was completed on 2026-11-28. Next is the next feature migration ([tracker](#feature-migration-tracker)).
+Status: **in progress**, started on 2026-11-28. The **Blacklist PoC was merged in #16**. Next: the [to-do list](#next-work), from the top.
 
 This plan prepares the app for a UI redesign. It puts the code that talks to the forum website behind one abstraction layer and drives each screen from a ViewModel. Then a new UI can be built on stable models without touching HTML, URLs or HTTP. The plan is incremental: every step ships on its own and keeps the app working.
 
@@ -95,12 +95,46 @@ The phases are layers. The PoC goes through all of them for one feature, and eac
 
 ## Next work
 
-These are open items found during the PoC. Fix them one at a time, in this order, each in its own worktree, branch and PR. Then update the **Status** column here and in the step or note it refers to.
+This is the project's to-do list. Work through **Open** from the top, one item per worktree, branch and PR. Update **Status** while working, and move an item to **Done** when its PR is merged. Add new findings here instead of leaving them in results or notes.
 
-| ID | Item | Priority | Needs | Status |
-| --- | --- | --- | --- | --- |
-| W1 | [Fix the app-wide crash on configuration changes](#w1-fix-the-app-wide-crash-on-configuration-changes) | P1: crashes for every user who rotates the screen or changes dark mode or font size | Code change, emulator | **Fixed** in #18. See [result](#w1-result) |
-| W2 | [Check the Blacklist PoC with a logged-in account](#w2-check-the-blacklist-poc-with-a-logged-in-account) | Before the next feature migrates, because it covers the adapter's write path and the formhash handling | The account owner; a test account is better, because this edits the forum's blacklist | **Done** 2026-11-28. See [result](#w2-result) |
+**Forum account.** The only account is the owner's real one. On the `hipda-api37` emulator, an agent may do anything that affects only the owner:
+- read pages, including the owner's own private messages (scrub them before committing anything);
+- add or remove favorites and blacklist entries;
+- send a private message to the owner's own account, and confirm it arrived;
+- log out and in;
+- upload images without posting them.
+
+Never post, edit or delete posts, vote, or message anyone else. For those steps, give the owner a short checklist like W2's.
+
+### Open
+
+| ID | Item | Needs from the owner | Status |
+| --- | --- | --- | --- |
+| T1 | **Response recorder:** in debug builds only, save the forum's responses on the device, so real pages (HTML, `inajax` XML, JSON) can be captured as fixtures | – | **In progress** |
+| W3 | Migrate **user info** (`UserinfoFragment`): profile page and the user's threads; removes the `BlacklistHelper` bridge for this screen | – | Not started |
+| W4 | **Session layer:** `SessionGuard` (log-in detection and one retry, now copied into each job) and `AccountRepository` with an account generation ([TD-22](technical-debt/td-22-jobs-and-caches-are-not-scoped-to-an-account-generation.md)) | – | Not started |
+| W5 | Migrate the **thread list** (`ThreadListFragment`, `ThreadListJob`) | – | Not started |
+| W6 | Migrate **simple lists and search**; keeps the search query across rotation ([W1 result](#w1-result)) | – | Not started |
+| W7 | Migrate **private messages** | Test with a message to the owner's own account only | Not started |
+| W8 | Migrate **favorites** | – | Not started |
+| W9 | Migrate **posting and image upload** (`PrePostAsyncTask`, `PostJob`, `ImageUploadJob`) | The owner does every step that posts | Not started |
+| W10 | Migrate **thread detail**; keeps the reading position across rotation ([W1 result](#w1-result)) | The owner votes, if a poll needs checking | Not started |
+| W11 | Migrate **notifications** (`NotiWorker`, `NotiHelper`) | – | Not started |
+| W12 | **Remove the old plumbing** (phase 5): EventBus, read jobs, `AsyncTask`s, `HiUtils` URL statics, `SingletonEntryPoint` callers, the last bridges | – | Not started |
+| D1 | **Decide:** Compose or Views for the redesign | Decision, before the first redesigned screen | Open |
+| D2 | **Decide:** the dead update check (`UpdateHelper`). Remove it, or check GitHub Releases, which needs published releases | Decision | Open |
+| D3 | **Decide:** report post ([TD-08](technical-debt/td-08-the-report-post-action-does-not-submit-a-report.md)). Remove the button, open the post in a browser, or send a real report | Decision; T1 shows whether the forum has a report link | Open |
+| S1 | Lint for `:forum`: API-level checks, which app lint doesn't apply to the module | – | Not started |
+| S2 | Real blacklist add/remove replies and a rejected-request reply as fixtures (with T1) | – | Not started |
+| S3 | Act on D2 and D3 | – | Waiting for D2, D3 |
+
+### Done
+
+| ID | Item | Result |
+| --- | --- | --- |
+| PoC | Blacklist on the new layers | #16; [PoC](#poc-blacklist) |
+| W1 | Fix the app-wide crash on configuration changes | #18; [W1 result](#w1-result) |
+| W2 | Check the Blacklist PoC with a logged-in account | #19; [W2 result](#w2-result) |
 
 ### W1. Fix the app-wide crash on configuration changes
 
@@ -221,15 +255,15 @@ On the first pass the log showed no removal from user info; it was repeated, and
 | Feature | Screens and callers | Old path | Status |
 | --- | --- | --- | --- |
 | Blacklist | `BlacklistFragment`; `UserinfoFragment` (add/remove); `TaskHelper` (daily sync) | `BlacklistHelper` + inline Jsoup in fragment | **Migrated (PoC, #16)**, checked with a logged-in account ([W2](#w2-result)); `BlacklistHelper` bridge remains until `UserinfoFragment` and `TaskHelper` migrate |
-| User info | `UserinfoFragment` | `asyncGet` + `HiParser.parseUserInfo` in fragment; `SimpleListJob` for threads | Not started |
-| Thread list | `ThreadListFragment` | `ThreadListJob` + EventBus | Not started |
-| Simple lists, search | `SimpleListFragment`, `SearchFragment` | `SimpleListJob` (11 types) + EventBus | Not started |
-| Private messages | `SmsFragment`, `BaseFragment` SMS dialog | `SimpleListJob`, `PostSmsAsyncTask`, `asyncGet` | Not started |
-| Favorites | Thread detail menu, lists | `FavoriteHelper` | Not started |
-| Posting, upload | `PostFragment`, quick reply, vote, delete | `PrePostAsyncTask`, `PostJob`, `ImageUploadJob` | Not started |
-| Thread detail | `ThreadDetailFragment` | `ThreadDetailJob` + EventBus, `asyncGet` for warnings | Not started |
-| Login, session | `LoginDialog`, jobs' relogin | `LoginHelper` | Not started |
-| Notifications | `NotiWorker`, parser side effects | `NotiHelper` | Not started |
+| User info | `UserinfoFragment` | `asyncGet` + `HiParser.parseUserInfo` in fragment; `SimpleListJob` for threads | Not started (W3) |
+| Thread list | `ThreadListFragment` | `ThreadListJob` + EventBus | Not started (W5) |
+| Simple lists, search | `SimpleListFragment`, `SearchFragment` | `SimpleListJob` (11 types) + EventBus | Not started (W6) |
+| Private messages | `SmsFragment`, `BaseFragment` SMS dialog | `SimpleListJob`, `PostSmsAsyncTask`, `asyncGet` | Not started (W7) |
+| Favorites | Thread detail menu, lists | `FavoriteHelper` | Not started (W8) |
+| Posting, upload | `PostFragment`, quick reply, vote, delete | `PrePostAsyncTask`, `PostJob`, `ImageUploadJob` | Not started (W9) |
+| Thread detail | `ThreadDetailFragment` | `ThreadDetailJob` + EventBus, `asyncGet` for warnings | Not started (W10) |
+| Login, session | `LoginDialog`, jobs' relogin | `LoginHelper` | Not started (W4) |
+| Notifications | `NotiWorker`, parser side effects | `NotiHelper` | Not started (W11) |
 
 ### PoC: Blacklist
 
@@ -282,5 +316,5 @@ The Blacklist feature was chosen because it is the smallest complete slice. It h
 
 ## Open questions
 
-- **Compose or Views for the redesign?** This doesn't affect the layers below the ViewModel, since both consume `StateFlow`.
+- **Compose or Views for the redesign?** Tracked as D1 in the [to-do list](#next-work). It doesn't affect the layers below the ViewModel, since both consume `StateFlow`.
 - **Real fixtures.** The blacklist now has captured, scrubbed pages ([W2](#w2-result)); its add and remove replies are still synthetic. Each later feature should start from captured, scrubbed pages (phase 0), saved by the account owner from a browser.
