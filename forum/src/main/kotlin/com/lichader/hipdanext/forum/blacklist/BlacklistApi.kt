@@ -5,6 +5,7 @@ import com.lichader.hipdanext.forum.HiPdaEndpoints
 import com.lichader.hipdanext.forum.http.ForumTransport
 import com.lichader.hipdanext.forum.parser.Pages
 import com.lichader.hipdanext.forum.session.FormhashCache
+import com.lichader.hipdanext.forum.session.SessionGuard
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -28,13 +29,13 @@ class HiPdaBlacklistApi(
     private val transport: ForumTransport,
     private val endpoints: HiPdaEndpoints,
     private val formhash: FormhashCache,
+    private val session: SessionGuard,
     private val parseDispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : BlacklistApi {
 
     override suspend fun fetch(): List<String> {
-        val html = transport.get(endpoints.viewBlacklist())
+        val doc = session.page(endpoints.viewBlacklist())
         return withContext(parseDispatcher) {
-            val doc = Jsoup.parse(html)
             formhash.put(Pages.formhash(doc))
             BlacklistParser.parse(doc)
         }

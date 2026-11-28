@@ -7,7 +7,9 @@ import com.lichader.hipdanext.forum.ForumException
 import com.lichader.hipdanext.forum.auth.AuthApi
 import com.lichader.hipdanext.forum.auth.Credentials
 import com.lichader.hipdanext.forum.auth.LoginResult
+import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.yield
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -108,6 +110,31 @@ class AccountRepositoryTest {
     }
 
     @Test
+    fun automaticLoginsThatCoincideShareOne() = runBlocking {
+        // The forum sets the session cookie on a successful submit.
+        api.onSuccess = { cookies.add(URI.create("https://www.4d4y.com/forum/"), HttpCookie("cdb_auth", "auth")) }
+        api.submitGate = kotlinx.coroutines.CompletableDeferred()
+
+        val first = async { account.login(manual = false) }
+        val second = async { account.login(manual = false) }
+        while (api.calls.none { it.startsWith("submit") }) yield()
+        api.submitGate!!.complete(Unit)
+
+        assertEquals(LoginOutcome.Success, first.await())
+        assertEquals(LoginOutcome.Success, second.await())
+        assertEquals(1, api.calls.count { it.startsWith("submit") })
+    }
+
+    @Test
+    fun aManualLoginAlwaysRuns() = runBlocking {
+        api.onSuccess = { cookies.add(URI.create("https://www.4d4y.com/forum/"), HttpCookie("cdb_auth", "auth")) }
+        account.login(manual = false)
+        account.login(manual = true)
+
+        assertEquals(2, api.calls.count { it.startsWith("submit") })
+    }
+
+    @Test
     fun loggedInMeansAUsernameAndTheSessionCookie() {
         assertFalse(account.isLoggedIn())
         cookies.add(URI.create("https://www.4d4y.com/forum/"), HttpCookie("cdb_auth", "auth"))
@@ -135,6 +162,8 @@ class AccountRepositoryTest {
         var tokenError: ForumException? = null
         val submitErrors = ArrayDeque<ForumException>()
         var result: LoginResult = LoginResult.Success
+        var onSuccess: () -> Unit = {}
+        var submitGate: kotlinx.coroutines.CompletableDeferred<Unit>? = null
 
         override suspend fun loginToken(): String {
             calls += "token"
@@ -144,7 +173,9 @@ class AccountRepositoryTest {
 
         override suspend fun submit(token: String, credentials: Credentials): LoginResult {
             calls += "submit $token ${credentials.username} ${credentials.password} ${credentials.questionId} ${credentials.answer}"
+            submitGate?.await()
             submitErrors.removeFirstOrNull()?.let { throw it }
+            if (result == LoginResult.Success) onSuccess()
             return result
         }
     }

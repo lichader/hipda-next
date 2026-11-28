@@ -3,7 +3,9 @@ package com.lichader.hipdanext.forum.parser
 import com.lichader.hipdanext.forum.fixture
 import org.jsoup.Jsoup
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class PagesTest {
@@ -28,6 +30,22 @@ class PagesTest {
     @Test
     fun formhashIsNullWithoutAForm() {
         assertNull(Pages.formhash(Jsoup.parse(fixture("blacklist/not-logged-in.html"))))
+    }
+
+    @Test
+    fun aHeaderWithLoginLinksIsLoggedOut() {
+        assertTrue(Pages.isLoggedOut(Jsoup.parse(fixture("auth/login-form-real.html"))))
+    }
+
+    @Test
+    fun aHeaderWithTheAccountsSpaceIsLoggedIn() {
+        assertFalse(Pages.isLoggedOut(Jsoup.parse(fixture("user/profile-online-real.html"))))
+        assertFalse(Pages.isLoggedOut(Jsoup.parse(fixture("blacklist/viewblack-real.html"))))
+    }
+
+    @Test
+    fun aPageWithoutTheHeaderIsNotTreatedAsLoggedOut() {
+        assertFalse(Pages.isLoggedOut(Jsoup.parse(fixture("blacklist/not-logged-in.html"))))
     }
 
     @Test

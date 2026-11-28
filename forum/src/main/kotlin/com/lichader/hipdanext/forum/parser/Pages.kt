@@ -15,6 +15,16 @@ internal object Pages {
                 ?.takeIf { it.isNotEmpty() }
 
     /**
+     * Whether the page was served to a logged-out visitor: its header (`div#umenu`) offers login
+     * links instead of the account's space link. A page without the header, such as an error
+     * page, is not treated as logged out.
+     */
+    fun isLoggedOut(doc: Document): Boolean {
+        val header = doc.selectFirst("div#umenu") ?: return false
+        return !header.html().contains("space.php")
+    }
+
+    /**
      * The message of the forum's error box (`div.alert_error`) without its links, or null if
      * the page shows none. Pages report most rejected requests this way.
      */

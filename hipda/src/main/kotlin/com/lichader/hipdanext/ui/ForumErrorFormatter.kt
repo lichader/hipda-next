@@ -1,5 +1,6 @@
 package com.lichader.hipdanext.ui
 
+import com.lichader.hipdanext.data.account.AccountChangedException
 import com.lichader.hipdanext.forum.ForumException
 import java.net.UnknownHostException
 
@@ -12,6 +13,8 @@ class ForumErrorFormatter(private val isConnected: () -> Boolean) {
     fun format(error: Throwable): String = when (error) {
         is ForumException.Server -> error.message
         is ForumException.Parse -> "页面解析错误"
+        is ForumException.NotLoggedIn -> "请重新登录"
+        is AccountChangedException -> "登录账号已变更，请重试"
         else -> if (!isConnected()) "请检查网络连接" else when (error) {
             is ForumException.Network ->
                 if (error.cause is UnknownHostException) "请检查网络连接." else error.cause.javaClass.simpleName

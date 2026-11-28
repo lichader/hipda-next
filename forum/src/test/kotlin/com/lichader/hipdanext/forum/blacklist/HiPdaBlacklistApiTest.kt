@@ -6,6 +6,8 @@ import com.lichader.hipdanext.forum.TestForumConfig
 import com.lichader.hipdanext.forum.fixture
 import com.lichader.hipdanext.forum.http.ForumTransport
 import com.lichader.hipdanext.forum.session.FormhashCache
+import com.lichader.hipdanext.forum.session.SessionGuard
+import com.lichader.hipdanext.forum.session.SessionRenewer
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
@@ -25,12 +27,16 @@ class HiPdaBlacklistApiTest {
     private val config = TestForumConfig()
     private val client = OkHttpClient()
     private lateinit var api: HiPdaBlacklistApi
+    private var renewals = 0
+    private var renewalSucceeds = true
 
     @Before
     fun setUp() {
         server.start()
         config.forumServer = server.url("/").toString().removeSuffix("/")
-        api = HiPdaBlacklistApi(ForumTransport(client, config), HiPdaEndpoints(config), FormhashCache(config))
+        val transport = ForumTransport(client, config)
+        val session = SessionGuard(transport, SessionRenewer { renewals++; renewalSucceeds })
+        api = HiPdaBlacklistApi(transport, HiPdaEndpoints(config), FormhashCache(config), session)
     }
 
     @After
@@ -90,6 +96,25 @@ class HiPdaBlacklistApiTest {
         assertEquals(2, server.requestCount)
         server.takeRequest()
         server.takeRequest().isPost("/forum/pm.php?action=addblack", "formhash=a1b2c3d4&user=blocked_user_1")
+    }
+
+    @Test
+    fun anExpiredSessionIsRenewedOnceAndThePageFetchedAgain() = runBlocking {
+        html(fixture("auth/login-form-real.html"))
+        page("viewblack-real.html")
+
+        assertEquals(listOf("blocked_user_1"), api.fetch())
+        assertEquals(1, renewals)
+        assertEquals(2, server.requestCount)
+    }
+
+    @Test
+    fun aSessionThatCannotBeRenewedIsNotLoggedIn() {
+        renewalSucceeds = false
+        html(fixture("auth/login-form-real.html"))
+
+        assertThrows(ForumException.NotLoggedIn::class.java) { runBlocking { api.fetch() } }
+        assertEquals(1, server.requestCount)
     }
 
     @Test

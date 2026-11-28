@@ -5,6 +5,8 @@ import com.lichader.hipdanext.forum.TestForumConfig
 import com.lichader.hipdanext.forum.fixture
 import com.lichader.hipdanext.forum.http.ForumTransport
 import com.lichader.hipdanext.forum.session.FormhashCache
+import com.lichader.hipdanext.forum.session.SessionGuard
+import com.lichader.hipdanext.forum.session.SessionRenewer
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
@@ -28,7 +30,8 @@ class HiPdaUserApiTest {
     fun setUp() {
         server.start()
         config.forumServer = server.url("/").toString().removeSuffix("/")
-        api = HiPdaUserApi(ForumTransport(client, config), HiPdaEndpoints(config), formhash)
+        val session = SessionGuard(ForumTransport(client, config), SessionRenewer { error("the session is valid") })
+        api = HiPdaUserApi(HiPdaEndpoints(config), formhash, session)
     }
 
     @After

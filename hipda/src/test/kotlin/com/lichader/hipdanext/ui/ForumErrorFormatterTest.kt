@@ -18,6 +18,16 @@ class ForumErrorFormatterTest {
     }
 
     @Test
+    fun anExpiredSessionThatCouldNotBeRenewedAsksToLogInAgain() {
+        assertEquals("请重新登录", formatter.format(ForumException.NotLoggedIn()))
+    }
+
+    @Test
+    fun aResultForAPreviousAccountSaysToRetry() {
+        assertEquals("登录账号已变更，请重试", formatter.format(com.lichader.hipdanext.data.account.AccountChangedException()))
+    }
+
+    @Test
     fun parseErrorsHaveAFixedText() {
         assertEquals("页面解析错误", formatter.format(ForumException.Parse("No div.blacklist")))
     }
