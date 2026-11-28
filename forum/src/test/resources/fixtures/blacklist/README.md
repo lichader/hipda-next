@@ -1,16 +1,24 @@
 # Blacklist page fixtures
 
-Synthetic pages. They follow the markup the parser selects (`div.blacklist`,
-`ul.commonlist a[href*=space.php]`, `input[name=formhash]`, `div.alert_error`) in the
-forum's Discuz 7 layout, because the tests cannot log in to the forum. Replace them with
-captured pages once available, with usernames, uids and formhash values scrubbed.
+Pages for the blacklist parser and API tests. Files with `-real` in the name are captured from the forum. Captured pages are converted from GBK to UTF-8, and their usernames, uids and formhash values are replaced: `test_user`, `100001`, `blocked_user_1` and `a1b2c3d4`. The `<meta charset=GBK>` line is left as captured; tests parse the text, so it has no effect.
 
-| File | Page |
-| --- | --- |
-| `list.html` | `pm.php?action=viewblack` with users, a duplicate link and a link without a username |
-| `empty.html` | The same page when the list is empty |
-| `not-logged-in.html` | The forum's error page, which is shown instead when the session has expired |
-| `unexpected.html` | A page without the blacklist container |
-| `unmarked-empty.html` | A blacklist container that lists no users and does not say it is empty |
-| `submit-ok.html` | Reply to `pm.php?action=addblack` or `delblack` that succeeded |
-| `submit-error.html` | Reply to `pm.php?action=addblack` or `delblack` that the forum rejected |
+The other files are synthetic, written from the markup the parser selects (`div.blacklist`, `ul.commonlist a[href*=space.php]`, `input[name=formhash]`, `div.alert_error`). They cover cases the captured pages do not, such as duplicates, links without a username, and error pages.
+
+| File | Source | Page |
+| --- | --- | --- |
+| `viewblack-real.html` | Captured 2026-11-28 | `pm.php?action=viewblack` with one user |
+| `viewblack-empty-real.html` | Captured 2026-11-28 | The same page when the list is empty |
+| `list.html` | Synthetic | The same page with several users, a duplicate link and a link without a username |
+| `empty.html` | Synthetic | The page when the list is empty |
+| `not-logged-in.html` | Synthetic | The forum's error page, shown when the session has expired |
+| `unexpected.html` | Synthetic | A page without the blacklist container |
+| `unmarked-empty.html` | Synthetic | A blacklist container that lists no users and does not say it is empty |
+| `submit-ok.html` | Synthetic | Reply to `pm.php?action=addblack` or `delblack` that succeeded |
+| `submit-error.html` | Synthetic | Reply to `pm.php?action=addblack` or `delblack` that the forum rejected |
+
+What the real page showed (2026-11-28):
+- `div.blacklist` holds a form with the formhash, for the "accept or block all messages" setting, then `<ul class="commonlist inlinelist">`.
+- Each entry is a `space.php?username=` link followed by a "移除" link, `pm.php?action=delblack&formhash=…&user=…`, shown on hover.
+- The page has no form for adding a user; the app posts to `pm.php?action=addblack` directly.
+- An empty list is a single `<li>暂无数据</li>` in the same `ul.commonlist`, which is the text the parser looks for.
+- Replies to add and remove can't be captured from a browser, because the page has no add form. `submit-ok.html` and `submit-error.html` stay synthetic. In the logged-in check (W2), real adds and removes succeeded.

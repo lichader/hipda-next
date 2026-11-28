@@ -1,6 +1,6 @@
 # Architecture layering plan
 
-Status: **in progress**, started on 2026-11-28. The **Blacklist PoC was merged in #16**. [Open work items](#next-work): W1 was fixed in #18; W2 is next.
+Status: **in progress**, started on 2026-11-28. The **Blacklist PoC was merged in #16**. [Open work items](#next-work): W1 was fixed in #18, and W2 was completed on 2026-11-28. Next is the next feature migration ([tracker](#feature-migration-tracker)).
 
 This plan prepares the app for a UI redesign. It puts the code that talks to the forum website behind one abstraction layer and drives each screen from a ViewModel. Then a new UI can be built on stable models without touching HTML, URLs or HTTP. The plan is incremental: every step ships on its own and keeps the app working.
 
@@ -100,7 +100,7 @@ These are open items found during the PoC. Fix them one at a time, in this order
 | ID | Item | Priority | Needs | Status |
 | --- | --- | --- | --- | --- |
 | W1 | [Fix the app-wide crash on configuration changes](#w1-fix-the-app-wide-crash-on-configuration-changes) | P1: crashes for every user who rotates the screen or changes dark mode or font size | Code change, emulator | **Fixed** in #18. See [result](#w1-result) |
-| W2 | [Check the Blacklist PoC with a logged-in account](#w2-check-the-blacklist-poc-with-a-logged-in-account) | Before the next feature migrates, because it covers the adapter's write path and the formhash handling | The account owner; a test account is better, because this edits the forum's blacklist | Not started |
+| W2 | [Check the Blacklist PoC with a logged-in account](#w2-check-the-blacklist-poc-with-a-logged-in-account) | Before the next feature migrates, because it covers the adapter's write path and the formhash handling | The account owner; a test account is better, because this edits the forum's blacklist | **Done** 2026-11-28. See [result](#w2-result) |
 
 ### W1. Fix the app-wide crash on configuration changes
 
@@ -192,13 +192,35 @@ Done on 2026-11-28 in #18.
 
 **Record** the results in PoC step 14 and the PoC notes. Fix anything found in a separate PR.
 
+#### W2 result
+
+Done on 2026-11-28. The account owner ran the checklist on the `hipda-api37` emulator with the `master` debug build `8d58a009`, and the app's log was recorded at the same time.
+
+**Steps 1–9 all passed.** The log confirms each one:
+- **Viewing:** 7 blacklist requests, all successful except one in airplane mode, which failed with "Failed to connect" as step 4 expects.
+- **Adding:** 3 successful `addblack` requests from user info, two of them after a new login.
+- **Removing:** 2 successful `delblack` requests, one from the blacklist screen and one from user info, which goes through the `BlacklistHelper` bridge.
+- **New session:** a new login at 13:01 was followed by the automatic blacklist sync (step 7). The adds and removes after it used the new session's form token (step 8).
+- **Stability:** no app crash.
+
+On the first pass the log showed no removal from user info; it was repeated, and the log then showed it (13:11).
+
+**Real fixtures (step 8)**
+- `viewblack-real.html` and `viewblack-empty-real.html` are captured, converted to UTF-8 and scrubbed.
+- The parser, the form-token reader and the full API pass on both, including the GBK-encoded form.
+- The real markup matches the parser's assumptions, and an empty list says "暂无数据". See the fixtures' README.
+
+**Not captured**
+- The forum's replies to add and remove: the blacklist page has no add form, so they can't be saved from a browser. `submit-ok.html` and `submit-error.html` stay synthetic, although the test above handled the real replies correctly.
+- A rejected request, such as adding a user that doesn't exist, is still covered only by a synthetic page.
+
 ## Status
 
 ### Feature migration tracker
 
 | Feature | Screens and callers | Old path | Status |
 | --- | --- | --- | --- |
-| Blacklist | `BlacklistFragment`; `UserinfoFragment` (add/remove); `TaskHelper` (daily sync) | `BlacklistHelper` + inline Jsoup in fragment | **Migrated (PoC, #16)**. Logged-in check is [W2](#w2-check-the-blacklist-poc-with-a-logged-in-account); `BlacklistHelper` bridge remains until `UserinfoFragment` and `TaskHelper` migrate |
+| Blacklist | `BlacklistFragment`; `UserinfoFragment` (add/remove); `TaskHelper` (daily sync) | `BlacklistHelper` + inline Jsoup in fragment | **Migrated (PoC, #16)**, checked with a logged-in account ([W2](#w2-result)); `BlacklistHelper` bridge remains until `UserinfoFragment` and `TaskHelper` migrate |
 | User info | `UserinfoFragment` | `asyncGet` + `HiParser.parseUserInfo` in fragment; `SimpleListJob` for threads | Not started |
 | Thread list | `ThreadListFragment` | `ThreadListJob` + EventBus | Not started |
 | Simple lists, search | `SimpleListFragment`, `SearchFragment` | `SimpleListJob` (11 types) + EventBus | Not started |
@@ -228,7 +250,7 @@ The Blacklist feature was chosen because it is the smallest complete slice. It h
 | 11 | `BlacklistHelper` turned into a bridge; `UserinfoFragment` and `TaskHelper` moved to it | Done. `UserinfoFragment` no longer keeps a formhash |
 | 12 | Old code removed: `HiParser.parseBlacklist`, blacklist URLs in `HiUtils`, unused `addBlacklist2` | Done |
 | 13 | Build, unit tests, lint, release build (R8) | Done: debug and release builds pass, 69/69 unit tests pass (26 `:forum`, 43 app). Lint finds nothing new in changed files |
-| 14 | Device check: open the blacklist, pull to refresh, remove a user; add/remove from user info | **Partly done.** On the API 21 emulator, logged out: open, refresh and rotation work. The logged-in part is [W2](#w2-check-the-blacklist-poc-with-a-logged-in-account). See [PoC notes](#poc-notes) |
+| 14 | Device check: open the blacklist, pull to refresh, remove a user; add/remove from user info | **Done.** Logged out on the API 21 emulator (see [PoC notes](#poc-notes)); logged in on the API 37 emulator in [W2](#w2-result) |
 
 ### PoC notes
 
@@ -261,4 +283,4 @@ The Blacklist feature was chosen because it is the smallest complete slice. It h
 ## Open questions
 
 - **Compose or Views for the redesign?** This doesn't affect the layers below the ViewModel, since both consume `StateFlow`.
-- **Real fixtures.** The PoC fixtures are synthetic, because the tests cannot log in to the forum. Replacing the blacklist fixtures is step 8 of [W2](#w2-check-the-blacklist-poc-with-a-logged-in-account). Each later feature should start from captured, scrubbed pages (phase 0).
+- **Real fixtures.** The blacklist now has captured, scrubbed pages ([W2](#w2-result)); its add and remove replies are still synthetic. Each later feature should start from captured, scrubbed pages (phase 0), saved by the account owner from a browser.

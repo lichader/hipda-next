@@ -11,11 +11,13 @@ import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
+import okio.Buffer
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
+import java.nio.charset.Charset
 
 class HiPdaBlacklistApiTest {
 
@@ -59,6 +61,35 @@ class HiPdaBlacklistApiTest {
         page("list.html")
         assertEquals(listOf("alice", "测试用户", "bob_99"), api.fetch())
         server.takeRequest().isGet("/forum/pm.php?action=viewblack")
+    }
+
+    /** The real page, sent GBK-encoded with no charset in the header, as the forum may do. */
+    @Test
+    fun realGbkPageIsFetchedAndItsFormhashUsed() = runBlocking {
+        server.enqueue(
+            MockResponse().setHeader("Content-Type", "text/html")
+                .setBody(Buffer().writeString(fixture("blacklist/viewblack-real.html"), Charset.forName("GBK")))
+        )
+        page("submit-ok.html")
+
+        assertEquals(listOf("blocked_user_1"), api.fetch())
+        api.remove("blocked_user_1")
+
+        server.takeRequest()
+        server.takeRequest().isPost("/forum/pm.php?action=delblack", "formhash=a1b2c3d4&user=blocked_user_1")
+    }
+
+    @Test
+    fun realEmptyPageGivesAnEmptyListAndAFormhash() = runBlocking {
+        page("viewblack-empty-real.html")
+        page("submit-ok.html")
+
+        assertEquals(emptyList<String>(), api.fetch())
+        api.add("blocked_user_1")
+
+        assertEquals(2, server.requestCount)
+        server.takeRequest()
+        server.takeRequest().isPost("/forum/pm.php?action=addblack", "formhash=a1b2c3d4&user=blocked_user_1")
     }
 
     @Test

@@ -11,6 +11,18 @@ class BlacklistParserTest {
 
     private fun parse(name: String) = BlacklistParser.parse(Jsoup.parse(fixture("blacklist/$name")))
 
+    /** The forum's real page (captured 2026-11-28, names, uid and formhash replaced). */
+    @Test
+    fun realPageListsTheBlacklistedUser() {
+        assertEquals(listOf("blocked_user_1"), parse("viewblack-real.html"))
+    }
+
+    /** The forum's real page when the list is empty: it says 暂无数据. */
+    @Test
+    fun realEmptyPageIsAnEmptyList() {
+        assertEquals(emptyList<String>(), parse("viewblack-empty-real.html"))
+    }
+
     @Test
     fun listsUsernamesInPageOrderWithoutDuplicatesOrEmptyNames() {
         assertEquals(listOf("alice", "测试用户", "bob_99"), parse("list.html"))
