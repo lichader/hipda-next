@@ -3,6 +3,8 @@ buildscript {
     ext.hilt_version = '2.60.1'
     ext.kotlin_version = '2.4.10'
     ext.ksp_version = '2.3.14'
+    // Matches the version the app's AndroidX dependencies already resolve to.
+    ext.coroutines_version = '1.7.3'
     repositories {
         mavenCentral()
         google()
