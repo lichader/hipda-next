@@ -2,10 +2,9 @@ package com.lichader.hipdanext.forum.messages
 
 import com.lichader.hipdanext.forum.lists.Avatar
 import com.lichader.hipdanext.forum.lists.ListItem
+import com.lichader.hipdanext.forum.parser.Pages
 import com.lichader.hipdanext.forum.parser.between
-import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.jsoup.parser.Parser
 
 /** Same rules as the old `HiParser.parseSmsDetail` and `PostSmsAsyncTask`. */
 internal object MessageParser {
@@ -38,8 +37,6 @@ internal object MessageParser {
     fun sendResult(reply: String): SendResult {
         if (reply.isEmpty()) return SendResult.NoReply
         if (reply.contains("class=\"summary\"")) return SendResult.Sent
-        val text = Jsoup.parse(reply, "", Parser.xmlParser()).select("root").lastOrNull()?.text().orEmpty()
-        val reason = text.substringBefore("<")
-        return SendResult.Refused(reason.ifEmpty { null })
+        return SendResult.Refused(Pages.ajaxMessage(reply).ifEmpty { null })
     }
 }

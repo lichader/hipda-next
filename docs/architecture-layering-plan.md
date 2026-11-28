@@ -112,7 +112,6 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 | ID | Item | Needs from the owner | Status |
 | --- | --- | --- | --- |
 | W7-check | **Owner checks private messages** (W7, #32): send a message that arrives, reply in a conversation, clear a conversation. The forum refuses messages to oneself, so an agent can't check these | The owner sends and clears; the steps are in #32 | Open |
-| W8 | Migrate **favorites**: adding and removing (`FavoriteHelper`) and its cache. The lists moved in W6a | – | Not started |
 | W9 | Migrate **posting and image upload** (`PrePostAsyncTask`, `PostJob`, `ImageUploadJob`) | The owner does every step that posts | Not started |
 | W10 | Migrate **thread detail**; keeps the reading position across rotation ([W1 result](#w1-result)) | The owner votes, if a poll needs checking | Not started |
 | W11 | Migrate **notifications** (`NotiWorker`, `NotiHelper`) and `TaskHelper`'s daily tasks, which removes the last `BlacklistHelper` bridge | – | Not started |
@@ -136,6 +135,7 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 | W6a | Simple lists on the new layers: my threads and replies, messages, notices, new posts, favorites and attention, history. Parity with the old parsers checked on eight real pages and two hand-written ones. The list type (favorites or attention) survives recreation | #30 |
 | W6b | Search and a user's threads on the simple list view model. Parity checked on real title, full-text and user-thread pages; search terms stay GBK. A search and its results survive recreation. `SimpleListJob` now serves only the message conversation | #31 |
 | W7 | Private messages on the new layers: the conversation through `ConversationViewModel`, sending through the `SmsSender` bridge (rule 7) for the Java screens. Parity checked on a real conversation and the forum's real refusal. Removes `SimpleListJob` and `PostSmsAsyncTask`; the list types moved to `SimpleListTypes` | #32 |
+| W8 | Favorites on the new layers: adding and removing through `FavoritesRepository`, the device's copy in `FavoritesCache`, and `FavoriteHelper` as a bridge (rule 7) for the thread and list screens. Parity checked on the forum's real replies. Logout now clears the copy in memory too | #33 |
 | W1 | Fix the app-wide crash on configuration changes | #18; [W1 result](#w1-result) |
 | W2 | Check the Blacklist PoC with a logged-in account | #19; [W2 result](#w2-result) |
 | D2 | Decide about the dead update check | 2026-11-28: remove `UpdateHelper` (S4); the owner plans a new update mechanism |
@@ -266,7 +266,7 @@ On the first pass the log showed no removal from user info; it was repeated, and
 | Thread list | `ThreadListFragment` | `ThreadListJob` + EventBus | **Migrated (W5, #29)** |
 | Simple lists, search | `SimpleListFragment`, `SearchFragment` | `SimpleListJob` (11 types) + EventBus | **Migrated (W6a #30, W6b #31)** |
 | Private messages | `SmsFragment`, `BaseFragment` SMS dialog | `SimpleListJob`, `PostSmsAsyncTask`, `asyncGet` | **Migrated (W6a list, W7 #32)**; sending goes through the `SmsSender` bridge until the screens get view models for it |
-| Favorites | Thread detail menu, lists | `FavoriteHelper` | Lists migrated (W6a); adding and removing in W8 |
+| Favorites | Thread detail menu, lists | `FavoriteHelper` | **Migrated (W6a lists, W8 #33)**; `FavoriteHelper` is a bridge until thread detail (W10) gets a view model |
 | Posting, upload | `PostFragment`, quick reply, vote, delete | `PrePostAsyncTask`, `PostJob`, `ImageUploadJob` | Not started (W9) |
 | Thread detail | `ThreadDetailFragment` | `ThreadDetailJob` + EventBus, `asyncGet` for warnings | Not started (W10) |
 | Login, session | `LoginDialog`, jobs' relogin | `LoginHelper` | **Migrated (W4a, W4b)**. `LoginHelper` bridges the Java callers. The jobs keep their own relogin until their features migrate, but it now shares the single-flight login |

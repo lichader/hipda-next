@@ -2,7 +2,6 @@ package com.lichader.hipdanext.forum.lists
 
 import com.lichader.hipdanext.forum.ForumException
 import com.lichader.hipdanext.forum.HiPdaEndpoints
-import com.lichader.hipdanext.forum.parser.Pages
 import com.lichader.hipdanext.forum.parser.pageHeader
 import com.lichader.hipdanext.forum.session.SessionGuard
 import kotlinx.coroutines.CoroutineDispatcher
@@ -70,10 +69,8 @@ class HiPdaListsApi(
     private suspend fun fetch(url: String, parse: (Document) -> ListParsers.Parsed): ListPage {
         val doc = session.page(url)
         return withContext(parseDispatcher) {
-            val header = pageHeader(doc)
-            val formhash = Pages.formhash(doc)
             val parsed = parse(doc)
-            ListPage(parsed.items, parsed.maxPage, parsed.searchId, formhash, header)
+            ListPage(parsed.items, parsed.maxPage, parsed.searchId, pageHeader(doc))
         }
     }
 }

@@ -38,8 +38,6 @@ data class ListPage(
     val maxPage: Int,
     /** The search the page belongs to, for its following pages; null if it isn't a search. */
     val searchId: String?,
-    /** The page's form token, for actions on its rows such as removing a favorite. */
-    val formhash: String?,
     val header: PageHeader,
 )
 
@@ -55,7 +53,10 @@ data class SearchQuery(
 )
 
 /** The two lists of `my.php` that hold saved threads. */
-enum class SavedThreads(internal val item: String) {
+enum class SavedThreads(
+    /** The forum's name for the list, as `my.php?item=` takes it. */
+    val item: String,
+) {
     FAVORITES("favorites"),
     ATTENTION("attention"),
 }

@@ -1,9 +1,18 @@
 package com.lichader.hipdanext.forum.parser
 
+import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.jsoup.parser.Parser
 
 /** Parsing shared by all forum pages. */
 internal object Pages {
+
+    /**
+     * The message of an `inajax` reply: the XML root's text up to its first tag, or empty. The
+     * forum puts links and scripts after the message.
+     */
+    fun ajaxMessage(reply: String): String =
+        Jsoup.parse(reply, "", Parser.xmlParser()).select("root").lastOrNull()?.text().orEmpty().substringBefore("<")
 
     /**
      * The page's form token, or null if the page has none: from a form (`input[name=formhash]`), or

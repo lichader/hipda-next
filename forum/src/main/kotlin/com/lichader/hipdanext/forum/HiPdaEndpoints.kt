@@ -63,6 +63,12 @@ class HiPdaEndpoints(private val config: ForumConfig) {
     private fun searchById(searchId: String): String =
         baseUrl + "search.php?searchid=" + searchId + "&orderby=lastpost&ascdesc=desc&searchsubmit=yes"
 
+    fun addSavedThread(item: String, tid: String): String =
+        baseUrl + "my.php?item=" + item + "&action=add&inajax=1&ajaxtarget=favorite_msg&tid=" + tid
+
+    fun removeSavedThread(item: String, tid: String): String =
+        baseUrl + "my.php?item=" + item + "&action=remove&inajax=1&ajaxtarget=favorite_msg&tid=" + tid
+
     /** `my.php` lists of saved threads; [item] is `favorites` or `attention`. */
     fun savedThreads(item: String, page: Int): String {
         var url = baseUrl + "my.php?item=" + item + "&type=thread"

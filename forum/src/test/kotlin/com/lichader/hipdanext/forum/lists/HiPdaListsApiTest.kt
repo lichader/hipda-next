@@ -84,11 +84,10 @@ class HiPdaListsApiTest {
     }
 
     @Test
-    fun aPageCarriesItsHeaderAndFormToken() {
+    fun aPageCarriesItsHeader() {
         val (_, page) = requestedPath("favorites-real.html") { api.savedThreads(SavedThreads.FAVORITES, 1) }
 
         assertEquals(71, page.items.size)
-        assertEquals("a1b2c3d4", page.formhash)
         assertEquals("test_user", page.header.accountName)
     }
 }

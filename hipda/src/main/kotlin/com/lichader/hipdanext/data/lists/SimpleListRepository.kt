@@ -2,10 +2,10 @@ package com.lichader.hipdanext.data.lists
 
 import android.content.Context
 import android.text.TextUtils
-import com.lichader.hipdanext.async.FavoriteHelper
 import com.lichader.hipdanext.bean.SearchBean
 import com.lichader.hipdanext.data.account.AccountChangedException
 import com.lichader.hipdanext.data.account.AccountRepository
+import com.lichader.hipdanext.data.favorites.FavoritesCache
 import com.lichader.hipdanext.db.HistoryDao
 import com.lichader.hipdanext.forum.ForumException
 import com.lichader.hipdanext.forum.lists.Avatar
@@ -27,8 +27,6 @@ data class SimpleListResult(
     val maxPage: Int,
     /** New posts' search, for the following pages. */
     val searchId: String?,
-    /** The page's form token, for removing a favorite. */
-    val formhash: String?,
 )
 
 /**
@@ -54,7 +52,7 @@ class DefaultSimpleListRepository @Inject constructor(
     private val api: ListsApi,
     private val account: AccountRepository,
     private val notiHelper: NotiHelper,
-    private val favoriteHelper: FavoriteHelper,
+    private val favoritesCache: FavoritesCache,
     private val historyDao: HistoryDao,
 ) : SimpleListRepository {
 
@@ -82,13 +80,13 @@ class DefaultSimpleListRepository @Inject constructor(
         notiHelper.fetchNotificationAsync(context, result.header.noticeCount)
         if (result.items.isNotEmpty()) {
             when (type) {
-                SimpleListTypes.TYPE_FAVORITES -> favoriteHelper.addToCahce(FavoriteHelper.TYPE_FAVORITE, tids(result.items))
-                SimpleListTypes.TYPE_ATTENTION -> favoriteHelper.addToCahce(FavoriteHelper.TYPE_ATTENTION, tids(result.items))
+                SimpleListTypes.TYPE_FAVORITES -> favoritesCache.addAll(SavedThreads.FAVORITES, tids(result.items))
+                SimpleListTypes.TYPE_ATTENTION -> favoritesCache.addAll(SavedThreads.ATTENTION, tids(result.items))
                 SimpleListTypes.TYPE_SMS -> notiHelper.currentNotification.clearSmsCount()
                 SimpleListTypes.TYPE_THREAD_NOTIFY -> notiHelper.currentNotification.setThreadCount(0)
             }
         }
-        return SimpleListResult(result.items, result.maxPage, result.searchId, result.formhash)
+        return SimpleListResult(result.items, result.maxPage, result.searchId)
     }
 
     private fun tids(items: List<ListItem>): Set<String> = items.mapNotNullTo(HashSet()) { it.tid }
@@ -106,6 +104,6 @@ class DefaultSimpleListRepository @Inject constructor(
                 avatar = history.uid?.let { Avatar.OfUser(it) },
             )
         }
-        SimpleListResult(items, maxPage = 1, searchId = null, formhash = null)
+        SimpleListResult(items, maxPage = 1, searchId = null)
     }
 }

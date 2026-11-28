@@ -1,7 +1,7 @@
 package com.lichader.hipdanext.data.account
 
-import com.lichader.hipdanext.async.FavoriteHelper
 import com.lichader.hipdanext.bean.HiSettingsHelper
+import com.lichader.hipdanext.data.favorites.FavoritesCache
 import com.lichader.hipdanext.forum.ForumConfig
 import com.lichader.hipdanext.forum.ForumException
 import com.lichader.hipdanext.forum.auth.AuthApi
@@ -80,7 +80,7 @@ class DefaultAccountRepository @Inject constructor(
     private val config: ForumConfig,
     private val cookieStore: CookieStore,
     private val notiHelper: NotiHelper,
-    private val favoriteHelper: FavoriteHelper,
+    private val favoritesCache: FavoritesCache,
 ) : AccountRepository {
 
     private val _generation = MutableStateFlow(0)
@@ -145,7 +145,7 @@ class DefaultAccountRepository @Inject constructor(
         settings.setUid("")
         notiHelper.clearNotification()
         cookieStore.removeAll()
-        favoriteHelper.clearAll()
+        favoritesCache.clear()
         settings.setBlacklists(ArrayList())
         _generation.update { it + 1 }
     }

@@ -44,7 +44,7 @@ class AccountRepositoryTest {
         settings.setPassword("secret")
         settings.setSecQuestion("1")
         settings.setSecAnswer("answer")
-        account = DefaultAccountRepository(api, settings, config, cookies, services.notiHelper(), services.favorites())
+        account = DefaultAccountRepository(api, settings, config, cookies, services.notiHelper(), services.favoritesCache())
     }
 
     @Test

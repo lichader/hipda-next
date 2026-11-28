@@ -471,16 +471,16 @@ public class ThreadDetailFragment extends BaseFragment {
         }
         if (itemId == R.id.action_add_favorite) {
             if (mFavoriteHelper.isInFavorite(mTid))
-                mFavoriteHelper.removeFavorite(getActivity(), FavoriteHelper.TYPE_FAVORITE, mTid);
+                mFavoriteHelper.removeFavorite(FavoriteHelper.TYPE_FAVORITE, mTid);
             else
-                mFavoriteHelper.addFavorite(getActivity(), FavoriteHelper.TYPE_FAVORITE, mTid);
+                mFavoriteHelper.addFavorite(FavoriteHelper.TYPE_FAVORITE, mTid);
             return true;
         }
         if (itemId == R.id.action_add_attention) {
             if (mFavoriteHelper.isInAttention(mTid))
-                mFavoriteHelper.removeFavorite(getActivity(), FavoriteHelper.TYPE_ATTENTION, mTid);
+                mFavoriteHelper.removeFavorite(FavoriteHelper.TYPE_ATTENTION, mTid);
             else
-                mFavoriteHelper.addFavorite(getActivity(), FavoriteHelper.TYPE_ATTENTION, mTid);
+                mFavoriteHelper.addFavorite(FavoriteHelper.TYPE_ATTENTION, mTid);
             return true;
         }
         if (itemId == R.id.action_show_all) {
