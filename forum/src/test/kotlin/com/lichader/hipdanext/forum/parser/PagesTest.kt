@@ -14,6 +14,13 @@ class PagesTest {
     }
 
     @Test
+    fun formhashIsReadFromTheRealBlacklistPage() {
+        val doc = Jsoup.parse(fixture("blacklist/viewblack-real.html"))
+        assertEquals("a1b2c3d4", Pages.formhash(doc))
+        assertNull(Pages.errorMessage(doc))
+    }
+
+    @Test
     fun formhashIsNullWithoutAForm() {
         assertNull(Pages.formhash(Jsoup.parse(fixture("blacklist/not-logged-in.html"))))
     }
