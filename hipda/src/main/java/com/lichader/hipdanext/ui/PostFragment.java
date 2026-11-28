@@ -28,8 +28,10 @@ import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
@@ -40,7 +42,6 @@ import com.vdurmont.emoji.EmojiParser;
 
 import com.lichader.hipdanext.R;
 import com.lichader.hipdanext.async.PostHelper;
-import com.lichader.hipdanext.async.PrePostAsyncTask;
 import com.lichader.hipdanext.bean.Forum;
 import com.lichader.hipdanext.bean.PostBean;
 import com.lichader.hipdanext.bean.PrePostInfoBean;
@@ -115,9 +116,8 @@ public class PostFragment extends BaseFragment {
     private ImageButton mIbEmojiSwitch;
     private int mContentPosition = -1;
 
-    private PrePostAsyncTask.PrePostListener mPrePostListener = new PrePostListener();
+    private PostViewModel mViewModel;
     private PrePostInfoBean mPrePostInfo;
-    private PrePostAsyncTask mPrePostAsyncTask;
     private Snackbar mSnackbar;
     private int mFetchInfoCount = 0;
     private boolean mFetchingInfo = false;
@@ -173,6 +173,7 @@ public class PostFragment extends BaseFragment {
             mParentSessionId = getArguments().getString(ARG_PARENT_ID);
         }
 
+        mViewModel = new ViewModelProvider(this).get(PostViewModel.class);
         mImageSelector = registerForActivityResult(
                 new ActivityResultContracts.GetMultipleContents(),
                 this::processSelectedImages);
@@ -283,6 +284,12 @@ public class PostFragment extends BaseFragment {
         return view;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        FlowObservers.collect(getViewLifecycleOwner(), mViewModel.getEditorEvents(), this::onEditorEvent);
+    }
+
     private void savePostConent(boolean force) {
         if (force || SystemClock.uptimeMillis() - mLastSavedTime > 3000) {
             mLastSavedTime = SystemClock.uptimeMillis();
@@ -348,8 +355,6 @@ public class PostFragment extends BaseFragment {
     public void onDestroy() {
         if (mSnackbar != null)
             mSnackbar.dismiss();
-        if (mPrePostAsyncTask != null)
-            mPrePostAsyncTask.cancel(true);
         super.onDestroy();
     }
 
@@ -643,29 +648,26 @@ public class PostFragment extends BaseFragment {
         }
     }
 
-    private class PrePostListener implements PrePostAsyncTask.PrePostListener {
-        @Override
-        public void PrePostComplete(int mode, boolean result, String message, PrePostInfoBean info) {
-            mFetchingInfo = false;
-            mProgressBar.hide();
-            if (result) {
-                mPrePostInfo = info;
-                setupPrePostInfo();
-                if (mFetchInfoCount > 1)
-                    UIUtils.toast("收集信息成功");
-            } else {
-                if (getView() != null) {
-                    mSnackbar = UIUtils.makeSnackbar(getView(), "收集信息失败 : " + message, Snackbar.LENGTH_LONG,
-                            ContextCompat.getColor(getContext(), R.color.md_yellow_500));
-                    mSnackbar.setAction("重试", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            fetchPrePostInfo(true);
-                            mSnackbar.dismiss();
-                        }
-                    });
-                    mSnackbar.show();
-                }
+    private void onEditorEvent(PostViewModel.EditorEvent event) {
+        mFetchingInfo = false;
+        mProgressBar.hide();
+        if (event instanceof PostViewModel.EditorEvent.Loaded) {
+            mPrePostInfo = ((PostViewModel.EditorEvent.Loaded) event).getInfo();
+            setupPrePostInfo();
+            if (mFetchInfoCount > 1)
+                UIUtils.toast("收集信息成功");
+        } else {
+            if (getView() != null) {
+                mSnackbar = UIUtils.makeSnackbar(getView(), "收集信息失败 : " + ((PostViewModel.EditorEvent.Failed) event).getMessage(), Snackbar.LENGTH_LONG,
+                        ContextCompat.getColor(getContext(), R.color.md_yellow_500));
+                mSnackbar.setAction("重试", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        fetchPrePostInfo(true);
+                        mSnackbar.dismiss();
+                    }
+                });
+                mSnackbar.show();
             }
         }
     }
@@ -678,13 +680,7 @@ public class PostFragment extends BaseFragment {
                 mProgressBar.showNow();
             else
                 mProgressBar.show();
-            mPrePostAsyncTask = new PrePostAsyncTask(getActivity(), mSettings, mOkHttpHelper, mPrePostListener, mMode);
-            PostBean postBean = new PostBean();
-            postBean.setTid(mTid);
-            postBean.setPage(mPage);
-            postBean.setPid(mPid);
-            postBean.setFid(mFid);
-            mPrePostAsyncTask.execute(postBean);
+            mViewModel.loadEditor(mMode, mFid, mTid, mPid);
         }
     }
 

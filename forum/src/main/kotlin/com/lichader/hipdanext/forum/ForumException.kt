@@ -25,6 +25,9 @@ sealed class ForumException(message: String?, cause: Throwable? = null) : Except
     /** The forum served a logged-out page, and logging in again with the stored credentials failed. */
     class NotLoggedIn : ForumException("Not logged in")
 
+    /** The forum sent the account to verify its real name on the web before posting. */
+    class RealNameRequired : ForumException("Real-name verification required")
+
     /** The page did not have the expected structure. */
     class Parse(override val message: String) : ForumException(message)
 

@@ -7,8 +7,11 @@ import okhttp3.CacheControl
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.FormBody
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import java.io.IOException
 import java.net.URLEncoder
@@ -28,7 +31,10 @@ class ForumTransport(
     private val config: ForumConfig,
 ) {
 
-    suspend fun get(url: String): String = execute(newRequest(url).get().build())
+    suspend fun get(url: String): String = fetch(url).body
+
+    /** Like [get], with the URL the response came from after redirects. */
+    suspend fun fetch(url: String): Fetched = execute(newRequest(url).get().build())
 
     /**
      * Posts [form] as `application/x-www-form-urlencoded`. Values are percent-encoded in
@@ -42,7 +48,16 @@ class ForumTransport(
                 addEncoded(name, URLEncoder.encode(value, charsetName))
             }
         }.build()
-        return execute(newRequest(url).post(body).build())
+        return execute(newRequest(url).post(body).build()).body
+    }
+
+    /** Posts [fields] and one file as `multipart/form-data`. */
+    suspend fun upload(url: String, fields: Map<String, String>, file: FilePart): String {
+        val body = MultipartBody.Builder().setType(MultipartBody.FORM).apply {
+            for ((name, value) in fields) addFormDataPart(name, value)
+            addFormDataPart(file.name, file.fileName, file.bytes.toRequestBody(file.mimeType.toMediaTypeOrNull()))
+        }.build()
+        return execute(newRequest(url).post(body).build()).body
     }
 
     private fun newRequest(url: String): Request.Builder =
@@ -51,7 +66,7 @@ class ForumTransport(
             .header("User-Agent", config.userAgent)
             .cacheControl(CacheControl.FORCE_NETWORK)
 
-    private suspend fun execute(request: Request): String {
+    private suspend fun execute(request: Request): Fetched {
         val call = client.newCall(request)
         return suspendCancellableCoroutine { continuation ->
             continuation.invokeOnCancellation { call.cancel() }
@@ -64,7 +79,7 @@ class ForumTransport(
                     // The body is read here, on OkHttp's thread, so the response is always
                     // closed, even when the coroutine was cancelled in the meantime.
                     val body = try {
-                        response.use(::decode)
+                        Fetched(response.request.url.toString(), response.use(::decode))
                     } catch (e: Throwable) {
                         // Anything else must still resume the caller, or it would wait forever.
                         continuation.resumeWithException(if (e is IOException) ForumException.from(e) else e)
@@ -93,3 +108,9 @@ class ForumTransport(
         val GBK: Charset = Charset.forName("GBK")
     }
 }
+
+/** A response body and the URL it came from, after redirects. */
+class Fetched(val url: String, val body: String)
+
+/** A file to upload in the form field [name]. */
+class FilePart(val name: String, val fileName: String, val mimeType: String, val bytes: ByteArray)

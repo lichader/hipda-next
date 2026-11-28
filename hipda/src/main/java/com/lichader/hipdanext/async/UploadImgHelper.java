@@ -9,9 +9,9 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.lichader.hipdanext.bean.HiSettingsHelper;
-import com.lichader.hipdanext.okhttp.OkHttpHelper;
+import com.lichader.hipdanext.forum.post.ImageUpload;
+import com.lichader.hipdanext.ui.ForumErrorFormatter;
 import com.lichader.hipdanext.utils.CursorUtils;
-import com.lichader.hipdanext.utils.HiUtils;
 import com.lichader.hipdanext.utils.ImageFileInfo;
 import com.lichader.hipdanext.utils.Logger;
 import com.lichader.hipdanext.utils.Utils;
@@ -22,20 +22,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import id.zelory.compressor.Compressor;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 public class UploadImgHelper {
 
@@ -46,7 +39,8 @@ public class UploadImgHelper {
     private int mMaxUploadSize = 2048 * 1024;
 
     private final Context mContext;
-    private final OkHttpHelper mOkHttpHelper;
+    private final EditorBridge mEditorBridge;
+    private final ForumErrorFormatter mErrors;
 
     private UploadImgListener mListener;
 
@@ -77,14 +71,16 @@ public class UploadImgHelper {
     @AssistedInject
     public UploadImgHelper(@ApplicationContext Context context,
                            HiSettingsHelper settings,
-                           OkHttpHelper okHttpHelper,
+                           EditorBridge editorBridge,
+                           ForumErrorFormatter errors,
                            @Assisted UploadImgListener v,
                            @Assisted("uid") String uid,
                            @Assisted("hash") String hash,
                            @Assisted Uri[] uris,
                            @Assisted boolean original) {
         mContext = context;
-        mOkHttpHelper = okHttpHelper;
+        mEditorBridge = editorBridge;
+        mErrors = errors;
         mListener = v;
         mUid = uid;
         mHash = hash;
@@ -104,18 +100,13 @@ public class UploadImgHelper {
     }
 
     public void upload() {
-        Map<String, String> postParam = new HashMap<>();
-
-        postParam.put("uid", mUid);
-        postParam.put("hash", mHash);
-
         mTotal = mUris.length;
 
         int i = 0;
         for (Uri uri : mUris) {
             mCurrent = i++;
             mListener.updateProgress(mTotal, mCurrent, -1);
-            String imgId = uploadImage(postParam, uri);
+            String imgId = uploadImage(uri);
             mListener.itemComplete(uri, mTotal, mCurrent, mMessage, mDetail, imgId, mThumb);
         }
     }
@@ -128,7 +119,7 @@ public class UploadImgHelper {
         }
     }
 
-    private String uploadImage(Map<String, String> param, Uri uri) {
+    private String uploadImage(Uri uri) {
         mThumb = null;
         mMessage = "";
         mTempFile = new File(Utils.getUploadDir() + File.separator + getRandonTempFilename(uri));
@@ -192,10 +183,10 @@ public class UploadImgHelper {
 
         String imgId = null;
         try {
-            imgId = postImage(param, imageFileInfo, baos);
+            imgId = postImage(imageFileInfo, baos);
         } catch (Exception e) {
             Logger.e(e);
-            mMessage = OkHttpHelper.getErrorMessage(e).getMessage();
+            mMessage = mErrors.format(e);
             mDetail = "原图限制：" + Utils.toSizeText(mMaxUploadSize)
                     + "\n实际大小：" + Utils.toSizeText(baos.size())
                     + "\n" + e.getMessage();
@@ -212,46 +203,25 @@ public class UploadImgHelper {
         return imgId;
     }
 
-    private String postImage(Map<String, String> param, ImageFileInfo imageFileInfo, ByteArrayOutputStream baos) throws IOException {
-        String imgId = null;
-        MultipartBody.Builder builder = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM);
-        for (String key : param.keySet()) {
-            builder.addFormDataPart(key, param.get(key));
-        }
+    private String postImage(ImageFileInfo imageFileInfo, ByteArrayOutputStream baos) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyMMdd_HHmmss", Locale.US);
         String fileName = "Hi" + (mCompressedFile != null ? "_" : "-") + formatter.format(new Date()) + "." + Utils.getImageFileSuffix(imageFileInfo.getMime());
-        RequestBody requestBody = RequestBody.create(MediaType.parse(imageFileInfo.getMime()), baos.toByteArray());
-        builder.addFormDataPart("Filedata", fileName, requestBody);
-
-        Request request = new Request.Builder()
-                .url(HiUtils.UploadImgUrl)
-                .post(builder.build())
-                .build();
-
-        Response response = mOkHttpHelper.getClient().newCall(request).execute();
-        if (!response.isSuccessful())
-            throw new IOException(OkHttpHelper.ERROR_CODE_PREFIX + response.networkResponse().code());
-
-        String responseText = response.body().string();
-        // DISCUZUPLOAD|0|1721652|1
-        if (responseText.contains("DISCUZUPLOAD")) {
-            String[] s = responseText.split("\\|");
-            if (s.length < 3 || s[2].equals("0")) {
-                mMessage = "无效上传图片ID";
-                mDetail = "原图限制：" + Utils.toSizeText(mMaxUploadSize)
-                        + "\n实际大小：" + Utils.toSizeText(baos.size())
-                        + "\n" + responseText;
-            } else {
-                imgId = s[2];
-            }
+        ImageUpload upload = mEditorBridge.uploadImage(mUid, mHash, fileName, imageFileInfo.getMime(), baos.toByteArray());
+        if (upload instanceof ImageUpload.Uploaded) {
+            return ((ImageUpload.Uploaded) upload).getImageId();
+        }
+        String response;
+        if (upload instanceof ImageUpload.NoImageId) {
+            mMessage = "无效上传图片ID";
+            response = ((ImageUpload.NoImageId) upload).getResponse();
         } else {
             mMessage = "无法获取图片ID";
-            mDetail = "原图限制：" + Utils.toSizeText(mMaxUploadSize)
-                    + "\n实际大小：" + Utils.toSizeText(baos.size())
-                    + "\n" + responseText;
+            response = ((ImageUpload.Unrecognized) upload).getResponse();
         }
-        return imgId;
+        mDetail = "原图限制：" + Utils.toSizeText(mMaxUploadSize)
+                + "\n实际大小：" + Utils.toSizeText(baos.size())
+                + "\n" + response;
+        return null;
     }
 
     private File compressImageFile(ImageFileInfo imageFileInfo) throws Exception {
