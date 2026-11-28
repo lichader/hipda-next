@@ -7,6 +7,7 @@ HiPDA Next is an unofficial Android client for the HiPDA forum, built with Java,
 - `hipda/`: application module. Java sources live in `src/main/java/com/lichader/hipdanext/` and Kotlin sources in `src/main/kotlin/com/lichader/hipdanext/` (tests likewise under `src/test/java/` and `src/test/kotlin/`), grouped into `ui`, `bean`, `db`, `okhttp`, `glide`, `job`, `async`, `cache`, `service`, and `utils` packages.
 - `hipda/src/main/res/`: layouts, strings, themes, menus, and images; `src/main/assets/` contains release notes, licenses, and donor information.
 - `emoji/`: local Android library (Java only), with Java sources under `src/main/java/com/vanniktech/emoji/` and emoji resources under `src/main/res/`.
+- `forum/`: pure Kotlin/JVM library (no Android SDK) with the site adapter, the only code that builds forum URLs and reads its HTML. Sources are under `src/main/kotlin/com/lichader/hipdanext/forum/`; page fixtures for its tests are under `src/test/resources/fixtures/`.
 - Root Gradle files define shared SDK versions and repositories; `gradle/wrapper/` pins Gradle 9.6.0 (AGP 9.5.3).
 
 ## Build, Test, and Development Commands
@@ -17,6 +18,7 @@ Use JDK 21 (pinned in `gradle/gradle-daemon-jvm.properties`; `.sdkmanrc` names t
 - `./gradlew :hipda:installDebug`: install on a connected device or emulator; launch the app there.
 - `./gradlew :hipda:lintDebug :emoji:lintDebug`: run Android Lint for both modules. Application lint errors currently do not fail the build, so review reports.
 - `./gradlew :hipda:testDebugUnitTest`: run the Robolectric unit tests (JVM, no device needed).
+- `./gradlew :forum:test`: run the site adapter's tests against HTML fixtures and OkHttp `MockWebServer`.
 
 ## Coding Style & Naming Conventions
 
@@ -28,7 +30,11 @@ Kotlin is compiled by AGP's built-in Kotlin support, so no `kotlin-android` plug
 
 ## Testing Guidelines
 
-`hipda/src/test/java/` and `hipda/src/test/kotlin/` hold JUnit 4 + Robolectric tests: `AppStartupTest` checks application start-up and the app-wide services, and `ActivityLaunchTest` opens every screen offline. Keep them passing and extend them when you add screens or services. No instrumentation runner or coverage threshold is configured; place device tests in `<module>/src/androidTest/java/`, using names such as `HiParserTest.java`. Manually verify affected forum, login, posting, image, emoji, and theme flows on a device or emulator, since the tests cannot reach the forum.
+`forum/src/test/` holds plain JUnit tests of the parsers, transport and feature APIs, and needs neither Robolectric nor the forum. `hipda/src/test/java/` and `hipda/src/test/kotlin/` hold JUnit 4 + Robolectric tests, and plain ViewModel tests with fake repositories: `AppStartupTest` checks application start-up and the app-wide services, and `ActivityLaunchTest` opens every screen offline. Keep them passing and extend them when you add screens or services. No instrumentation runner or coverage threshold is configured; place device tests in `<module>/src/androidTest/java/`, using names such as `HiParserTest.java`. Manually verify affected forum, login, posting, image, emoji, and theme flows on a device or emulator, since the tests cannot reach the forum.
+
+## Architecture
+
+The app is moving one feature at a time to layers: Fragment → ViewModel → repository → `:forum` site adapter. The plan, its rules and the migration status are in `docs/architecture-layering-plan.md`; update the status there as features move. In new code, don't call `OkHttpHelper`, Jsoup or `HiUtils.*Url` from UI classes. Add the request to a `:forum` API, put the app's policy in a repository under `data/`, and drive the screen from a `@HiltViewModel` that exposes `StateFlow` state. `:forum` has no DI of its own and is wired in `di/ForumModule.kt`. Because lint does not check its API levels, call only `java.*` APIs that exist on API 21.
 
 ## Dependency Injection
 
