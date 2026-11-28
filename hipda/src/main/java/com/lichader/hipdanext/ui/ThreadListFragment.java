@@ -24,6 +24,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -39,16 +40,11 @@ import com.lichader.hipdanext.async.NetworkReadyEvent;
 import com.lichader.hipdanext.bean.NotificationBean;
 import com.lichader.hipdanext.bean.PostBean;
 import com.lichader.hipdanext.bean.ThreadBean;
-import com.lichader.hipdanext.bean.ThreadListBean;
 import com.lichader.hipdanext.db.HistoryDao;
 import com.lichader.hipdanext.glide.GlideHelper;
-import com.lichader.hipdanext.job.EventCallback;
-import com.lichader.hipdanext.job.JobMgr;
 import com.lichader.hipdanext.job.NotificationEvent;
 import com.lichader.hipdanext.job.PostEvent;
 import com.lichader.hipdanext.job.SimpleListJob;
-import com.lichader.hipdanext.job.ThreadListEvent;
-import com.lichader.hipdanext.job.ThreadListJob;
 import com.lichader.hipdanext.job.ThreadUpdatedEvent;
 import com.lichader.hipdanext.service.NotiHelper;
 import com.lichader.hipdanext.ui.adapter.RecyclerItemClickListener;
@@ -80,8 +76,6 @@ public class ThreadListFragment extends BaseFragment
         implements SwipeRefreshLayout.OnRefreshListener {
 
     @Inject
-    JobMgr mJobMgr;
-    @Inject
     HistoryDao mHistoryDao;
 
     @Inject
@@ -89,15 +83,13 @@ public class ThreadListFragment extends BaseFragment
     @Inject
     NotiHelper mNotiHelper;
 
-    private final static int MIN_TREADS_IN_PAGE = 10;
     public static final String ARG_FID_KEY = "fid";
 
     private int mForumId = 0;
-    private int mPage = 1;
+    private ThreadListViewModel mViewModel;
     private ThreadListAdapter mThreadListAdapter;
     private List<ThreadBean> mThreadBeans = new ArrayList<>();
     private XRecyclerView mRecyclerView;
-    private boolean mInloading = false;
     private HiProgressDialog postProgressDialog;
     private SwipeRefreshLayout swipeLayout;
     private ContentLoadingView mLoadingView;
@@ -106,8 +98,6 @@ public class ThreadListFragment extends BaseFragment
     private MenuItem mForumTypeMenuItem;
     private final int[] mFidHolder = new int[1];
     private MenuItem mSearchMenuItem;
-
-    private ThreadListEventCallback mEventCallback = new ThreadListEventCallback();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -126,6 +116,9 @@ public class ThreadListFragment extends BaseFragment
         mFidHolder[0] = mForumId;
 
         mSettings.setLastForumId(mForumId);
+
+        mViewModel = new ViewModelProvider(this).get(ThreadListViewModel.class);
+        mViewModel.setForum(mForumId);
     }
 
     @Override
@@ -155,8 +148,7 @@ public class ThreadListFragment extends BaseFragment
         mLoadingView.setErrorStateListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!mInloading) {
-                    mInloading = true;
+                if (!mViewModel.isLoading()) {
                     mLoadingView.setState(ContentLoadingView.LOAD_NOW);
                     refresh();
                 }
@@ -183,6 +175,13 @@ public class ThreadListFragment extends BaseFragment
     }
 
     @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        FlowObservers.collect(getViewLifecycleOwner(), mViewModel.getState(), this::render);
+        FlowObservers.collect(getViewLifecycleOwner(), mViewModel.getEvents(), this::onViewModelEvent);
+    }
+
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         startLoading();
@@ -197,12 +196,11 @@ public class ThreadListFragment extends BaseFragment
     private void startLoading() {
         if (!EventBus.getDefault().isRegistered(this))
             EventBus.getDefault().register(this);
-        if (!mInloading) {
-            if (mThreadBeans.size() == 0) {
+        if (!mViewModel.isLoading()) {
+            // The view model's list, which outlives the view: mThreadBeans is empty until it renders.
+            if (mViewModel.getState().getValue().getThreads().isEmpty()) {
                 mLoadingView.setState(ContentLoadingView.LOAD_NOW);
-                mInloading = true;
-                ThreadListJob job = new ThreadListJob(getActivity(), mSessionId, mForumId, mPage);
-                mJobMgr.addJob(job);
+                mViewModel.start();
             } else {
                 swipeLayout.setRefreshing(false);
                 mLoadingView.setState(ContentLoadingView.CONTENT);
@@ -278,7 +276,7 @@ public class ThreadListFragment extends BaseFragment
             return true;
         }
         if (itemId == R.id.action_order_by) {
-            if (!mInloading) {
+            if (!mViewModel.isLoading()) {
                 item.setChecked(!item.isChecked());
                 mSettings.setSortByPostTime(mForumId, item.isChecked());
                 setActionBarSubtitle();
@@ -353,15 +351,12 @@ public class ThreadListFragment extends BaseFragment
     }
 
     private void refresh() {
-        mPage = 1;
         mRecyclerView.scrollToTop();
         hideFooter();
-        mInloading = true;
         if (mSettings.isFabAutoHide() && mMainFab != null) {
             FABHideOnScrollBehavior.hideFab(mMainFab);
         }
-        ThreadListJob job = new ThreadListJob(getActivity(), mSessionId, mForumId, mPage);
-        mJobMgr.addJob(job);
+        mViewModel.refresh();
     }
 
     @Override
@@ -391,12 +386,9 @@ public class ThreadListFragment extends BaseFragment
                 mFirstVisibleItem = mLayoutManager.findFirstVisibleItemPosition();
 
                 if ((visibleItemCount + mFirstVisibleItem) >= totalItemCount - 5) {
-                    if (!mInloading) {
-                        mPage++;
-                        mInloading = true;
+                    if (!mViewModel.isLoading()) {
                         mRecyclerView.setFooterState(XFooterView.STATE_LOADING);
-                        ThreadListJob job = new ThreadListJob(getActivity(), mSessionId, mForumId, mPage);
-                        mJobMgr.addJob(job);
+                        mViewModel.loadMore();
                     }
                 }
             }
@@ -584,79 +576,40 @@ public class ThreadListFragment extends BaseFragment
         }
     }
 
-    private class ThreadListEventCallback extends EventCallback<ThreadListEvent> {
-        @Override
-        public void onSuccess(ThreadListEvent event) {
-            mInloading = false;
+    /** Shows the view model's threads in the legacy adapter. */
+    private void render(ThreadListViewModel.UiState state) {
+        mThreadBeans.clear();
+        mThreadBeans.addAll(ThreadBeans.of(state.getThreads()));
+        mThreadListAdapter.setDatas(mThreadBeans);
+    }
+
+    private void onViewModelEvent(ThreadListViewModel.Event event) {
+        if (event instanceof ThreadListViewModel.Event.Loaded) {
             swipeLayout.setRefreshing(false);
             mLoadingView.setState(ContentLoadingView.CONTENT);
             hideFooter();
-
-            ThreadListBean threads = event.mData;
-            if (TextUtils.isEmpty(mSettings.getUid())
-                    && !TextUtils.isEmpty(threads.getUid())) {
-                mSettings.setUid(threads.getUid());
-                mSettings.saveCurrentProfile();
-                GlideHelper.refreshUserIcon(getActivity(), mSettings);
-                if (getActivity() != null)
-                    ((MainFrameActivity) getActivity()).updateAccountHeader();
-            }
-
-            if (mPage == 1) {
-                mThreadBeans.clear();
-                mThreadBeans.addAll(threads.getThreads());
-                mThreadListAdapter.setDatas(mThreadBeans);
+            if (((ThreadListViewModel.Event.Loaded) event).getPage() == 1) {
                 mRecyclerView.scrollToTop();
                 mMainFab.show();
                 expandAppBar();
-            } else {
-                for (ThreadBean newthread : threads.getThreads()) {
-                    boolean duplicate = false;
-                    for (int i = 0; i < mThreadBeans.size(); i++) {
-                        ThreadBean oldthread = mThreadBeans.get(i);
-                        if (newthread != null && newthread.getTid().equals(oldthread.getTid())) {
-                            duplicate = true;
-                            break;
-                        }
-                    }
-                    if (!duplicate) {
-                        mThreadBeans.add(newthread);
-                    }
-                }
-                mThreadListAdapter.setDatas(mThreadBeans);
             }
-
             showNotification();
-
-            if (mPage <= 5 && mThreadBeans.size() < MIN_TREADS_IN_PAGE) {
-                if (mPage == 1 && mThreadBeans.size() == 0)
-                    UIUtils.toast("置顶贴较多，请在网页版论坛 个人中心 \n将 论坛个性化设定 - 每页主题 设为 默认");
-                mPage++;
-                mInloading = true;
-                ThreadListJob job = new ThreadListJob(getActivity(), mSessionId, mForumId, mPage);
-                mJobMgr.addJob(job);
-            }
-        }
-
-        @Override
-        public void onFail(ThreadListEvent event) {
-            mInloading = false;
+        } else if (event instanceof ThreadListViewModel.Event.UidLearned) {
+            GlideHelper.refreshUserIcon(getActivity(), mSettings);
+            if (getActivity() != null)
+                ((MainFrameActivity) getActivity()).updateAccountHeader();
+        } else if (event instanceof ThreadListViewModel.Event.FirstPageEmpty) {
+            UIUtils.toast("置顶贴较多，请在网页版论坛 个人中心 \n将 论坛个性化设定 - 每页主题 设为 默认");
+        } else if (event instanceof ThreadListViewModel.Event.Failed) {
             swipeLayout.setRefreshing(false);
             hideFooter();
-
-            if (mPage > 1)
-                mPage--;
-
             if (mThreadBeans.size() > 0) {
                 mLoadingView.setState(ContentLoadingView.CONTENT);
             } else {
                 mLoadingView.setState(ContentLoadingView.ERROR);
             }
-            UIUtils.errorSnack(getView(), event.mMessage, event.mDetail);
-        }
-
-        @Override
-        public void onFailRelogin(ThreadListEvent event) {
+            UIUtils.errorSnack(getView(), ((ThreadListViewModel.Event.Failed) event).getMessage(), "");
+        } else if (event instanceof ThreadListViewModel.Event.NotLoggedIn) {
             enterNotLoginState();
             ((MainFrameActivity) getActivity()).showLoginDialog();
         }
@@ -666,7 +619,7 @@ public class ThreadListFragment extends BaseFragment
         setHasOptionsMenu(false);
         getActivity().invalidateOptionsMenu();
 
-        mInloading = false;
+        mViewModel.clear();
         swipeLayout.setRefreshing(false);
         hideFooter();
         mThreadBeans.clear();
@@ -721,17 +674,8 @@ public class ThreadListFragment extends BaseFragment
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(NetworkReadyEvent event) {
-        if (!mInloading && mThreadBeans.size() == 0)
+        if (!mViewModel.isLoading() && mThreadBeans.size() == 0)
             refresh();
-    }
-
-    @SuppressWarnings("unused")
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEvent(ThreadListEvent event) {
-        if (!mSessionId.equals(event.mSessionId))
-            return;
-        EventBus.getDefault().removeStickyEvent(event);
-        mEventCallback.process(event);
     }
 
     @SuppressWarnings("unused")
@@ -745,15 +689,7 @@ public class ThreadListFragment extends BaseFragment
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEvent(ThreadUpdatedEvent event) {
         if (event.mFid == mForumId && event.mTid != null) {
-            for (int i = 0; i < mThreadListAdapter.getDatas().size(); i++) {
-                ThreadBean bean = mThreadListAdapter.getItem(mThreadListAdapter.getHeaderCount() + i);
-                if (event.mTid.equals(bean.getTid())) {
-                    bean.setTitle(event.mTitle);
-                    bean.setCountCmts(String.valueOf(event.mReplyCount));
-                    mThreadListAdapter.notifyItemChanged(mThreadListAdapter.getHeaderCount() + i);
-                    break;
-                }
-            }
+            mViewModel.updateThread(event.mTid, event.mTitle, event.mReplyCount);
         }
     }
 
