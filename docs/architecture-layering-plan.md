@@ -131,7 +131,7 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 | PoC | Blacklist on the new layers | #16; [PoC](#poc-blacklist) |
 | T1 | Response recorder for capturing real pages (debug builds) | #24; [how to use it](capturing-forum-pages.md) |
 | W3 | User info: profile and blacklist menu on the new layers; parity with the old parser checked on real pages | #25 |
-| W4a | Login layer: `:forum` `AuthApi` and `AccountRepository` with an account generation; `LoginHelper` is a bridge. Refused-login replies are synthetic fixtures, because capturing one needs a wrong password on the owner's account | this PR |
+| W4a | Login layer: `:forum` `AuthApi` and `AccountRepository` with an account generation; `LoginHelper` is a bridge. Refused-login replies are synthetic fixtures, because capturing one needs a wrong password on the owner's account | #26 |
 | W1 | Fix the app-wide crash on configuration changes | #18; [W1 result](#w1-result) |
 | W2 | Check the Blacklist PoC with a logged-in account | #19; [W2 result](#w2-result) |
 | D2 | Decide about the dead update check | 2026-11-28: remove `UpdateHelper` (S4); the owner plans a new update mechanism |
