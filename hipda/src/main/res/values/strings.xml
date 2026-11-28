@@ -92,12 +92,6 @@
     <string name="title_post_text_size_adjust">帖子字号调整</string>
     <string name="title_post_line_spacing">帖子行距调整</string>
 
-    <string name="report_reminder">
-        问题将反馈到客户端专贴
-        \n反馈前请先看 1楼 的要求以及常见问题
-        \n提供必要信息，避免重复提问，以提高效率
-        \n\n谢谢
-    </string>
 
     <string name="sample_title_text">
         痔垫（英语：Hemorrhoids），是位于肛管的血管组织
