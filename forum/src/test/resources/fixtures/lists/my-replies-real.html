@@ -1,0 +1,1556 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gbk" />
+<title> 4D4Y  </title>
+<meta name="keywords" content="" />
+<meta name="generator" content="Discuz! 7.2" />
+<meta name="description" content=" 4D4Y  - Board" />
+<meta name="MSSmartTagsPreventParsing" content="True" />
+<meta http-equiv="MSThemeCompatible" content="Yes" />
+<meta http-equiv="x-ua-compatible" content="ie=7" />
+<link rel="archives" title="4D4Y" href="https://www.4d4y.com/forum/archiver/" />
+<link rel="stylesheet" type="text/css" href="https://img02.4d4y.com/forum/forumdata/cache/style_1_common.css?WB2" /><link rel="stylesheet" type="text/css" href="https://img02.4d4y.com/forum/forumdata/cache/scriptstyle_1_my.css?WB2" />
+<script type="text/javascript">var STYLEID = '1', IMGDIR = 'images/default', VERHASH = 'WB2', charset = 'gbk', discuz_uid = 100001, cookiedomain = '', cookiepath = '/', attackevasive = '0', disallowfloat = 'login|register|sendpm|newthread|reply|viewratings|viewwarning|viewthreadmod|viewvote|tradeorder|activity|debate|nav|usergroups|task', creditnotice = ',', gid = 0, fid = parseInt('0'), tid = parseInt('0')</script>
+<script src="https://img02.4d4y.com/forum/forumdata/cache/common.js?WB2" type="text/javascript"></script>
+</head>
+
+<body id="my" onkeydown="if(event.keyCode==27) return false;">
+
+<div id="append_parent"></div><div id="ajaxwaitid"></div>
+
+<div id="header">
+<div class="wrap s_clear">
+<h2><a href="index.php" title="4D4Y"><img src="templates/default/images/logo.gif" alt="4D4Y" border="0" /></a></h2>
+<div id="umenu">
+<cite><a href="space.php?uid=100001" class="noborder">test_user</a></cite>
+<span class="pipe">|</span>
+<a id="myprompt" href="notice.php" >提醒</a>
+<span id="myprompt_check"></span>
+<a href="pm.php" id="pm_ntc" target="_blank">短消息</a>
+
+<span class="pipe">|</span>
+<a href="memcp.php">个人中心</a>
+<a href="logging.php?action=logout&amp;formhash=a1b2c3d4">退出</a>
+</div>
+<div id="ad_headerbanner"></div>
+<div id="menu">
+<ul>
+<li class="menu_1"><a href="index.php" hidefocus="true" id="mn_index">论坛</a></li><li class="menu_2"><a href="search.php" hidefocus="true" id="mn_search">搜索</a></li></ul>
+<script type="text/javascript">
+var currentMenu = $('mn_') ? $('mn_') : $('mn_index');
+currentMenu.parentNode.className = 'current';
+</script>
+</div>
+</div>
+<div id="myprompt_menu" style="display:none" class="promptmenu">
+<div class="promptcontent">
+<ul class="s_clear"><li style="display:none"><a id="prompt_pm" href="pm.php?filter=newpm" target="_blank">私人消息 (0)</a></li><li style="display:none"><a id="prompt_announcepm" href="pm.php?filter=announcepm" target="_blank">公共消息 (0)</a></li><li style="display:none"><a id="prompt_systempm" href="notice.php?filter=systempm" target="_blank">系统消息 (0)</a></li><li style="display:none"><a id="prompt_friend" href="notice.php?filter=friend" target="_blank">好友消息 (0)</a></li><li style="display:none"><a id="prompt_threads" href="notice.php?filter=threads" target="_blank">帖子消息 (0)</a></li></ul>
+</div>
+</div>
+</div>
+<div id="nav">
+<a href="index.php">4D4Y</a> &raquo;
+我的帖子
+</div>
+<div id="wrap" class="wrap with_side s_clear">
+<div class="main">
+<div class="content">
+<div class="itemtitle s_clear">
+<h1>我的帖子</h1>
+<div class="right"><select onchange="location.href='my.php?item=posts&srchfid=' + this.value"><option>全部版块</option><optgroup label="--4D4Y"><option value="6">Buy & Sell 交易服务区</option><option value="63">&nbsp; &nbsp; &nbsp; 已完成交易</option></optgroup><optgroup label="--技术版区"><option value="7">Geek Talks · 奇客怪谈</option><option value="62">&nbsp; &nbsp; &nbsp; Joggler</option><option value="9">Smartphone</option><option value="56">iPhone, iPod Touch，iPad</option><option value="60">Android, Chrome, & Google</option><option value="12">PalmOS ，Treo</option><option value="40">&nbsp; &nbsp; &nbsp; Palm芝麻宝典</option><option value="22">麦客爱苹果</option><option value="14">Windows Mobile，PocketPC，HPC</option><option value="50">DC,NB,MP3,Gadgets...</option></optgroup><optgroup label="--生活版区"><option value="2">Discovery</option><option value="70">&nbsp; &nbsp; &nbsp; 俄乌战争</option><option value="64">&nbsp; &nbsp; &nbsp; 只讨论2.0</option><option value="24">意欲蔓延</option><option value="23">随笔与个人文集</option><option value="25">吃喝玩乐</option><option value="51">La Femme</option></optgroup><optgroup label="--其它"></optgroup></select></div>
+<ul>
+<li><a href="my.php?item=threads" hidefocus="true"><span>主题</span></a></li>
+<li class="current"><a href="my.php?item=posts" hidefocus="true"><span>回复</span></a></li>
+<li class="pipe">|</li>
+<li id="polls" ><a href="my.php?item=polls" hidefocus="true"><span>投票</span></a></li>
+<li id="rewards" onmouseover="showMenu({'ctrlid':this.id})"><a href="my.php?item=reward&amp;type=stats" hidefocus="true" class="dropmenu"><span>悬赏</span></a></li>
+<li id="activities" onmouseover="showMenu({'ctrlid':this.id})"><a href="my.php?item=activities&amp;type=orig" hidefocus="true" class="dropmenu"><span>活动</span></a></li>
+<li id="debates" onmouseover="showMenu({'ctrlid':this.id})"><a href="my.php?item=debate&amp;type=orig" hidefocus="true" class="dropmenu"><span>辩论</span></a></li>
+<li id="trades" onmouseover="showMenu({'ctrlid':this.id})"><a href="my.php?item=tradestats" hidefocus="true" class="dropmenu"><span>商品</span></a></li></ul>
+</div>
+<div class="threadlist datalist">
+<table cellspacing="0" cellpadding="0" summary="我的回复" class="datatable">
+<thead class="colplural">
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th>主题</th>
+<td class="forum">版块</td>
+<td class="nums">
+<select onchange="window.location='my.php?item=posts&filter=' + this.value + ''">
+<option value="">状态</option>
+<option value="recyclebin">回收站</option>
+<option value="aduit">待审核</option>
+<option value="close">关闭</option>
+<option value="common">正常</option>
+</option>
+</td>
+<td class="lastpost"><cite>回复时间</cite></td>
+</tr>
+</thead>
+<tbody><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=62837940&amp;ptid=2980736" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=62837940&amp;ptid=2980736" target="_blank">主题 1</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=2" target="_blank">Discovery</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2021-12-5 18:51</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 1</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=49431318&amp;ptid=2427558" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=49431318&amp;ptid=2427558" target="_blank">主题 2</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2018-11-8 10:07</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 2</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=49428671&amp;ptid=2427558" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=49428671&amp;ptid=2427558" target="_blank">主题 3</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2018-11-8 04:05</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 3</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=46279384&amp;ptid=2291859" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=46279384&amp;ptid=2291859" target="_blank">主题 4</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2018-3-26 06:48</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 4</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=45009572&amp;ptid=2234922" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=45009572&amp;ptid=2234922" target="_blank">主题 5</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2017-12-16 06:56</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 5</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=44703149&amp;ptid=2220178" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=44703149&amp;ptid=2220178" target="_blank">主题 6</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2017-11-24 16:09</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 6</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=44184191&amp;ptid=2159988" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=44184191&amp;ptid=2159988" target="_blank">主题 7</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2017-10-21 21:39</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 7</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=42015803&amp;ptid=2103024" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=42015803&amp;ptid=2103024" target="_blank">主题 8</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2017-5-25 16:00</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 8</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=41724984&amp;ptid=2090625" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=41724984&amp;ptid=2090625" target="_blank">主题 9</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2017-5-5 18:46</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 9</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=41468884&amp;ptid=2079658" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=41468884&amp;ptid=2079658" target="_blank">主题 10</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2017-4-17 20:36</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 10</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=41291780&amp;ptid=2071640" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=41291780&amp;ptid=2071640" target="_blank">主题 11</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2017-4-4 17:11</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 11</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=41180578&amp;ptid=2066527" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=41180578&amp;ptid=2066527" target="_blank">主题 12</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2017-3-27 10:37</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 12</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=40844641&amp;ptid=2050863" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+<img src="https://img02.4d4y.com/forum/images/icons/icon8.gif" class="icon" /></td>
+<th><a href="redirect.php?goto=findpost&amp;pid=40844641&amp;ptid=2050863" target="_blank">主题 13</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2017-3-3 05:50</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 13</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=40780209&amp;ptid=2048935" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=40780209&amp;ptid=2048935" target="_blank">主题 14</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2017-2-26 19:29</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 14</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=40773229&amp;ptid=2048853" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=40773229&amp;ptid=2048853" target="_blank">主题 15</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=2" target="_blank">Discovery</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2017-2-26 09:48</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 15</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=40389352&amp;ptid=2032674" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=40389352&amp;ptid=2032674" target="_blank">主题 16</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2017-1-28 13:26</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 16</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=40321891&amp;ptid=2029304" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=40321891&amp;ptid=2029304" target="_blank">主题 17</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2017-1-22 18:47</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 17</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=40187003&amp;ptid=2023895" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+<img src="https://img02.4d4y.com/forum/images/icons/icon7.gif" class="icon" /></td>
+<th><a href="redirect.php?goto=findpost&amp;pid=40187003&amp;ptid=2023895" target="_blank">主题 18</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2017-1-12 15:13</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 18</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=40182194&amp;ptid=2023651" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=40182194&amp;ptid=2023651" target="_blank">主题 19</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2017-1-12 09:36</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 19</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=39904764&amp;ptid=2011374" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=39904764&amp;ptid=2011374" target="_blank">主题 20</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-12-23 12:36</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 20</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=39904695&amp;ptid=2011419" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=39904695&amp;ptid=2011419" target="_blank">主题 21</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-12-23 12:33</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 21</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=39847193&amp;ptid=2008923" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+<img src="https://img02.4d4y.com/forum/images/icons/icon13.gif" class="icon" /></td>
+<th><a href="redirect.php?goto=findpost&amp;pid=39847193&amp;ptid=2008923" target="_blank">主题 22</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=2" target="_blank">Discovery</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-12-19 15:58</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 22</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=39722809&amp;ptid=2003105" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=39722809&amp;ptid=2003105" target="_blank">主题 23</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-12-10 15:29</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 23</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=39455704&amp;ptid=1991175" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=39455704&amp;ptid=1991175" target="_blank">主题 24</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-11-22 04:53</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 24</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=39398527&amp;ptid=1988567" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=39398527&amp;ptid=1988567" target="_blank">主题 25</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-11-18 11:58</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 25</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=39221446&amp;ptid=1980236" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=39221446&amp;ptid=1980236" target="_blank">主题 26</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-11-7 09:28</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 26</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=39221076&amp;ptid=1980247" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=39221076&amp;ptid=1980247" target="_blank">主题 27</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-11-7 09:08</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 27</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=39219332&amp;ptid=1980173" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=39219332&amp;ptid=1980173" target="_blank">主题 28</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-11-7 04:00</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 28</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=39208983&amp;ptid=1979616" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=39208983&amp;ptid=1979616" target="_blank">主题 29</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-11-6 12:06</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 29</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=39176362&amp;ptid=1977558" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=39176362&amp;ptid=1977558" target="_blank">主题 30</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-11-4 07:04</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 30</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=39091326&amp;ptid=1974200" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=39091326&amp;ptid=1974200" target="_blank">主题 31</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-10-29 14:16</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 31</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=38938224&amp;ptid=1967521" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=38938224&amp;ptid=1967521" target="_blank">主题 32</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-10-20 05:04</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 32</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=38923264&amp;ptid=1966839" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+<img src="https://img02.4d4y.com/forum/images/icons/icon3.gif" class="icon" /></td>
+<th><a href="redirect.php?goto=findpost&amp;pid=38923264&amp;ptid=1966839" target="_blank">主题 33</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-10-19 09:47</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 33</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=38470520&amp;ptid=1946891" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=38470520&amp;ptid=1946891" target="_blank">主题 34</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-9-19 11:25</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 34</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=38469547&amp;ptid=1946891" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=38469547&amp;ptid=1946891" target="_blank">主题 35</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-9-19 10:34</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 35</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=38395068&amp;ptid=1943615" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=38395068&amp;ptid=1943615" target="_blank">主题 36</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-9-14 10:43</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 36</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=38392994&amp;ptid=1943494" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=38392994&amp;ptid=1943494" target="_blank">主题 37</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-9-14 08:43</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 37</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=38307144&amp;ptid=1939636" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=38307144&amp;ptid=1939636" target="_blank">主题 38</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-9-8 16:41</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 38</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=38299529&amp;ptid=1939339" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=38299529&amp;ptid=1939339" target="_blank">主题 39</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-9-8 09:31</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 39</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=38297355&amp;ptid=1939208" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=38297355&amp;ptid=1939208" target="_blank">主题 40</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-9-8 05:40</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 40</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=38297350&amp;ptid=1939241" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=38297350&amp;ptid=1939241" target="_blank">主题 41</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-9-8 05:39</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 41</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=38297346&amp;ptid=1939221" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=38297346&amp;ptid=1939221" target="_blank">主题 42</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-9-8 05:37</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 42</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=38290253&amp;ptid=1938778" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=38290253&amp;ptid=1938778" target="_blank">主题 43</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-9-7 17:02</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 43</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=38244950&amp;ptid=1936829" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=38244950&amp;ptid=1936829" target="_blank">主题 44</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-9-4 19:04</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 44</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=38241934&amp;ptid=1936484" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=38241934&amp;ptid=1936484" target="_blank">主题 45</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-9-4 15:07</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 45</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=38196622&amp;ptid=1934865" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=38196622&amp;ptid=1934865" target="_blank">主题 46</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-9-1 11:48</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 46</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=38181496&amp;ptid=1934047" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=38181496&amp;ptid=1934047" target="_blank">主题 47</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-8-31 11:55</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 47</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=38179324&amp;ptid=1933983" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=38179324&amp;ptid=1933983" target="_blank">主题 48</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-8-31 09:49</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 48</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=38157110&amp;ptid=1933105" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=38157110&amp;ptid=1933105" target="_blank">主题 49</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-8-29 20:02</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 49</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=38124632&amp;ptid=1931797" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=38124632&amp;ptid=1931797" target="_blank">主题 50</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-8-27 14:56</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 50</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=38103945&amp;ptid=1930889" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=38103945&amp;ptid=1930889" target="_blank">主题 51</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-8-26 07:15</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 51</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=38097510&amp;ptid=1930604" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=38097510&amp;ptid=1930604" target="_blank">主题 52</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-8-25 16:35</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 52</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=38053338&amp;ptid=1928733" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=38053338&amp;ptid=1928733" target="_blank">主题 53</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-8-22 18:39</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 53</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=38051963&amp;ptid=1928721" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=38051963&amp;ptid=1928721" target="_blank">主题 54</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-8-22 17:10</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 54</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=38003351&amp;ptid=1926598" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=38003351&amp;ptid=1926598" target="_blank">主题 55</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-8-19 10:50</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 55</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=37883314&amp;ptid=1921502" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=37883314&amp;ptid=1921502" target="_blank">主题 56</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-8-10 21:25</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 56</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=37743247&amp;ptid=1915227" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=37743247&amp;ptid=1915227" target="_blank">主题 57</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-8-1 05:48</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 57</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=37705325&amp;ptid=1913168" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=37705325&amp;ptid=1913168" target="_blank">主题 58</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-7-29 06:47</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 58</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=37701015&amp;ptid=1913415" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=37701015&amp;ptid=1913415" target="_blank">主题 59</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-7-28 19:58</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 59</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=37700976&amp;ptid=1913366" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=37700976&amp;ptid=1913366" target="_blank">主题 60</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-7-28 19:56</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 60</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=37601374&amp;ptid=1909201" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=37601374&amp;ptid=1909201" target="_blank">主题 61</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-7-21 21:42</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 61</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=37555174&amp;ptid=1907266" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=37555174&amp;ptid=1907266" target="_blank">主题 62</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-7-18 22:00</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 62</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=37543493&amp;ptid=1906706" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=37543493&amp;ptid=1906706" target="_blank">主题 63</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-7-18 09:14</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 63</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=37413592&amp;ptid=1900898" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=37413592&amp;ptid=1900898" target="_blank">主题 64</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-7-8 22:12</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 64</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=37373946&amp;ptid=1899505" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=37373946&amp;ptid=1899505" target="_blank">主题 65</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-7-6 11:13</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 65</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=37373886&amp;ptid=1899505" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=37373886&amp;ptid=1899505" target="_blank">主题 66</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-7-6 11:09</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 66</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=37308447&amp;ptid=1896661" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=37308447&amp;ptid=1896661" target="_blank">主题 67</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-7-1 17:22</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 67</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=37303827&amp;ptid=1896496" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=37303827&amp;ptid=1896496" target="_blank">主题 68</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-7-1 12:06</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 68</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=37203856&amp;ptid=1892062" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=37203856&amp;ptid=1892062" target="_blank">主题 69</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-6-24 17:13</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 69</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=37198544&amp;ptid=1891907" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=37198544&amp;ptid=1891907" target="_blank">主题 70</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-6-24 11:52</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 70</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=36927056&amp;ptid=1879530" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=36927056&amp;ptid=1879530" target="_blank">主题 71</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-6-6 11:18</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 71</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=36923546&amp;ptid=1879666" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=36923546&amp;ptid=1879666" target="_blank">主题 72</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-6-6 03:59</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 72</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=36887149&amp;ptid=1877605" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=36887149&amp;ptid=1877605" target="_blank">主题 73</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-6-3 16:30</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 73</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=36854127&amp;ptid=1876731" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=36854127&amp;ptid=1876731" target="_blank">主题 74</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-6-1 15:00</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 74</th>
+</tr><tr>
+<td class="folder">
+<a href="redirect.php?goto=findpost&amp;pid=36850039&amp;ptid=1876541" target="_blank">
+<img src="https://img02.4d4y.com/forum/images/default/folder_common.gif" /></a>
+</td>
+<td class="icon">
+&nbsp;</td>
+<th><a href="redirect.php?goto=findpost&amp;pid=36850039&amp;ptid=1876541" target="_blank">主题 75</a></th>
+<td class="forum"><a href="forumdisplay.php?fid=67" target="_blank">历史遗迹</a></td>
+<td class="nums">正常</td>
+<td class="lastpost">
+<em>2016-6-1 10:31</em>
+</td>
+</tr>
+<tr>
+<td class="folder">&nbsp;</td>
+<td class="icon">&nbsp;</td>
+<th colspan="4" class="lighttxt">回复 75</th>
+</tr></tbody>
+</table>
+<div class="pages_btns"><div class="pages"><strong>1</strong><a href="my.php?item=posts&amp;page=2">2</a><a href="my.php?item=posts&amp;page=3">3</a><a href="my.php?item=posts&amp;page=4">4</a><a href="my.php?item=posts&amp;page=2" class="next">下一页</a></div></div></div>
+<ul class="popupmenu_popup titlemenu_popup" id="rewards_menu" style="display: none">
+<li ><a href="my.php?item=reward&amp;type=question">我发起的</a></li>
+<li ><a href="my.php?item=reward&amp;type=answer">我参与的</a></li>
+<li ><a href="my.php?item=reward&amp;type=stats">统计</a></li>
+</ul>
+<ul class="popupmenu_popup titlemenu_popup" id="activities_menu" style="display: none">
+<li ><a href="my.php?item=activities&amp;type=orig">我发起的</a></li>
+<li ><a href="my.php?item=activities&amp;type=apply">我参与的</a></li>
+</ul>
+<ul class="popupmenu_popup titlemenu_popup" id="debates_menu" style="display: none">
+<li ><a href="my.php?item=debate&amp;type=orig">我发起的</a></li>
+<li ><a href="my.php?item=debate&amp;type=reply">我参与的</a></li>
+</ul>
+<ul class="popupmenu_popup titlemenu_popup" id="trades_menu" style="display: none">
+<li ><a href="my.php?item=buytrades">买</a></li>
+<li ><a href="my.php?item=tradethreads">卖</a></li>
+<li ><a href="my.php?item=selltrades&amp;filter=all">卖家交易记录</a></li>
+<li ><a href="my.php?item=tradestats">交易记录</a></li>
+<li><a href="eccredit.php?uid=100001" target="_blank">信用评价</a></li>
+</ul>
+</div>
+</div>
+<div class="side"><h2>个人中心</h2>
+<div class="sideinner">
+<ul class="tabs">
+<li><a href="memcp.php?action=profile&amp;typeid=3" id="uploadavatar" prompt="uploadavatar">修改头像</a></li>
+<li><a href="memcp.php?action=profile&amp;typeid=2">个人资料</a></li>
+<li><a href="pm.php">短消息</a></li>
+<li><a href="notice.php">提醒</a></li>
+<li><a href="my.php?item=buddylist&amp;">我的好友</a></li>
+</ul>
+</div>
+
+<hr class="shadowline" />
+
+<div class="sideinner">
+<ul class="tabs">
+<li class="current"><a href="my.php?item=threads">我的帖子</a></li>
+<li><a href="my.php?item=favorites&amp;type=thread">我的收藏</a></li>
+<li><a href="my.php?item=attention&amp;type=thread">我的关注</a></li>
+</ul>
+</div>
+
+<hr class="shadowline" />
+
+<div class="sideinner">
+<ul class="tabs">
+<li><a href="memcp.php?action=credits">积分</a></li>
+<li><a href="memcp.php?action=usergroups">用户组</a></li>
+<li><a href="task.php">论坛任务</a></li>
+<li><a href="medal.php">勋章</a></li></ul>
+</div>
+
+<hr class="shadowline" />
+
+<div class="sideinner">
+<ul class="tabs">
+<li><a href="memcp.php?action=profile&amp;typeid=5">论坛个性化设定</a></li>
+<li><a href="memcp.php?action=profile&amp;typeid=1">密码和安全问题</a></li>
+</ul>
+</div>
+
+<hr class="shadowline" />
+
+<div class="sideinner">
+<ul class="tabs">
+<li>积分: 0</li><li>威望: 0 </li><li>金钱: 0 </li></ul>
+</div>
+</div>
+</div>
+
+<script type="text/javascript">
+function attentionToggleShow(id) {
+checkbox = $(id);
+url = window.location.href;
+if(checkbox.checked) {
+url = url.replace('&filter=new', '');
+url = url.replace('filter=new&', '');
+} else {
+if(url.indexOf('filter=all') != -1) {
+url = url.replace('filter=all', 'filter=new');
+} else {
+url += '&filter=new';
+}
+}
+window.location = url;
+}
+</script></div><div id="ad_footerbanner1"></div><div id="ad_footerbanner2"></div><div id="ad_footerbanner3"></div>
+
+<div id="footer">
+<div class="wrap s_clear">
+<div id="footlink">
+<p>
+<strong><a href="https://www.4d4y.com/" target="_blank">4D4Y</a></strong>
+<span class="pipe">|</span><a href="/cdn-cgi/l/email-protection#00">联系我们</a>
+<span class="pipe">|</span><a href="stats.php">论坛统计</a></p>
+<p class="smalltext">
+GMT+8, 2026-11-28 13:42.
+</p>
+</div>
+<div id="rightinfo">
+<p>Powered by Discuz!</p>
+<p></p>
+
+
+
+</div></div>
+</div>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon='{"version":"2024.11.0","token":"5139f259ef7446659a350f2ed7f97713","r":1,"spa":2}' crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'0',t:'MA=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=0',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
+

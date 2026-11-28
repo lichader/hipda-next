@@ -3,12 +3,9 @@ package com.lichader.hipdanext.job;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.lichader.hipdanext.async.FavoriteHelper;
 import com.lichader.hipdanext.async.LoginHelper;
 import com.lichader.hipdanext.bean.SearchBean;
 import com.lichader.hipdanext.bean.SimpleListBean;
-import com.lichader.hipdanext.bean.SimpleListItemBean;
-import com.lichader.hipdanext.db.History;
 import com.lichader.hipdanext.okhttp.NetworkError;
 import com.lichader.hipdanext.okhttp.OkHttpHelper;
 import com.lichader.hipdanext.utils.Constants;
@@ -22,7 +19,6 @@ import org.jsoup.nodes.Document;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.List;
 
 public class SimpleListJob extends BaseJob {
 
@@ -89,48 +85,29 @@ public class SimpleListJob extends BaseJob {
         String eventDetail = "";
         String formhash = "";
 
-        if (mType == TYPE_HISTORIES) {
-            data = new SimpleListBean();
-            List<History> histories = mServices.historyDao().getHistories();
-            for (History history : histories) {
-                SimpleListItemBean bean = new SimpleListItemBean();
-                String forumName = "";
-                if (!TextUtils.isEmpty(history.getFid()) && TextUtils.isDigitsOnly(history.getFid()))
-                    forumName = HiUtils.getForumNameByFid(Integer.parseInt(history.getFid()));
-                bean.setTid(history.getTid());
-                bean.setUid(history.getUid());
-                bean.setTitle(history.getTitle());
-                bean.setAuthor(history.getUsername());
-                bean.setTime(history.getPostTime());
-                bean.setAvatarUrl(HiUtils.getAvatarUrlByUid(history.getUid()));
-                bean.setForum(forumName);
-                data.add(bean);
-            }
-        } else {
-            try {
-                Document doc = Jsoup.parse(fetchSimpleList(mType));
-                boolean loggedin = LoginHelper.checkLoggedin(doc);
-                if (!loggedin) {
-                    int status = mServices.loginHelper().login();
-                    if (status == Constants.STATUS_FAIL_ABORT) {
-                        eventStatus = Constants.STATUS_FAIL_RELOGIN;
-                        eventMessage = "请重新登录";
-                    } else if (status == Constants.STATUS_SUCCESS) {
-                        doc = Jsoup.parse(fetchSimpleList(mType));
-                        loggedin = LoginHelper.checkLoggedin(doc);
-                    }
+        try {
+            Document doc = Jsoup.parse(fetchSimpleList(mType));
+            boolean loggedin = LoginHelper.checkLoggedin(doc);
+            if (!loggedin) {
+                int status = mServices.loginHelper().login();
+                if (status == Constants.STATUS_FAIL_ABORT) {
+                    eventStatus = Constants.STATUS_FAIL_RELOGIN;
+                    eventMessage = "请重新登录";
+                } else if (status == Constants.STATUS_SUCCESS) {
+                    doc = Jsoup.parse(fetchSimpleList(mType));
+                    loggedin = LoginHelper.checkLoggedin(doc);
                 }
-                if (loggedin) {
-                    data = HiParser.parseSimpleList(mCtx, mServices.notiHelper(), mType, doc, (mType == TYPE_SEARCH && mSearchBean != null && mSearchBean.isFulltext()));
-                    formhash = HiParser.parseFormhash(doc);
-                    eventStatus = Constants.STATUS_SUCCESS;
-                }
-            } catch (Exception e) {
-                NetworkError message = OkHttpHelper.getErrorMessage(e);
-                eventStatus = Constants.STATUS_FAIL;
-                eventMessage = message.getMessage();
-                eventDetail = message.getDetail();
             }
+            if (loggedin) {
+                data = HiParser.parseSimpleList(mCtx, mServices.notiHelper(), mType, doc, (mType == TYPE_SEARCH && mSearchBean != null && mSearchBean.isFulltext()));
+                formhash = HiParser.parseFormhash(doc);
+                eventStatus = Constants.STATUS_SUCCESS;
+            }
+        } catch (Exception e) {
+            NetworkError message = OkHttpHelper.getErrorMessage(e);
+            eventStatus = Constants.STATUS_FAIL;
+            eventMessage = message.getMessage();
+            eventDetail = message.getDetail();
         }
 
         mEvent.mData = data;
@@ -144,30 +121,8 @@ public class SimpleListJob extends BaseJob {
     private String fetchSimpleList(int type) throws Exception {
         String url = null;
         switch (type) {
-            case TYPE_MYREPLY:
-                url = HiUtils.MyReplyUrl + "&page=" + mPage;
-                break;
-            case TYPE_MYPOST:
-                url = HiUtils.MyPostUrl + "&page=" + mPage;
-                break;
-            case TYPE_SMS:
-                url = HiUtils.SMSUrl;
-                break;
-            case TYPE_THREAD_NOTIFY:
-                url = HiUtils.ThreadNotifyUrl;
-                break;
             case TYPE_SMS_DETAIL:
                 url = HiUtils.SMSDetailUrl + mExtra;
-                break;
-            case TYPE_NEW_POSTS:
-                //mExtra is searchid
-                if (TextUtils.isEmpty(mExtra)) {
-                    url = HiUtils.NewPostsUrl;
-                } else {
-                    url = HiUtils.SearchByIdUrl.replace("{searchid}", mExtra);
-                }
-                if (mPage > 1)
-                    url += "&page=" + mPage;
                 break;
             case TYPE_SEARCH:
                 try {
@@ -188,18 +143,6 @@ public class SimpleListJob extends BaseJob {
                 } else {
                     url = HiUtils.SearchByIdUrl.replace("{searchid}", mSearchBean.getSearchId());
                 }
-                if (mPage > 1)
-                    url += "&page=" + mPage;
-                break;
-            case TYPE_FAVORITES:
-                url = HiUtils.FavoritesUrl;
-                url = url.replace("{item}", FavoriteHelper.TYPE_FAVORITE);
-                if (mPage > 1)
-                    url += "&page=" + mPage;
-                break;
-            case TYPE_ATTENTION:
-                url = HiUtils.FavoritesUrl;
-                url = url.replace("{item}", FavoriteHelper.TYPE_ATTENTION);
                 if (mPage > 1)
                     url += "&page=" + mPage;
                 break;
