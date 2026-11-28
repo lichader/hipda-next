@@ -133,6 +133,7 @@ class DefaultSimpleListRepositoryTest {
         override suspend fun myReplies(page: Int) = page()
         override suspend fun myThreads(page: Int) = page()
         override suspend fun messages() = page()
+        override suspend fun newMessages() = page()
         override suspend fun notices() = page()
         override suspend fun newPosts(searchId: String?, page: Int) = page().also { lastNewPosts = searchId to page }
         override suspend fun savedThreads(list: SavedThreads, page: Int) = page().also { savedLists += list }

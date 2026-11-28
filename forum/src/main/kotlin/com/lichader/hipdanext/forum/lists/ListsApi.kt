@@ -19,6 +19,9 @@ interface ListsApi {
     /** The private message conversations. */
     suspend fun messages(): ListPage
 
+    /** Conversations with unread messages; empty when the page has no list, as when there are none. */
+    suspend fun newMessages(): ListPage
+
     suspend fun notices(): ListPage
 
     /**
@@ -50,6 +53,8 @@ class HiPdaListsApi(
     override suspend fun myThreads(page: Int) = fetch(endpoints.myThreads(page), ListParsers::myThreads)
 
     override suspend fun messages() = fetch(endpoints.messages(), ListParsers::messages)
+
+    override suspend fun newMessages() = fetch(endpoints.newMessages(), ListParsers::messages)
 
     override suspend fun notices() = fetch(endpoints.notices(), ListParsers::notices)
 

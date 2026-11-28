@@ -41,7 +41,6 @@ public class HiUtils {
     public static String RedirectToPostUrl;
     public static String GotoPostUrl;
     public static String CheckSMS;
-    public static String NewSMS;
     public static String UploadImgUrl;
     public static String UserWarningUrl;
 
@@ -112,7 +111,6 @@ public class HiUtils {
         RedirectToPostUrl = BaseUrl + "redirect.php?goto=findpost&pid={pid}&ptid={tid}";
         GotoPostUrl = BaseUrl + "gotopost.php?pid={pid}";
         CheckSMS = BaseUrl + "pm.php?checknewpm";
-        NewSMS = BaseUrl + "pm.php?filter=newpm";
         UploadImgUrl = BaseUrl + "misc.php?action=swfupload&operation=upload&simple=1&type=image";
         UserWarningUrl = BaseUrl + "misc.php?action=viewwarning&tid={tid}&uid={uid}";
 

@@ -10,6 +10,7 @@ Captured on 2026-11-28 (the searches in W6b) with the debug response recorder (`
 | `attention-real.html` | `my.php?item=attention&type=thread` | 5 threads |
 | `messages-real.html` | `pm.php?filter=privatepm` | 5 conversations, without summaries |
 | `notices-empty-real.html` | `notice.php` | none: the account had no notices |
+| `new-messages-empty-real.html` | `pm.php?filter=newpm` (W11) | none: the page has no list, only a `nodata` line |
 | `new-posts-p1-real.html`, `new-posts-p2-real.html` | `search.php?srchfrom=86400`, then page 2 by `searchid` | 75 each, 5 pages |
 | `search-title-p1-real.html`, `search-title-p2-real.html` | a title search for "Android" in Buy & Sell, pages 1 and 2 | 50 and 49, 4 pages |
 | `search-fulltext-real.html` | a full-text search for "Android" in Buy & Sell | 50 posts, 20 pages |

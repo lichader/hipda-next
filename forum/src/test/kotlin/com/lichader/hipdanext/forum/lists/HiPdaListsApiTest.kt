@@ -54,6 +54,16 @@ class HiPdaListsApiTest {
     }
 
     @Test
+    fun newMessagesWithoutAListAreNone() {
+        val (path, page) = requestedPath("new-messages-empty-real.html") { api.newMessages() }
+
+        assertEquals("/forum/pm.php?filter=newpm", path)
+        assertEquals(0, page.items.size)
+        assertEquals(0, page.header.noticeCount)
+        assertEquals("test_user", page.header.accountName)
+    }
+
+    @Test
     fun newPostsStartASearchAndPageThroughIt() {
         val (first, page) = requestedPath("new-posts-p1-real.html") { api.newPosts(null, 1) }
         val (next, _) = requestedPath("new-posts-p2-real.html") { api.newPosts(page.searchId, 2) }

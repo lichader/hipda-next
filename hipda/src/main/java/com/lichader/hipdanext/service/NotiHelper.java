@@ -18,21 +18,17 @@ import androidx.core.content.ContextCompat;
 import com.lichader.hipdanext.R;
 import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.bean.NotificationBean;
-import com.lichader.hipdanext.bean.SimpleListBean;
-import com.lichader.hipdanext.bean.SimpleListItemBean;
+import com.lichader.hipdanext.forum.lists.ListItem;
 import com.lichader.hipdanext.glide.GlideHelper;
 import com.lichader.hipdanext.job.NotificationEvent;
-import com.lichader.hipdanext.okhttp.OkHttpHelper;
 import com.lichader.hipdanext.ui.HiApplication;
 import com.lichader.hipdanext.ui.IntentActivity;
 import com.lichader.hipdanext.utils.Constants;
-import com.lichader.hipdanext.utils.HiParser;
 import com.lichader.hipdanext.utils.HiUtils;
 import com.lichader.hipdanext.utils.Logger;
 import com.lichader.hipdanext.utils.Utils;
 
 import org.greenrobot.eventbus.EventBus;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
@@ -64,13 +60,13 @@ public class NotiHelper {
 
     private final Context mContext;
     private final HiSettingsHelper mSettings;
-    private final OkHttpHelper mOkHttpHelper;
+    private final NewMessagesCheck mNewMessagesCheck;
 
     @Inject
-    public NotiHelper(@ApplicationContext Context context, HiSettingsHelper settings, OkHttpHelper okHttpHelper) {
+    public NotiHelper(@ApplicationContext Context context, HiSettingsHelper settings, NewMessagesCheck newMessagesCheck) {
         mContext = context;
         mSettings = settings;
-        mOkHttpHelper = okHttpHelper;
+        mNewMessagesCheck = newMessagesCheck;
     }
 
     public NotificationBean getCurrentNotification() {
@@ -88,25 +84,19 @@ public class NotiHelper {
     private void fetchNotification(Document doc, int pageNoticeCount) {
         int smsCount = -1;
         int threadCount = pageNoticeCount;
-        SimpleListItemBean smsBean = null;
+        ListItem smsItem = null;
 
         try {
             //check new sms
             if ((doc == null && pageNoticeCount < 0) || mSettings.isCheckSms()) {
                 mSettings.setLastCheckSmsTime(System.currentTimeMillis());
 
-                String response = mOkHttpHelper.get(HiUtils.NewSMS);
-                if (!TextUtils.isEmpty(response)) {
-                    doc = Jsoup.parse(response);
-                    SimpleListBean listBean = HiParser.parseSMS(doc);
-                    if (listBean != null) {
-                        smsCount = listBean.getCount();
-                        if (smsCount == 1) {
-                            smsBean = listBean.getAll().get(0);
-                        }
-                    }
-                }
-
+                NewMessages newMessages = mNewMessagesCheck.fetch();
+                smsCount = newMessages.getCount();
+                smsItem = newMessages.getSingle();
+                // The new-messages page's header counts the notices, as a page passed in would.
+                doc = null;
+                threadCount = newMessages.getNoticeCount();
             }
 
             if (doc != null) {
@@ -128,10 +118,10 @@ public class NotiHelper {
 
         if (smsCount >= 0) {
             mCurrentBean.setSmsCount(smsCount);
-            if (smsCount == 1 && smsBean != null) {
-                mCurrentBean.setUsername(smsBean.getAuthor());
-                mCurrentBean.setUid(smsBean.getUid());
-                mCurrentBean.setContent(smsBean.getTitle());
+            if (smsCount == 1 && smsItem != null) {
+                mCurrentBean.setUsername(smsItem.getAuthor());
+                mCurrentBean.setUid(smsItem.getUid());
+                mCurrentBean.setContent(smsItem.getTitle());
             } else {
                 mCurrentBean.setUsername("");
                 mCurrentBean.setUid("");
