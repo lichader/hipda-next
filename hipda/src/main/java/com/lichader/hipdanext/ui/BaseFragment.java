@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
@@ -57,6 +58,8 @@ public abstract class BaseFragment extends Fragment {
     protected HiSettingsHelper mSettings;
     @Inject
     protected OkHttpHelper mOkHttpHelper;
+
+    private static final String STATE_SESSION_ID = "base_fragment_session_id";
 
     public String mSessionId;
     protected EmojiPopup mEmojiPopup;
@@ -107,14 +110,27 @@ public abstract class BaseFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mSessionId = UUID.randomUUID().toString();
-        setRetainInstance(true);
+        // Fragments are not retained: Hilt fragments crash when they are, so a configuration
+        // change creates a new instance. It keeps the session ID, which job results (sticky
+        // events) and drafts are keyed by, so work started before the change still arrives.
+        if (savedInstanceState != null) {
+            mSessionId = savedInstanceState.getString(STATE_SESSION_ID);
+        }
+        if (mSessionId == null) {
+            mSessionId = UUID.randomUUID().toString();
+        }
 
         if (getActivity() instanceof BaseActivity) {
             BaseActivity activity = ((BaseActivity) getActivity());
             mMainFab = activity.getMainFab();
             mNotificationFab = activity.getNotificationFab();
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(STATE_SESSION_ID, mSessionId);
     }
 
     @Override

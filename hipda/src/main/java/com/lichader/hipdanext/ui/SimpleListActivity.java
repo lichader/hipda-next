@@ -43,7 +43,13 @@ public class SimpleListActivity extends SwipeBaseActivity {
             }
         });
 
-        showFragment();
+        if (savedInstanceState == null) {
+            showFragment();
+        } else if (!(getSupportFragmentManager().findFragmentById(R.id.main_frame_container) instanceof SearchFragment)) {
+            // Recreated after a configuration change: keep the restored fragment and its
+            // state; only the new toolbar needs the scroll behavior showFragment() sets.
+            updateAppBarScrollFlag();
+        }
     }
 
     @Override
