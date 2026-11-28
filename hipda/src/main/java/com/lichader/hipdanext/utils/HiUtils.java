@@ -40,13 +40,8 @@ public class HiUtils {
     public static String LastPageUrl;
     public static String RedirectToPostUrl;
     public static String GotoPostUrl;
-    public static String SMSDetailUrl;
-    public static String SMSPreparePostUrl;
-    public static String SMSPostByUid;
-    public static String SMSPostByUsername;
     public static String CheckSMS;
     public static String NewSMS;
-    public static String ClearSMS;
     public static String UploadImgUrl;
     public static String FavoritesUrl;
     public static String FavoriteAddUrl;
@@ -120,13 +115,8 @@ public class HiUtils {
         LastPageUrl = BaseUrl + "redirect.php?goto=lastpost&from=fastpost&tid=";
         RedirectToPostUrl = BaseUrl + "redirect.php?goto=findpost&pid={pid}&ptid={tid}";
         GotoPostUrl = BaseUrl + "gotopost.php?pid={pid}";
-        SMSDetailUrl = BaseUrl + "pm.php?daterange=5&uid=";
-        SMSPreparePostUrl = BaseUrl + "pm.php?daterange=1&uid=";
-        SMSPostByUid = BaseUrl + "pm.php?action=send&pmsubmit=yes&infloat=yes&inajax=1&uid={uid}";
-        SMSPostByUsername = BaseUrl + "pm.php?action=send&pmsubmit=yes&infloat=yes&inajax=1";
         CheckSMS = BaseUrl + "pm.php?checknewpm";
         NewSMS = BaseUrl + "pm.php?filter=newpm";
-        ClearSMS = BaseUrl + "pm.php?action=del&uid={uid}&filter=privatepm";
         UploadImgUrl = BaseUrl + "misc.php?action=swfupload&operation=upload&simple=1&type=image";
         FavoritesUrl = BaseUrl + "my.php?item={item}&type=thread";
         FavoriteAddUrl = BaseUrl + "my.php?item={item}&action=add&inajax=1&ajaxtarget=favorite_msg&tid={tid}";

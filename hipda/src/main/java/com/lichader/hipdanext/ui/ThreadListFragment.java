@@ -44,7 +44,6 @@ import com.lichader.hipdanext.db.HistoryDao;
 import com.lichader.hipdanext.glide.GlideHelper;
 import com.lichader.hipdanext.job.NotificationEvent;
 import com.lichader.hipdanext.job.PostEvent;
-import com.lichader.hipdanext.job.SimpleListJob;
 import com.lichader.hipdanext.job.ThreadUpdatedEvent;
 import com.lichader.hipdanext.service.NotiHelper;
 import com.lichader.hipdanext.ui.adapter.RecyclerItemClickListener;
@@ -336,10 +335,10 @@ public class ThreadListFragment extends BaseFragment
                         mNotiHelper.getCurrentNotification().clearSmsCount();
                         showNotification();
                     } else if (bean.getSmsCount() > 0) {
-                        FragmentUtils.showSimpleListActivity(getActivity(), false, SimpleListJob.TYPE_SMS);
+                        FragmentUtils.showSimpleListActivity(getActivity(), false, SimpleListTypes.TYPE_SMS);
                     } else if (bean.getThreadCount() > 0) {
                         mNotiHelper.getCurrentNotification().setThreadCount(0);
-                        FragmentUtils.showSimpleListActivity(getActivity(), false, SimpleListJob.TYPE_THREAD_NOTIFY);
+                        FragmentUtils.showSimpleListActivity(getActivity(), false, SimpleListTypes.TYPE_THREAD_NOTIFY);
                         showNotification();
                     } else {
                         UIUtils.toast("没有未处理的通知");

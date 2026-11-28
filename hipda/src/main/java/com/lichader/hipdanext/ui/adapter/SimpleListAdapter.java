@@ -11,7 +11,7 @@ import com.lichader.hipdanext.R;
 import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.bean.SimpleListItemBean;
 import com.lichader.hipdanext.glide.GlideHelper;
-import com.lichader.hipdanext.job.SimpleListJob;
+import com.lichader.hipdanext.ui.SimpleListTypes;
 import com.lichader.hipdanext.ui.BaseFragment;
 import com.lichader.hipdanext.utils.ColorHelper;
 import com.lichader.hipdanext.utils.HtmlCompat;
@@ -59,7 +59,7 @@ public class SimpleListAdapter extends BaseRvAdapter<SimpleListItemBean> {
             holder.tv_info.setVisibility(View.GONE);
         } else {
             holder.tv_info.setVisibility(View.VISIBLE);
-            if (mType == SimpleListJob.TYPE_THREAD_NOTIFY)
+            if (mType == SimpleListTypes.TYPE_THREAD_NOTIFY)
                 holder.tv_info.setText(HtmlCompat.fromHtml(item.getInfo()));
             else
                 holder.tv_info.setText(item.getInfo());
@@ -75,7 +75,7 @@ public class SimpleListAdapter extends BaseRvAdapter<SimpleListItemBean> {
             holder.tv_forum.setVisibility(View.VISIBLE);
             holder.tv_author.setVisibility(View.VISIBLE);
             holder.tv_time.setText(Utils.shortyTime(item.getTime()));
-            if (mType == SimpleListJob.TYPE_SMS || mType == SimpleListJob.TYPE_THREAD_NOTIFY) {
+            if (mType == SimpleListTypes.TYPE_SMS || mType == SimpleListTypes.TYPE_THREAD_NOTIFY) {
                 holder.tv_forum.setText(item.getAuthor());
             } else {
                 holder.tv_forum.setText(item.getForum());
@@ -84,11 +84,11 @@ public class SimpleListAdapter extends BaseRvAdapter<SimpleListItemBean> {
         }
 
         if (mSettings.isLoadAvatar()
-                && mType != SimpleListJob.TYPE_SEARCH_USER_THREADS
-                && mType != SimpleListJob.TYPE_FAVORITES
-                && mType != SimpleListJob.TYPE_ATTENTION
-                && mType != SimpleListJob.TYPE_MYPOST
-                && mType != SimpleListJob.TYPE_MYREPLY) {
+                && mType != SimpleListTypes.TYPE_SEARCH_USER_THREADS
+                && mType != SimpleListTypes.TYPE_FAVORITES
+                && mType != SimpleListTypes.TYPE_ATTENTION
+                && mType != SimpleListTypes.TYPE_MYPOST
+                && mType != SimpleListTypes.TYPE_MYREPLY) {
             holder.iv_avatar.setVisibility(View.VISIBLE);
             GlideHelper.loadAvatar(mFragment, holder.iv_avatar, item.getAvatarUrl(), mSettings);
         } else {

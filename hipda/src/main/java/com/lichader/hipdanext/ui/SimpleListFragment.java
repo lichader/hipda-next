@@ -24,9 +24,8 @@ import com.mikepenz.iconics.IconicsDrawable;
 import com.lichader.hipdanext.R;
 import com.lichader.hipdanext.async.FavoriteHelper;
 import com.lichader.hipdanext.async.NetworkReadyEvent;
-import com.lichader.hipdanext.async.PostSmsAsyncTask;
+import com.lichader.hipdanext.async.SmsPostListener;
 import com.lichader.hipdanext.bean.SimpleListItemBean;
-import com.lichader.hipdanext.job.SimpleListJob;
 import com.lichader.hipdanext.job.SmsRefreshEvent;
 import com.lichader.hipdanext.ui.adapter.RecyclerItemClickListener;
 import com.lichader.hipdanext.ui.adapter.SimpleListAdapter;
@@ -52,7 +51,7 @@ import javax.inject.Inject;
 
 @AndroidEntryPoint
 public class SimpleListFragment extends BaseFragment
-        implements SwipeRefreshLayout.OnRefreshListener, PostSmsAsyncTask.SmsPostListener {
+        implements SwipeRefreshLayout.OnRefreshListener, SmsPostListener {
 
     @Inject
     FavoriteHelper mFavoriteHelper;
@@ -146,14 +145,14 @@ public class SimpleListFragment extends BaseFragment
         mRecyclerView.setAdapter(mSimpleListAdapter);
 
         switch (mType) {
-            case SimpleListJob.TYPE_MYREPLY:
-            case SimpleListJob.TYPE_MYPOST:
-            case SimpleListJob.TYPE_SMS:
-            case SimpleListJob.TYPE_THREAD_NOTIFY:
-            case SimpleListJob.TYPE_FAVORITES:
-            case SimpleListJob.TYPE_ATTENTION:
-            case SimpleListJob.TYPE_NEW_POSTS:
-            case SimpleListJob.TYPE_HISTORIES:
+            case SimpleListTypes.TYPE_MYREPLY:
+            case SimpleListTypes.TYPE_MYPOST:
+            case SimpleListTypes.TYPE_SMS:
+            case SimpleListTypes.TYPE_THREAD_NOTIFY:
+            case SimpleListTypes.TYPE_FAVORITES:
+            case SimpleListTypes.TYPE_ATTENTION:
+            case SimpleListTypes.TYPE_NEW_POSTS:
+            case SimpleListTypes.TYPE_HISTORIES:
                 // The view model's list, which outlives the view: mSimpleListItemBeans is empty until it renders.
                 if (mViewModel.getState().getValue().getItems().isEmpty()) {
                     mRecyclerView.setFooterState(XFooterView.STATE_HIDDEN);
@@ -171,38 +170,38 @@ public class SimpleListFragment extends BaseFragment
         menu.clear();
 
         switch (mType) {
-            case SimpleListJob.TYPE_MYREPLY:
+            case SimpleListTypes.TYPE_MYREPLY:
                 setActionBarTitle(R.string.title_drawer_myreply);
                 break;
-            case SimpleListJob.TYPE_MYPOST:
+            case SimpleListTypes.TYPE_MYPOST:
                 setActionBarTitle(R.string.title_drawer_mypost);
                 break;
-            case SimpleListJob.TYPE_SMS:
+            case SimpleListTypes.TYPE_SMS:
                 setActionBarTitle(R.string.title_drawer_sms);
                 inflater.inflate(R.menu.menu_sms_list, menu);
                 menu.findItem(R.id.action_send_sms).setIcon(new IconicsDrawable(getActivity(),
                         GoogleMaterial.Icon.gmd_insert_comment).actionBar()
                         .color(UIUtils.getToolbarTextColor(getActivity(), mSettings)));
                 break;
-            case SimpleListJob.TYPE_THREAD_NOTIFY:
+            case SimpleListTypes.TYPE_THREAD_NOTIFY:
                 setActionBarTitle(R.string.title_drawer_notify);
                 break;
-            case SimpleListJob.TYPE_FAVORITES:
+            case SimpleListTypes.TYPE_FAVORITES:
                 setActionBarTitle(R.string.title_my_favorites);
                 inflater.inflate(R.menu.menu_favorites, menu);
                 mFavoritesMenuItem = menu.getItem(0);
                 mFavoritesMenuItem.setTitle(R.string.action_attention);
                 break;
-            case SimpleListJob.TYPE_HISTORIES:
+            case SimpleListTypes.TYPE_HISTORIES:
                 setActionBarTitle(R.string.title_drawer_histories);
                 break;
-            case SimpleListJob.TYPE_ATTENTION:
+            case SimpleListTypes.TYPE_ATTENTION:
                 setActionBarTitle(R.string.title_my_attention);
                 inflater.inflate(R.menu.menu_favorites, menu);
                 mFavoritesMenuItem = menu.getItem(0);
                 mFavoritesMenuItem.setTitle(R.string.action_favorites);
                 break;
-            case SimpleListJob.TYPE_NEW_POSTS:
+            case SimpleListTypes.TYPE_NEW_POSTS:
                 setActionBarTitle(R.string.title_drawer_new_posts);
                 break;
 
@@ -228,11 +227,11 @@ public class SimpleListFragment extends BaseFragment
             mLoadingView.setState(ContentLoadingView.LOAD_NOW);
             if (mFavoritesMenuItem.getTitle().toString().equals(getString(R.string.action_attention))) {
                 mFavoritesMenuItem.setTitle(R.string.action_favorites);
-                mType = SimpleListJob.TYPE_ATTENTION;
+                mType = SimpleListTypes.TYPE_ATTENTION;
                 setActionBarTitle(R.string.title_my_attention);
             } else {
                 mFavoritesMenuItem.setTitle(R.string.action_attention);
-                mType = SimpleListJob.TYPE_FAVORITES;
+                mType = SimpleListTypes.TYPE_FAVORITES;
                 setActionBarTitle(R.string.title_my_favorites);
             }
             mRecyclerView.setFooterState(XFooterView.STATE_HIDDEN);
@@ -298,7 +297,7 @@ public class SimpleListFragment extends BaseFragment
             SimpleListItemBean item = mSimpleListAdapter.getItem(position);
             if (item == null)
                 return;
-            if (mType == SimpleListJob.TYPE_SMS) {
+            if (mType == SimpleListTypes.TYPE_SMS) {
                 FragmentUtils.showSmsActivity(getActivity(), false, item.getUid(), item.getAuthor());
             } else {
                 if (HiUtils.isValidId(item.getTid()) || HiUtils.isValidId(item.getPid())) {
@@ -317,10 +316,10 @@ public class SimpleListFragment extends BaseFragment
             SimpleListItemBean item = mSimpleListAdapter.getItem(position);
             if (item == null)
                 return;
-            if (mType == SimpleListJob.TYPE_SMS) {
-            } else if (mType == SimpleListJob.TYPE_FAVORITES) {
+            if (mType == SimpleListTypes.TYPE_SMS) {
+            } else if (mType == SimpleListTypes.TYPE_FAVORITES) {
                 showFavoriteActionDialog(item);
-            } else if (mType == SimpleListJob.TYPE_ATTENTION) {
+            } else if (mType == SimpleListTypes.TYPE_ATTENTION) {
                 showAttentionActionDialog(item);
             } else {
                 if (HiUtils.isValidId(item.getTid()) || HiUtils.isValidId(item.getPid())) {
@@ -432,7 +431,7 @@ public class SimpleListFragment extends BaseFragment
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEvent(SmsRefreshEvent event) {
         EventBus.getDefault().removeStickyEvent(event);
-        if (mType == SimpleListJob.TYPE_SMS)
+        if (mType == SimpleListTypes.TYPE_SMS)
             onRefresh();
     }
 

@@ -7,7 +7,6 @@ import android.view.View;
 import com.google.android.material.appbar.AppBarLayout;
 
 import com.lichader.hipdanext.R;
-import com.lichader.hipdanext.job.SimpleListJob;
 import com.lichader.hipdanext.ui.widget.OnSingleClickListener;
 
 import androidx.appcompat.widget.Toolbar;
@@ -75,7 +74,7 @@ public class SimpleListActivity extends SwipeBaseActivity {
         Bundle arguments = getIntent().getExtras();
 
         BaseFragment fragment;
-        if (arguments.getInt(SimpleListFragment.ARG_TYPE) == SimpleListJob.TYPE_SEARCH) {
+        if (arguments.getInt(SimpleListFragment.ARG_TYPE) == SimpleListTypes.TYPE_SEARCH) {
             fragment = new SearchFragment();
         } else {
             updateAppBarScrollFlag();

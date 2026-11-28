@@ -47,7 +47,6 @@ import com.lichader.hipdanext.R;
 import com.lichader.hipdanext.bean.Forum;
 import com.lichader.hipdanext.bean.SearchBean;
 import com.lichader.hipdanext.bean.SimpleListItemBean;
-import com.lichader.hipdanext.job.SimpleListJob;
 import com.lichader.hipdanext.ui.adapter.BaseRvAdapter;
 import com.lichader.hipdanext.ui.adapter.KeyValueArrayAdapter;
 import com.lichader.hipdanext.ui.adapter.RecyclerItemClickListener;
@@ -70,7 +69,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
 
-    private final int mType = SimpleListJob.TYPE_SEARCH;
+    private final int mType = SimpleListTypes.TYPE_SEARCH;
     public static final String ARG_QUERY = "QUERY";
     public static final String ARG_FID = "FID";
 

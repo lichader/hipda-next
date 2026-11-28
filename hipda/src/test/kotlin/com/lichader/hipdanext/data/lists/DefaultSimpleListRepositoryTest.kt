@@ -15,7 +15,7 @@ import com.lichader.hipdanext.forum.lists.ListsApi
 import com.lichader.hipdanext.forum.lists.SavedThreads
 import com.lichader.hipdanext.forum.lists.SearchQuery
 import com.lichader.hipdanext.forum.parser.PageHeader
-import com.lichader.hipdanext.job.SimpleListJob
+import com.lichader.hipdanext.ui.SimpleListTypes
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -49,11 +49,11 @@ class DefaultSimpleListRepositoryTest {
     fun savedThreadsFillTheFavoritesCache() = runBlocking {
         api.items = listOf(ListItem(tid = "11"), ListItem(tid = "12"))
 
-        repository.page(SimpleListJob.TYPE_FAVORITES, 1, null)
+        repository.page(SimpleListTypes.TYPE_FAVORITES, 1, null)
         assertTrue(favorites.isInFavorite("11"))
         assertFalse(favorites.isInAttention("11"))
 
-        repository.page(SimpleListJob.TYPE_ATTENTION, 1, null)
+        repository.page(SimpleListTypes.TYPE_ATTENTION, 1, null)
         assertTrue(favorites.isInAttention("12"))
         assertEquals(listOf(SavedThreads.FAVORITES, SavedThreads.ATTENTION), api.savedLists)
     }
@@ -64,11 +64,11 @@ class DefaultSimpleListRepositoryTest {
         notiHelper.currentNotification.setSmsCount(2)
         notiHelper.currentNotification.setThreadCount(3)
 
-        repository.page(SimpleListJob.TYPE_SMS, 1, null)
+        repository.page(SimpleListTypes.TYPE_SMS, 1, null)
         assertEquals(0, notiHelper.currentNotification.smsCount)
         assertEquals(3, notiHelper.currentNotification.threadCount)
 
-        repository.page(SimpleListJob.TYPE_THREAD_NOTIFY, 1, null)
+        repository.page(SimpleListTypes.TYPE_THREAD_NOTIFY, 1, null)
         assertEquals(0, notiHelper.currentNotification.threadCount)
     }
 
@@ -77,7 +77,7 @@ class DefaultSimpleListRepositoryTest {
         api.items = listOf(ListItem(tid = "1"))
         api.searchId = "257"
 
-        val result = repository.page(SimpleListJob.TYPE_NEW_POSTS, 2, "257")
+        val result = repository.page(SimpleListTypes.TYPE_NEW_POSTS, 2, "257")
 
         assertEquals("257" to 2, api.lastNewPosts)
         assertEquals("257", result.searchId)
@@ -88,7 +88,7 @@ class DefaultSimpleListRepositoryTest {
         api.items = listOf(ListItem(tid = "11"))
         api.duringRequest = { account.generation.value++ }
 
-        assertThrows(AccountChangedException::class.java) { runBlocking { repository.page(SimpleListJob.TYPE_FAVORITES, 1, null) } }
+        assertThrows(AccountChangedException::class.java) { runBlocking { repository.page(SimpleListTypes.TYPE_FAVORITES, 1, null) } }
         assertFalse(favorites.isInFavorite("11"))
     }
 
@@ -97,7 +97,7 @@ class DefaultSimpleListRepositoryTest {
         entry.historyDao().saveHistoryInBackground("31", "2", "主题 1", "200001", "user_1", "2026-11-28")
         shadowOf(Looper.getMainLooper()).idle()
 
-        val item = repository.page(SimpleListJob.TYPE_HISTORIES, 1, null).items.first { it.tid == "31" }
+        val item = repository.page(SimpleListTypes.TYPE_HISTORIES, 1, null).items.first { it.tid == "31" }
 
         assertEquals(
             ListItem(tid = "31", uid = "200001", title = "主题 1", author = "user_1", time = "2026-11-28", forum = "Discovery",
@@ -111,8 +111,8 @@ class DefaultSimpleListRepositoryTest {
     fun searchesPassTheirTermsAndUserThreadsTheirUid() = runBlocking {
         val search = SearchBean().apply { query = "Android"; author = "user_1"; forum = "6"; isFulltext = true; uid = "200001" }
 
-        repository.page(SimpleListJob.TYPE_SEARCH, 2, null, search)
-        repository.page(SimpleListJob.TYPE_SEARCH_USER_THREADS, 2, "274", search)
+        repository.page(SimpleListTypes.TYPE_SEARCH, 2, null, search)
+        repository.page(SimpleListTypes.TYPE_SEARCH_USER_THREADS, 2, "274", search)
 
         assertEquals(listOf(SearchQuery("Android", "user_1", "6", fullText = true)), api.searches)
         assertEquals(listOf(Triple("200001", "274", 2)), api.userThreads)

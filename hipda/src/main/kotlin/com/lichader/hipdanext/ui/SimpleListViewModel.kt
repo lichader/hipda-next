@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/** One of the simple lists (`SimpleListJob`'s types): its pages and loading state. */
+/** One of the simple lists ([SimpleListTypes]): its pages and loading state. */
 @HiltViewModel
 class SimpleListViewModel @Inject constructor(
     private val repository: SimpleListRepository,

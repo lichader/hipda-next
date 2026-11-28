@@ -6,7 +6,6 @@ import com.lichader.hipdanext.data.lists.SimpleListRepository
 import com.lichader.hipdanext.data.lists.SimpleListResult
 import com.lichader.hipdanext.forum.ForumException
 import com.lichader.hipdanext.forum.lists.ListItem
-import com.lichader.hipdanext.job.SimpleListJob
 import com.lichader.hipdanext.ui.SimpleListViewModel.Event
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -43,7 +42,7 @@ class SimpleListViewModelTest {
     @After
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun TestScope.createViewModel(type: Int = SimpleListJob.TYPE_MYREPLY): SimpleListViewModel {
+    private fun TestScope.createViewModel(type: Int = SimpleListTypes.TYPE_MYREPLY): SimpleListViewModel {
         val viewModel = SimpleListViewModel(repository, ForumErrorFormatter { true })
         viewModel.init(type)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.toList(events) }
@@ -124,36 +123,36 @@ class SimpleListViewModelTest {
         repository.pages = mapOf(1 to listOf("1"), 2 to listOf("2"))
         repository.maxPage = 2
         repository.searchId = "257"
-        val viewModel = createViewModel(SimpleListJob.TYPE_NEW_POSTS)
+        val viewModel = createViewModel(SimpleListTypes.TYPE_NEW_POSTS)
 
         viewModel.start()
         advanceUntilIdle()
         viewModel.loadMore()
         advanceUntilIdle()
 
-        assertEquals(listOf(Triple(SimpleListJob.TYPE_NEW_POSTS, 1, null), Triple(SimpleListJob.TYPE_NEW_POSTS, 2, "257")),
+        assertEquals(listOf(Triple(SimpleListTypes.TYPE_NEW_POSTS, 1, null), Triple(SimpleListTypes.TYPE_NEW_POSTS, 2, "257")),
             repository.requested.map { Triple(it.first, it.second, it.third) })
     }
 
     @Test
     fun switchingFromFavoritesToAttentionReloads() = runTest(dispatcher) {
         repository.pages = mapOf(1 to listOf("1"))
-        val viewModel = createViewModel(SimpleListJob.TYPE_FAVORITES)
+        val viewModel = createViewModel(SimpleListTypes.TYPE_FAVORITES)
         viewModel.start()
         advanceUntilIdle()
 
-        viewModel.switchType(SimpleListJob.TYPE_ATTENTION)
-        viewModel.init(SimpleListJob.TYPE_FAVORITES)
+        viewModel.switchType(SimpleListTypes.TYPE_ATTENTION)
+        viewModel.init(SimpleListTypes.TYPE_FAVORITES)
         advanceUntilIdle()
 
-        assertEquals(SimpleListJob.TYPE_ATTENTION, viewModel.type)
-        assertEquals(SimpleListJob.TYPE_ATTENTION, repository.requested.last().first)
+        assertEquals(SimpleListTypes.TYPE_ATTENTION, viewModel.type)
+        assertEquals(SimpleListTypes.TYPE_ATTENTION, repository.requested.last().first)
     }
 
     @Test
     fun aRemovedFavoriteLeavesTheList() = runTest(dispatcher) {
         repository.pages = mapOf(1 to listOf("1", "2"))
-        val viewModel = createViewModel(SimpleListJob.TYPE_FAVORITES)
+        val viewModel = createViewModel(SimpleListTypes.TYPE_FAVORITES)
         viewModel.start()
         advanceUntilIdle()
 
@@ -168,7 +167,7 @@ class SimpleListViewModelTest {
     @Test
     fun aSearchIsPassedOnAndKeptAcrossRefreshes() = runTest(dispatcher) {
         repository.pages = mapOf(1 to listOf("1"))
-        val viewModel = createViewModel(SimpleListJob.TYPE_SEARCH)
+        val viewModel = createViewModel(SimpleListTypes.TYPE_SEARCH)
         val search = SearchBean().apply { query = "Android" }
 
         viewModel.setSearch(search)

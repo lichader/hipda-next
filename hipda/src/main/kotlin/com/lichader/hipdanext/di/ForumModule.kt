@@ -15,6 +15,8 @@ import com.lichader.hipdanext.forum.session.FormhashCache
 import com.lichader.hipdanext.forum.session.SessionGuard
 import com.lichader.hipdanext.forum.lists.HiPdaListsApi
 import com.lichader.hipdanext.forum.lists.ListsApi
+import com.lichader.hipdanext.forum.messages.HiPdaMessagesApi
+import com.lichader.hipdanext.forum.messages.MessagesApi
 import com.lichader.hipdanext.forum.session.SessionRenewer
 import com.lichader.hipdanext.forum.threads.HiPdaThreadListApi
 import com.lichader.hipdanext.forum.threads.ThreadListApi
@@ -85,6 +87,15 @@ object ForumModule {
     @Singleton
     fun provideAuthApi(transport: ForumTransport, endpoints: HiPdaEndpoints): AuthApi =
         HiPdaAuthApi(transport, endpoints)
+
+    @Provides
+    @Singleton
+    fun provideMessagesApi(
+        transport: ForumTransport,
+        endpoints: HiPdaEndpoints,
+        formhash: FormhashCache,
+        session: SessionGuard,
+    ): MessagesApi = HiPdaMessagesApi(transport, endpoints, formhash, session)
 
     @Provides
     @Singleton

@@ -38,7 +38,8 @@ import com.vanniktech.emoji.listeners.OnEmojiPopupShownListener;
 import com.vanniktech.emoji.listeners.OnSoftKeyboardCloseListener;
 
 import com.lichader.hipdanext.R;
-import com.lichader.hipdanext.async.PostSmsAsyncTask;
+import com.lichader.hipdanext.async.SmsPostListener;
+import com.lichader.hipdanext.async.SmsSender;
 import com.lichader.hipdanext.glide.GlideHelper;
 import com.lichader.hipdanext.okhttp.OkHttpHelper;
 import com.lichader.hipdanext.ui.widget.OnSingleClickListener;
@@ -58,6 +59,8 @@ public abstract class BaseFragment extends Fragment {
     protected HiSettingsHelper mSettings;
     @Inject
     protected OkHttpHelper mOkHttpHelper;
+    @Inject
+    protected SmsSender mSmsSender;
 
     private static final String STATE_SESSION_ID = "base_fragment_session_id";
 
@@ -183,7 +186,7 @@ public abstract class BaseFragment extends Fragment {
         super.onDestroyView();
     }
 
-    void showSendSmsDialog(final String uid, final String username, final PostSmsAsyncTask.SmsPostListener listener) {
+    void showSendSmsDialog(final String uid, final String username, final SmsPostListener listener) {
         final LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View viewlayout = inflater.inflate(R.layout.dialog_send_sms, null);
 
@@ -260,7 +263,7 @@ public abstract class BaseFragment extends Fragment {
                     UIUtils.toast("请填写内容");
                     return;
                 }
-                new PostSmsAsyncTask(mOkHttpHelper, uid, recipient, listener, dialog).execute(content);
+                mSmsSender.send(uid, recipient, content, listener, dialog);
                 UIUtils.hideSoftKeyboard(getActivity());
             }
         });

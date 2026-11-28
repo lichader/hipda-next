@@ -66,7 +66,6 @@ import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.bean.Profile;
 import com.lichader.hipdanext.bean.ProfileComparator;
 import com.lichader.hipdanext.glide.GlideHelper;
-import com.lichader.hipdanext.job.SimpleListJob;
 import com.lichader.hipdanext.service.NotiHelper;
 import com.lichader.hipdanext.service.NotiWorker;
 import com.lichader.hipdanext.ui.widget.BottomDialog;
@@ -527,25 +526,25 @@ public class MainFrameActivity extends BaseActivity {
 
             switch ((int) iDrawerItem.getIdentifier()) {
                 case Constants.DRAWER_NEW_POSTS:
-                    FragmentUtils.showSimpleListActivity(MainFrameActivity.this, false, SimpleListJob.TYPE_NEW_POSTS);
+                    FragmentUtils.showSimpleListActivity(MainFrameActivity.this, false, SimpleListTypes.TYPE_NEW_POSTS);
                     break;
                 case Constants.DRAWER_MYPOST:
-                    FragmentUtils.showSimpleListActivity(MainFrameActivity.this, false, SimpleListJob.TYPE_MYPOST);
+                    FragmentUtils.showSimpleListActivity(MainFrameActivity.this, false, SimpleListTypes.TYPE_MYPOST);
                     break;
                 case Constants.DRAWER_MYREPLY:
-                    FragmentUtils.showSimpleListActivity(MainFrameActivity.this, false, SimpleListJob.TYPE_MYREPLY);
+                    FragmentUtils.showSimpleListActivity(MainFrameActivity.this, false, SimpleListTypes.TYPE_MYREPLY);
                     break;
                 case Constants.DRAWER_FAVORITES:
-                    FragmentUtils.showSimpleListActivity(MainFrameActivity.this, false, SimpleListJob.TYPE_FAVORITES);
+                    FragmentUtils.showSimpleListActivity(MainFrameActivity.this, false, SimpleListTypes.TYPE_FAVORITES);
                     break;
                 case Constants.DRAWER_HISTORIES:
-                    FragmentUtils.showSimpleListActivity(MainFrameActivity.this, false, SimpleListJob.TYPE_HISTORIES);
+                    FragmentUtils.showSimpleListActivity(MainFrameActivity.this, false, SimpleListTypes.TYPE_HISTORIES);
                     break;
                 case Constants.DRAWER_SMS:
-                    FragmentUtils.showSimpleListActivity(MainFrameActivity.this, false, SimpleListJob.TYPE_SMS);
+                    FragmentUtils.showSimpleListActivity(MainFrameActivity.this, false, SimpleListTypes.TYPE_SMS);
                     break;
                 case Constants.DRAWER_THREADNOTIFY:
-                    FragmentUtils.showSimpleListActivity(MainFrameActivity.this, false, SimpleListJob.TYPE_THREAD_NOTIFY);
+                    FragmentUtils.showSimpleListActivity(MainFrameActivity.this, false, SimpleListTypes.TYPE_THREAD_NOTIFY);
                     break;
                 case Constants.DRAWER_SETTINGS:
                     Intent intent = new Intent(MainFrameActivity.this, SettingActivity.class);

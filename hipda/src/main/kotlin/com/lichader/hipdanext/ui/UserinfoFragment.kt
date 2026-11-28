@@ -18,11 +18,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lichader.hipdanext.R
-import com.lichader.hipdanext.async.PostSmsAsyncTask
+import com.lichader.hipdanext.async.SmsPostListener
 import com.lichader.hipdanext.bean.SearchBean
 import com.lichader.hipdanext.bean.SimpleListItemBean
 import com.lichader.hipdanext.glide.GlideHelper
-import com.lichader.hipdanext.job.SimpleListJob
 import com.lichader.hipdanext.ui.adapter.RecyclerItemClickListener
 import com.lichader.hipdanext.ui.adapter.SimpleListAdapter
 import com.lichader.hipdanext.ui.widget.HiProgressDialog
@@ -42,10 +41,10 @@ import kotlinx.coroutines.launch
  * blacklist. The profile and the blacklist go through [UserInfoViewModel].
  *
  * The "搜索帖子" list of the user's threads goes through a [SimpleListViewModel]. Sending a
- * message still uses `PostSmsAsyncTask` (W7).
+ * message goes through `SmsSender`.
  */
 @AndroidEntryPoint
-class UserinfoFragment : BaseFragment(), PostSmsAsyncTask.SmsPostListener {
+class UserinfoFragment : BaseFragment(), SmsPostListener {
 
     private val viewModel: UserInfoViewModel by viewModels()
     private val threadsViewModel: SimpleListViewModel by viewModels()
@@ -71,9 +70,9 @@ class UserinfoFragment : BaseFragment(), PostSmsAsyncTask.SmsPostListener {
         super.onCreate(savedInstanceState)
         // The menu appears once the profile has loaded.
         setHasOptionsMenu(false)
-        threadsViewModel.init(SimpleListJob.TYPE_SEARCH_USER_THREADS)
+        threadsViewModel.init(SimpleListTypes.TYPE_SEARCH_USER_THREADS)
         val itemClickListener = RecyclerItemClickListener(requireActivity(), mSettings, OnItemClickListener())
-        simpleListAdapter = SimpleListAdapter(this, mSettings, SimpleListJob.TYPE_SEARCH_USER_THREADS, itemClickListener)
+        simpleListAdapter = SimpleListAdapter(this, mSettings, SimpleListTypes.TYPE_SEARCH_USER_THREADS, itemClickListener)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -269,7 +268,7 @@ class UserinfoFragment : BaseFragment(), PostSmsAsyncTask.SmsPostListener {
         smsPostProgressDialog = HiProgressDialog.show(activity, "正在发送...")
     }
 
-    override fun onSmsPostDone(status: Int, message: String?, dialog: AlertDialog?) {
+    override fun onSmsPostDone(status: Int, message: String, dialog: AlertDialog?) {
         if (status == Constants.STATUS_SUCCESS) {
             smsPostProgressDialog?.dismiss(message)
             dialog?.dismiss()
