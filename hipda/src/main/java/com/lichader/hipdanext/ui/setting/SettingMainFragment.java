@@ -130,22 +130,6 @@ public class SettingMainFragment extends BaseSettingFragment {
             }
         });
 
-        final Preference checkPreference = findPreference(HiSettingsHelper.PERF_LAST_UPDATE_CHECK);
-        checkPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            public boolean onPreferenceClick(Preference preference) {
-                //checkPreference.setSummary("上次检查 ：" + Utils.shortyTime(new Date()));
-                //mUpdateHelper.check(getActivity(), false);
-                return true;
-            }
-        });
-//        Date lastCheckTime = mSettings.getLastUpdateCheckTime();
-//        if (lastCheckTime != null) {
-//            checkPreference.setSummary("上次检查 ：" + Utils.shortyTime(lastCheckTime));
-//        } else {
-//            checkPreference.setSummary("上次检查 ：- ");
-//        }
-        checkPreference.setSummary("目前更新检查无效，请查看客户端发布帖");
-
         Preference supportPreference = findPreference(HiSettingsHelper.PERF_SUPPORT);
         supportPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {

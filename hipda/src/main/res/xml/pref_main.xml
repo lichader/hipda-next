@@ -12,14 +12,6 @@
         android:title="@string/pref_title_about"
         android:widgetLayout="@layout/layout_preference"/>
 
-    <Preference
-        android:enabled="true"
-        android:key="PERF_LAST_UPDATE_CHECK"
-        android:persistent="false"
-        android:selectable="true"
-        android:summary=""
-        android:title="@string/pref_title_check_update"/>
-
     <PreferenceCategory android:title="@string/pref_category_more">
         <Preference
             android:key="nested_1"
