@@ -22,8 +22,6 @@ import com.lichader.hipdanext.async.PostSmsAsyncTask
 import com.lichader.hipdanext.bean.SearchBean
 import com.lichader.hipdanext.bean.SimpleListItemBean
 import com.lichader.hipdanext.glide.GlideHelper
-import com.lichader.hipdanext.job.JobMgr
-import com.lichader.hipdanext.job.SimpleListEvent
 import com.lichader.hipdanext.job.SimpleListJob
 import com.lichader.hipdanext.ui.adapter.RecyclerItemClickListener
 import com.lichader.hipdanext.ui.adapter.SimpleListAdapter
@@ -38,25 +36,19 @@ import com.mikepenz.google_material_typeface_library.GoogleMaterial
 import com.mikepenz.iconics.IconicsDrawable
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
-import javax.inject.Inject
 
 /**
  * A user's profile, with menu actions to message them and to add them to or remove them from the
  * blacklist. The profile and the blacklist go through [UserInfoViewModel].
  *
- * The "搜索帖子" list of the user's threads still uses `SimpleListJob` and EventBus here, until
- * simple lists and search migrate (W6). Sending a message still uses `PostSmsAsyncTask` (W7).
+ * The "搜索帖子" list of the user's threads goes through a [SimpleListViewModel]. Sending a
+ * message still uses `PostSmsAsyncTask` (W7).
  */
 @AndroidEntryPoint
 class UserinfoFragment : BaseFragment(), PostSmsAsyncTask.SmsPostListener {
 
-    @Inject
-    lateinit var jobMgr: JobMgr
-
     private val viewModel: UserInfoViewModel by viewModels()
+    private val threadsViewModel: SimpleListViewModel by viewModels()
 
     private lateinit var avatarView: ImageView
     private lateinit var usernameView: TextView
@@ -68,13 +60,8 @@ class UserinfoFragment : BaseFragment(), PostSmsAsyncTask.SmsPostListener {
     private lateinit var simpleListAdapter: SimpleListAdapter
     private val simpleListItems = ArrayList<SimpleListItemBean>()
 
-    // The user's threads list (legacy, until W6).
+    // Whether the user's threads are shown instead of the profile.
     private var showThreads = false
-    private var threadsLoaded = false
-    private var page = 1
-    private var loadingThreads = false
-    private var searchId: String? = null
-    private var maxPage = 0
 
     private var smsPostProgressDialog: HiProgressDialog? = null
     private var shownAvatarUrl: String? = null
@@ -84,6 +71,7 @@ class UserinfoFragment : BaseFragment(), PostSmsAsyncTask.SmsPostListener {
         super.onCreate(savedInstanceState)
         // The menu appears once the profile has loaded.
         setHasOptionsMenu(false)
+        threadsViewModel.init(SimpleListJob.TYPE_SEARCH_USER_THREADS)
         val itemClickListener = RecyclerItemClickListener(requireActivity(), mSettings, OnItemClickListener())
         simpleListAdapter = SimpleListAdapter(this, mSettings, SimpleListJob.TYPE_SEARCH_USER_THREADS, itemClickListener)
     }
@@ -137,7 +125,7 @@ class UserinfoFragment : BaseFragment(), PostSmsAsyncTask.SmsPostListener {
                     button.text = "显示信息"
                     detailView.visibility = View.GONE
                     recyclerView.visibility = View.VISIBLE
-                    if (!threadsLoaded) {
+                    if (threadsViewModel.state.value.items.isEmpty()) {
                         button.isEnabled = false
                         loadThreads()
                     }
@@ -164,6 +152,8 @@ class UserinfoFragment : BaseFragment(), PostSmsAsyncTask.SmsPostListener {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { viewModel.state.collect(::render) }
                 launch { viewModel.messages.collect(UIUtils::toast) }
+                launch { threadsViewModel.state.collect(::renderThreads) }
+                launch { threadsViewModel.events.collect(::onThreadsEvent) }
             }
         }
     }
@@ -190,14 +180,16 @@ class UserinfoFragment : BaseFragment(), PostSmsAsyncTask.SmsPostListener {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (!EventBus.getDefault().isRegistered(this)) EventBus.getDefault().register(this)
+    private fun renderThreads(state: SimpleListViewModel.UiState) {
+        simpleListItems.clear()
+        simpleListItems.addAll(ListBeans.of(state.items))
+        simpleListAdapter.setDatas(simpleListItems)
     }
 
-    override fun onPause() {
-        EventBus.getDefault().unregister(this)
-        super.onPause()
+    private fun onThreadsEvent(event: SimpleListViewModel.Event) {
+        button.isEnabled = true
+        // As before, a failure or a page without threads shows one message.
+        if (event !is SimpleListViewModel.Event.Loaded || event.empty) UIUtils.toast("帖子加载失败")
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -235,10 +227,8 @@ class UserinfoFragment : BaseFragment(), PostSmsAsyncTask.SmsPostListener {
     }
 
     private fun loadThreads() {
-        val bean = SearchBean()
-        bean.setUid(viewModel.uid)
-        bean.setSearchId(searchId)
-        jobMgr.addJob(SimpleListJob(activity, mSessionId, SimpleListJob.TYPE_SEARCH_USER_THREADS, page, bean))
+        threadsViewModel.setSearch(SearchBean().apply { setUid(viewModel.uid) })
+        threadsViewModel.refresh()
     }
 
     private inner class OnScrollListener : RecyclerView.OnScrollListener() {
@@ -248,15 +238,10 @@ class UserinfoFragment : BaseFragment(), PostSmsAsyncTask.SmsPostListener {
             val visibleItemCount = layoutManager.childCount
             val totalItemCount = layoutManager.itemCount
             val firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
-            if (visibleItemCount + firstVisibleItem >= totalItemCount - 5 && !loadingThreads) {
-                loadingThreads = true
-                if (page < maxPage) {
-                    page++
-                    this@UserinfoFragment.recyclerView.setFooterState(XFooterView.STATE_LOADING)
-                    loadThreads()
-                } else {
-                    this@UserinfoFragment.recyclerView.setFooterState(XFooterView.STATE_END)
-                }
+            if (visibleItemCount + firstVisibleItem >= totalItemCount - 5 && !threadsViewModel.isLoading) {
+                this@UserinfoFragment.recyclerView.setFooterState(
+                    if (threadsViewModel.loadMore()) XFooterView.STATE_LOADING else XFooterView.STATE_END,
+                )
             }
         }
     }
@@ -291,28 +276,6 @@ class UserinfoFragment : BaseFragment(), PostSmsAsyncTask.SmsPostListener {
         } else {
             smsPostProgressDialog?.dismissError(message)
         }
-    }
-
-    @Suppress("unused")
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    fun onEvent(event: SimpleListEvent) {
-        if (mSessionId != event.mSessionId) return
-        EventBus.getDefault().removeStickyEvent(event)
-        if (event.mStatus == Constants.STATUS_IN_PROGRESS) return
-
-        val list = event.mData
-        loadingThreads = false
-        button.isEnabled = true
-
-        if (list == null || list.count == 0) {
-            UIUtils.toast("帖子加载失败")
-            return
-        }
-        searchId = list.searchId
-        maxPage = list.maxPage
-        simpleListItems.addAll(list.all)
-        simpleListAdapter.setDatas(simpleListItems)
-        threadsLoaded = true
     }
 
     companion object {

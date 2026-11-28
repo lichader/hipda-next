@@ -1,24 +1,19 @@
 package com.lichader.hipdanext.job;
 
 import android.content.Context;
-import android.text.TextUtils;
 
 import com.lichader.hipdanext.async.LoginHelper;
-import com.lichader.hipdanext.bean.SearchBean;
 import com.lichader.hipdanext.bean.SimpleListBean;
 import com.lichader.hipdanext.okhttp.NetworkError;
 import com.lichader.hipdanext.okhttp.OkHttpHelper;
 import com.lichader.hipdanext.utils.Constants;
 import com.lichader.hipdanext.utils.HiParser;
 import com.lichader.hipdanext.utils.HiUtils;
-import com.lichader.hipdanext.utils.Logger;
 
 import org.greenrobot.eventbus.EventBus;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 
 public class SimpleListJob extends BaseJob {
 
@@ -38,7 +33,6 @@ public class SimpleListJob extends BaseJob {
     private int mType;
     private int mPage = 1;
     private String mExtra = "";
-    private SearchBean mSearchBean;
 
     private SimpleListEvent mEvent;
 
@@ -48,20 +42,6 @@ public class SimpleListJob extends BaseJob {
         mType = type;
         mPage = page;
         mExtra = extra;
-
-        mEvent = new SimpleListEvent();
-        mEvent.mSessionId = mSessionId;
-        mEvent.mPage = page;
-        mEvent.mType = mType;
-        mEvent.mExtra = mExtra;
-    }
-
-    public SimpleListJob(Context context, String sessionId, int type, int page, SearchBean searchBean) {
-        super(sessionId);
-        mCtx = context;
-        mType = type;
-        mPage = page;
-        mSearchBean = searchBean;
 
         mEvent = new SimpleListEvent();
         mEvent.mSessionId = mSessionId;
@@ -99,7 +79,7 @@ public class SimpleListJob extends BaseJob {
                 }
             }
             if (loggedin) {
-                data = HiParser.parseSimpleList(mCtx, mServices.notiHelper(), mType, doc, (mType == TYPE_SEARCH && mSearchBean != null && mSearchBean.isFulltext()));
+                data = HiParser.parseSimpleList(mCtx, mServices.notiHelper(), mType, doc);
                 formhash = HiParser.parseFormhash(doc);
                 eventStatus = Constants.STATUS_SUCCESS;
             }
@@ -123,28 +103,6 @@ public class SimpleListJob extends BaseJob {
         switch (type) {
             case TYPE_SMS_DETAIL:
                 url = HiUtils.SMSDetailUrl + mExtra;
-                break;
-            case TYPE_SEARCH:
-                try {
-                    url = HiUtils.SearchUrl
-                            .replace("{srchtype}", mSearchBean.isFulltext() ? "fulltext" : "title")
-                            .replace("{srchtxt}", URLEncoder.encode(mSearchBean.getQuery(), "GBK"))
-                            .replace("{srchuname}", URLEncoder.encode(mSearchBean.getAuthor(), "GBK"))
-                            .replace("{fid}", mSearchBean.getForum());
-                    if (mPage > 1)
-                        url += "&page=" + mPage;
-                } catch (UnsupportedEncodingException e) {
-                    Logger.e("Encoding error", e);
-                }
-                break;
-            case TYPE_SEARCH_USER_THREADS:
-                if (TextUtils.isEmpty(mSearchBean.getSearchId())) {
-                    url = HiUtils.SearchUserThreads.replace("{srchuid}", mSearchBean.getUid());
-                } else {
-                    url = HiUtils.SearchByIdUrl.replace("{searchid}", mSearchBean.getSearchId());
-                }
-                if (mPage > 1)
-                    url += "&page=" + mPage;
                 break;
             default:
                 break;

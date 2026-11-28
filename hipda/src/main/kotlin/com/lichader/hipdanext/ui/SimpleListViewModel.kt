@@ -2,6 +2,7 @@ package com.lichader.hipdanext.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lichader.hipdanext.bean.SearchBean
 import com.lichader.hipdanext.data.lists.SimpleListRepository
 import com.lichader.hipdanext.forum.ForumException
 import com.lichader.hipdanext.forum.lists.ListItem
@@ -56,11 +57,26 @@ class SimpleListViewModel @Inject constructor(
     private var searchId: String? = null
     private var loadJob: Job? = null
 
+    /** The search the list shows, for `TYPE_SEARCH` and `TYPE_SEARCH_USER_THREADS`. */
+    var search: SearchBean? = null
+        private set
+
     val isLoading: Boolean get() = _state.value.loading
 
     /** Sets the list's type, unless the view model already has one (after a configuration change). */
     fun init(type: Int) {
         if (this.type == NO_TYPE) this.type = type
+    }
+
+    /** Sets the search to load with [refresh]; the view model keeps a copy. */
+    fun setSearch(search: SearchBean) {
+        this.search = search.newCopy()
+    }
+
+    /** Empties the list, as when a new search starts. */
+    fun clear() {
+        loadJob?.cancel()
+        _state.value = UiState()
     }
 
     /** Shows another list, such as attention instead of favorites. */
@@ -102,7 +118,7 @@ class SimpleListViewModel @Inject constructor(
 
     private suspend fun fetch(page: Int) {
         try {
-            val result = repository.page(type, page, searchId)
+            val result = repository.page(type, page, searchId, search)
             this.page = page
             val old = _state.value.items
             if (result.items.isEmpty()) {

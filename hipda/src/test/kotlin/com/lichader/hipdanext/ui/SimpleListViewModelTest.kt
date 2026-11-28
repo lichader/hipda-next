@@ -1,5 +1,7 @@
 package com.lichader.hipdanext.ui
 
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.lichader.hipdanext.bean.SearchBean
 import com.lichader.hipdanext.data.lists.SimpleListRepository
 import com.lichader.hipdanext.data.lists.SimpleListResult
 import com.lichader.hipdanext.forum.ForumException
@@ -23,8 +25,11 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
 import java.net.UnknownHostException
 
+// Robolectric, because SearchBean uses TextUtils.
+@RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalCoroutinesApi::class)
 class SimpleListViewModelTest {
 
@@ -160,15 +165,36 @@ class SimpleListViewModelTest {
         assertEquals(2, repository.requested.size)
     }
 
+    @Test
+    fun aSearchIsPassedOnAndKeptAcrossRefreshes() = runTest(dispatcher) {
+        repository.pages = mapOf(1 to listOf("1"))
+        val viewModel = createViewModel(SimpleListJob.TYPE_SEARCH)
+        val search = SearchBean().apply { query = "Android" }
+
+        viewModel.setSearch(search)
+        search.query = "changed afterwards"
+        viewModel.refresh()
+        advanceUntilIdle()
+        viewModel.clear()
+        assertEquals(emptyList<String>(), viewModel.tids())
+        viewModel.refresh()
+        advanceUntilIdle()
+
+        assertEquals(listOf("Android", "Android"), repository.searches)
+        assertEquals("Android", viewModel.search?.query)
+    }
+
     private class FakeSimpleListRepository : SimpleListRepository {
         var pages = emptyMap<Int, List<String>>()
         var maxPage = 1
         var searchId: String? = null
         var error: Exception? = null
         val requested = mutableListOf<Triple<Int, Int, String?>>()
+        val searches = mutableListOf<String?>()
 
-        override suspend fun page(type: Int, page: Int, searchId: String?): SimpleListResult {
+        override suspend fun page(type: Int, page: Int, searchId: String?, search: SearchBean?): SimpleListResult {
             requested += Triple(type, page, searchId)
+            searches += search?.query
             error?.let { throw it }
             return SimpleListResult(pages[page].orEmpty().map { ListItem(tid = it) }, maxPage, this.searchId, "a1b2c3d4")
         }

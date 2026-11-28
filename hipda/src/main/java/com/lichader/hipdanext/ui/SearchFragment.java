@@ -28,9 +28,11 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.view.MenuItemCompat;
 import androidx.core.view.ViewCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -44,11 +46,7 @@ import com.mikepenz.iconics.IconicsDrawable;
 import com.lichader.hipdanext.R;
 import com.lichader.hipdanext.bean.Forum;
 import com.lichader.hipdanext.bean.SearchBean;
-import com.lichader.hipdanext.bean.SimpleListBean;
 import com.lichader.hipdanext.bean.SimpleListItemBean;
-import com.lichader.hipdanext.job.EventCallback;
-import com.lichader.hipdanext.job.JobMgr;
-import com.lichader.hipdanext.job.SimpleListEvent;
 import com.lichader.hipdanext.job.SimpleListJob;
 import com.lichader.hipdanext.ui.adapter.BaseRvAdapter;
 import com.lichader.hipdanext.ui.adapter.KeyValueArrayAdapter;
@@ -64,20 +62,13 @@ import com.lichader.hipdanext.utils.Logger;
 import com.lichader.hipdanext.utils.UIUtils;
 import com.lichader.hipdanext.utils.Utils;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
 import dagger.hilt.android.AndroidEntryPoint;
-import javax.inject.Inject;
 
 @AndroidEntryPoint
 public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
-
-    @Inject
-    JobMgr mJobMgr;
 
     private final int mType = SimpleListJob.TYPE_SEARCH;
     public static final String ARG_QUERY = "QUERY";
@@ -104,7 +95,7 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
     private KeyValueArrayAdapter mSpAdapter;
     private SearchHistoryAdapter mHistoryAdapter;
 
-    private SimpleListEventCallback mEventCallback = new SimpleListEventCallback();
+    private SimpleListViewModel mViewModel;
 
     private boolean mSearchFilterAnimating;
 
@@ -112,9 +103,6 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
     private SharedPreferences mPreferences;
     private List<SearchBean> mQueries;
 
-    private int mPage = 1;
-    private boolean mInloading = false;
-    private int mMaxPage;
     private Drawable mIconDrawable;
 
     private TextView.OnEditorActionListener mSearchEditorActionListener = new TextView.OnEditorActionListener() {
@@ -146,6 +134,12 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+        mViewModel = new ViewModelProvider(this).get(SimpleListViewModel.class);
+        mViewModel.init(mType);
+        // The submitted search and its results outlive configuration changes in the view model.
+        if (mViewModel.getSearch() != null)
+            mSearchBean = mViewModel.getSearch().newCopy();
 
         mPreferences = getActivity().getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE);
 
@@ -244,9 +238,17 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
         mSwipeLayout.setEnabled(false);
 
         mLoadingView = view.findViewById(R.id.content_loading);
-        mLoadingView.setState(ContentLoadingView.NO_DATA);
+        mLoadingView.setState(mViewModel.getState().getValue().getItems().isEmpty()
+                ? ContentLoadingView.NO_DATA : ContentLoadingView.CONTENT);
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        FlowObservers.collect(getViewLifecycleOwner(), mViewModel.getState(), this::render);
+        FlowObservers.collect(getViewLifecycleOwner(), mViewModel.getEvents(), this::onViewModelEvent);
     }
 
     @Override
@@ -308,6 +310,15 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
             }
         });
 
+        if (mViewModel.getSearch() != null) {
+            // Recreated after a configuration change: show the view model's search instead of starting one.
+            mSearchFilterLayout.setVisibility(View.GONE);
+            collapseSearchView();
+            setActionBarTitle(mSearchBean.getDescription());
+            super.onCreateOptionsMenu(menu, inflater);
+            return;
+        }
+
         Bundle args = getArguments();
         String query = "";
         if (args != null) {
@@ -350,8 +361,7 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
         setActionBarTitle(mSearchBean.getDescription());
         UIUtils.hideSoftKeyboard(getActivity());
 
-        mSimpleListItemBeans.clear();
-        mSimpleListAdapter.setDatas(mSimpleListItemBeans);
+        mViewModel.clear();
 
         collapseSearchView();
 
@@ -400,17 +410,9 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
     @Override
     public void onResume() {
         super.onResume();
-        if (!EventBus.getDefault().isRegistered(this))
-            EventBus.getDefault().register(this);
         if (mSearchView != null && mSimpleListAdapter.getDatas().size() > 0) {
             collapseSearchView();
         }
-    }
-
-    @Override
-    public void onPause() {
-        EventBus.getDefault().unregister(this);
-        super.onPause();
     }
 
     @Override
@@ -431,10 +433,8 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
         }
 
         mSwipeLayout.setRefreshing(true);
-        mMaxPage = 0;
-        mPage = 1;
-        SimpleListJob job = new SimpleListJob(getActivity(), mSessionId, mType, mPage, mSearchBean);
-        mJobMgr.addJob(job);
+        mViewModel.setSearch(mSearchBean);
+        mViewModel.refresh();
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -521,13 +521,9 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
                 int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
 
                 if ((visibleItemCount + firstVisibleItem) >= totalItemCount - 5) {
-                    if (!mInloading) {
-                        mInloading = true;
-                        if (mPage < mMaxPage) {
-                            mPage++;
+                    if (!mViewModel.isLoading()) {
+                        if (mViewModel.loadMore()) {
                             mRecyclerView.setFooterState(XFooterView.STATE_LOADING);
-                            SimpleListJob job = new SimpleListJob(getActivity(), mSessionId, mType, mPage, mSearchBean);
-                            mJobMgr.addJob(job);
                         } else {
                             mRecyclerView.setFooterState(XFooterView.STATE_END);
                         }
@@ -654,59 +650,28 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
         return forumNames;
     }
 
-    private class SimpleListEventCallback extends EventCallback<SimpleListEvent> {
+    /** Shows the view model's results in the legacy adapter. */
+    private void render(SimpleListViewModel.UiState state) {
+        mSimpleListItemBeans.clear();
+        mSimpleListItemBeans.addAll(ListBeans.of(state.getItems()));
+        mSimpleListAdapter.setDatas(mSimpleListItemBeans);
+    }
 
-        @Override
-        public void onFail(SimpleListEvent event) {
-            mSwipeLayout.setEnabled(true);
-            mSwipeLayout.setRefreshing(false);
+    private void onViewModelEvent(SimpleListViewModel.Event event) {
+        mSwipeLayout.setEnabled(true);
+        mSwipeLayout.setRefreshing(false);
+        mRecyclerView.setFooterState(XFooterView.STATE_HIDDEN);
+        if (event instanceof SimpleListViewModel.Event.Loaded) {
+            mLoadingView.setState(((SimpleListViewModel.Event.Loaded) event).getEmpty()
+                    ? ContentLoadingView.NO_DATA : ContentLoadingView.CONTENT);
+        } else if (event instanceof SimpleListViewModel.Event.Failed) {
             if (mSimpleListItemBeans.size() == 0)
                 mLoadingView.setState(ContentLoadingView.ERROR);
             else
                 mLoadingView.setState(ContentLoadingView.CONTENT);
-
-            mRecyclerView.setFooterState(XFooterView.STATE_HIDDEN);
-            mInloading = false;
-
-            UIUtils.errorSnack(getView(), event.mMessage, event.mDetail);
-        }
-
-        @Override
-        public void onSuccess(SimpleListEvent event) {
-            mSwipeLayout.setEnabled(true);
-            mSwipeLayout.setRefreshing(false);
-            mRecyclerView.setFooterState(XFooterView.STATE_HIDDEN);
-            mInloading = false;
-
-            SimpleListBean list = event.mData;
-            if (list == null || list.getCount() == 0) {
-                if (mPage == 1) {
-                    mSimpleListItemBeans.clear();
-                    mSimpleListAdapter.setDatas(mSimpleListItemBeans);
-                }
-                mLoadingView.setState(ContentLoadingView.NO_DATA);
-                return;
-            }
-
-            mLoadingView.setState(ContentLoadingView.CONTENT);
-
-            if (mPage == 1) {
-                mSimpleListItemBeans.clear();
-            }
-            mMaxPage = list.getMaxPage();
-            mSimpleListItemBeans.addAll(list.getAll());
-            mSimpleListAdapter.setDatas(mSimpleListItemBeans);
-        }
-
-        @Override
-        public void onFailRelogin(SimpleListEvent event) {
-            mSwipeLayout.setEnabled(true);
-            mSwipeLayout.setRefreshing(false);
-            mSimpleListItemBeans.clear();
-            mSimpleListAdapter.notifyDataSetChanged();
+            UIUtils.errorSnack(getView(), ((SimpleListViewModel.Event.Failed) event).getMessage(), "");
+        } else if (event instanceof SimpleListViewModel.Event.NotLoggedIn) {
             mLoadingView.setState(ContentLoadingView.NOT_LOGIN);
-            mRecyclerView.setFooterState(XFooterView.STATE_HIDDEN);
-            mInloading = false;
         }
     }
 
@@ -748,15 +713,6 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
                 imageview = itemView.findViewById(R.id.icon);
             }
         }
-    }
-
-    @SuppressWarnings("unused")
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEvent(SimpleListEvent event) {
-        if (!mSessionId.equals(event.mSessionId))
-            return;
-        EventBus.getDefault().removeStickyEvent(event);
-        mEventCallback.process(event);
     }
 
 }

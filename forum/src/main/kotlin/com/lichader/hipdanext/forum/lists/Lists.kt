@@ -43,6 +43,17 @@ data class ListPage(
     val header: PageHeader,
 )
 
+/** A search's terms, as the search form takes them. */
+data class SearchQuery(
+    /** Words in the title, or in the post with [fullText]. */
+    val text: String,
+    /** The author's username, or empty for any author. */
+    val author: String,
+    /** The forum to search, or `0` for all forums. */
+    val forumId: String,
+    val fullText: Boolean,
+)
+
 /** The two lists of `my.php` that hold saved threads. */
 enum class SavedThreads(internal val item: String) {
     FAVORITES("favorites"),

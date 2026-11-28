@@ -93,6 +93,31 @@ class ListParsersTest {
     }
 
     @Test
+    fun titleSearchAndAUsersThreadsAreSearchResults() {
+        val titles = ListParsers.search(page("search-title-p1-real.html"))
+        val userThreads = ListParsers.search(page("user-threads-real.html"))
+
+        assertEquals(50, titles.items.size)
+        assertEquals(4, titles.maxPage)
+        assertEquals(40, userThreads.items.size)
+        assertEquals(1, userThreads.maxPage)
+        assertEquals("3429601", userThreads.items.first().tid)
+    }
+
+    @Test
+    fun fullTextSearchHasOneRowPerPost() {
+        val parsed = ListParsers.fullTextSearch(page("search-fulltext-real.html"))
+
+        assertEquals(50, parsed.items.size)
+        assertEquals(20, parsed.maxPage)
+        assertEquals(
+            ListItem(pid = "74939927", title = "主题 1", author = "user_1", time = " 2026-11-17 17:52",
+                forum = "Buy & Sell 交易服务区", info = "内容 1", avatar = Avatar.OfUser("200001")),
+            parsed.items.first(),
+        )
+    }
+
+    @Test
     fun newPostsCarryTheirSearch() {
         val parsed = ListParsers.search(page("new-posts-p1-real.html"))
 

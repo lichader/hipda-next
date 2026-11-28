@@ -1,5 +1,7 @@
 package com.lichader.hipdanext.forum
 
+import java.net.URLEncoder
+
 /**
  * URLs of the forum's pages. They replace the static `HiUtils.*Url` fields one feature at a
  * time, and are built from [ForumConfig] on each call, so a server change applies at once.
@@ -30,6 +32,30 @@ class HiPdaEndpoints(private val config: ForumConfig) {
     /** New posts of the last day; a [searchId] from the first page fetches that search's pages. */
     fun newPosts(searchId: String?, page: Int): String {
         var url = if (searchId.isNullOrEmpty()) baseUrl + "search.php?srchfrom=86400&searchsubmit=yes" else searchById(searchId)
+        if (page > 1) url += "&page=" + page
+        return url
+    }
+
+    /**
+     * A search; each page repeats it with `page`. The terms are encoded as GBK whatever the
+     * posting encoding is, as the old search did.
+     */
+    fun search(text: String, author: String, forumId: String, fullText: Boolean, page: Int): String {
+        var url = baseUrl + "search.php?srchtype=" + (if (fullText) "fulltext" else "title") +
+            "&srchtxt=" + URLEncoder.encode(text, "GBK") +
+            "&searchsubmit=true&st=on&srchuname=" + URLEncoder.encode(author, "GBK") +
+            "&srchfilter=all&srchfrom=0&before=&orderby=lastpost&ascdesc=desc&srchfid%5B0%5D=" + forumId
+        if (page > 1) url += "&page=" + page
+        return url
+    }
+
+    /** A user's threads; a [searchId] from the first page fetches that search's pages. */
+    fun userThreads(uid: String, searchId: String?, page: Int): String {
+        var url = if (searchId.isNullOrEmpty()) {
+            baseUrl + "search.php?srchfid=all&srchfrom=0&searchsubmit=yes&srchuid=" + uid
+        } else {
+            searchById(searchId)
+        }
         if (page > 1) url += "&page=" + page
         return url
     }

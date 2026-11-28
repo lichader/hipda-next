@@ -3,6 +3,7 @@ package com.lichader.hipdanext.data.lists
 import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.lichader.hipdanext.bean.SearchBean
 import com.lichader.hipdanext.data.account.AccountChangedException
 import com.lichader.hipdanext.data.account.AccountRepository
 import com.lichader.hipdanext.data.account.LoginOutcome
@@ -12,6 +13,7 @@ import com.lichader.hipdanext.forum.lists.ListItem
 import com.lichader.hipdanext.forum.lists.ListPage
 import com.lichader.hipdanext.forum.lists.ListsApi
 import com.lichader.hipdanext.forum.lists.SavedThreads
+import com.lichader.hipdanext.forum.lists.SearchQuery
 import com.lichader.hipdanext.forum.parser.PageHeader
 import com.lichader.hipdanext.job.SimpleListJob
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -105,6 +107,17 @@ class DefaultSimpleListRepositoryTest {
         assertEquals(emptyList<SavedThreads>(), api.savedLists)
     }
 
+    @Test
+    fun searchesPassTheirTermsAndUserThreadsTheirUid() = runBlocking {
+        val search = SearchBean().apply { query = "Android"; author = "user_1"; forum = "6"; isFulltext = true; uid = "200001" }
+
+        repository.page(SimpleListJob.TYPE_SEARCH, 2, null, search)
+        repository.page(SimpleListJob.TYPE_SEARCH_USER_THREADS, 2, "274", search)
+
+        assertEquals(listOf(SearchQuery("Android", "user_1", "6", fullText = true)), api.searches)
+        assertEquals(listOf(Triple("200001", "274", 2)), api.userThreads)
+    }
+
     private class FakeListsApi : ListsApi {
         var items = emptyList<ListItem>()
         var searchId: String? = null
@@ -123,6 +136,10 @@ class DefaultSimpleListRepositoryTest {
         override suspend fun notices() = page()
         override suspend fun newPosts(searchId: String?, page: Int) = page().also { lastNewPosts = searchId to page }
         override suspend fun savedThreads(list: SavedThreads, page: Int) = page().also { savedLists += list }
+        override suspend fun search(query: SearchQuery, page: Int) = page().also { searches += query }
+        override suspend fun userThreads(uid: String, searchId: String?, page: Int) = page().also { userThreads += Triple(uid, searchId, page) }
+        val searches = mutableListOf<SearchQuery>()
+        val userThreads = mutableListOf<Triple<String, String?, Int>>()
     }
 
     private class FakeAccount : AccountRepository {
