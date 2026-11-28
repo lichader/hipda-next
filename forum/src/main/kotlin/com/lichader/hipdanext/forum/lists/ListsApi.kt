@@ -29,6 +29,15 @@ interface ListsApi {
     suspend fun newPosts(searchId: String?, page: Int): ListPage
 
     suspend fun savedThreads(list: SavedThreads, page: Int): ListPage
+
+    /** Page [page] of a search; each page repeats the search, as before. */
+    suspend fun search(query: SearchQuery, page: Int): ListPage
+
+    /**
+     * A user's threads. The first page starts a search; later pages pass the
+     * [ListPage.searchId] it returned.
+     */
+    suspend fun userThreads(uid: String, searchId: String?, page: Int): ListPage
 }
 
 class HiPdaListsApi(
@@ -49,6 +58,14 @@ class HiPdaListsApi(
 
     override suspend fun savedThreads(list: SavedThreads, page: Int) =
         fetch(endpoints.savedThreads(list.item, page), ListParsers::savedThreads)
+
+    override suspend fun search(query: SearchQuery, page: Int) = fetch(
+        endpoints.search(query.text, query.author, query.forumId, query.fullText, page),
+        if (query.fullText) ListParsers::fullTextSearch else ListParsers::search,
+    )
+
+    override suspend fun userThreads(uid: String, searchId: String?, page: Int) =
+        fetch(endpoints.userThreads(uid, searchId, page), ListParsers::search)
 
     private suspend fun fetch(url: String, parse: (Document) -> ListParsers.Parsed): ListPage {
         val doc = session.page(url)

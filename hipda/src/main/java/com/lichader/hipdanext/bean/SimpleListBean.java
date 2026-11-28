@@ -5,8 +5,6 @@ import java.util.List;
 
 public class SimpleListBean {
     private List<SimpleListItemBean> mSimpleListItemBeans = new ArrayList<>();
-    private String mSearchId;
-    private int mMaxPage;
 
     public void add(SimpleListItemBean item) {
         mSimpleListItemBeans.add(item);
@@ -18,21 +16,5 @@ public class SimpleListBean {
 
     public List<SimpleListItemBean> getAll() {
         return mSimpleListItemBeans;
-    }
-
-    public String getSearchId() {
-        return mSearchId;
-    }
-
-    public void setSearchId(String searchId) {
-        mSearchId = searchId;
-    }
-
-    public int getMaxPage() {
-        return mMaxPage;
-    }
-
-    public void setMaxPage(int maxPage) {
-        mMaxPage = maxPage;
     }
 }

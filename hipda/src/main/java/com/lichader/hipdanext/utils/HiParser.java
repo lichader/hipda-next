@@ -1,7 +1,6 @@
 package com.lichader.hipdanext.utils;
 
 import android.content.Context;
-import android.text.TextUtils;
 
 import com.lichader.hipdanext.bean.SimpleListBean;
 import com.lichader.hipdanext.bean.SimpleListItemBean;
@@ -11,7 +10,6 @@ import com.lichader.hipdanext.service.NotiHelper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
@@ -20,21 +18,13 @@ import java.util.List;
 public class HiParser {
 
     public static SimpleListBean parseSimpleList(Context context, NotiHelper notiHelper, int type,
-                                                 Document doc, boolean isFullTextSearch) {
+                                                 Document doc) {
 
         notiHelper.fetchNotificationAsync(context, doc);
 
         switch (type) {
             case SimpleListJob.TYPE_SMS_DETAIL:
                 return parseSmsDetail(doc);
-            case SimpleListJob.TYPE_SEARCH:
-                if (isFullTextSearch) {
-                    return parseSearchFullText(doc);
-                } else {
-                    parseSearch(doc);
-                }
-            case SimpleListJob.TYPE_SEARCH_USER_THREADS:
-                return parseSearch(doc);
         }
 
         return null;
@@ -170,152 +160,6 @@ public class HiParser {
                     item.setNew(true);
                 }
             }
-
-            list.add(item);
-        }
-
-        return list;
-    }
-
-    private static SimpleListBean parseSearch(Document doc) {
-        if (doc == null) {
-            return null;
-        }
-
-        SimpleListBean list = new SimpleListBean();
-        int last_page = 1;
-
-        //if this is the last page, page number is in <strong>
-        Elements pagesES = doc.select("div.pages_btns div.pages a");
-        pagesES.addAll(doc.select("div.pages_btns div.pages strong"));
-        String searchIdUrl;
-        if (pagesES.size() > 0) {
-            searchIdUrl = pagesES.first().attr("href");
-            list.setSearchId(Utils.getMiddleString(searchIdUrl, "searchid=", "&"));
-            for (Node n : pagesES) {
-                int tmp = Utils.getIntFromString(((Element) n).text());
-                if (tmp > last_page) {
-                    last_page = tmp;
-                }
-            }
-        }
-        list.setMaxPage(last_page);
-
-        Elements tbodyES = doc.select("tbody");
-        for (int i = 0; i < tbodyES.size(); ++i) {
-            Element tbodyE = tbodyES.get(i);
-            SimpleListItemBean item = new SimpleListItemBean();
-
-            Elements subjectES = tbodyE.select("tr th.subject a");
-            if (subjectES.size() == 0) {
-                continue;
-            }
-
-            Element titleLink = subjectES.first();
-            String href = titleLink.attr("href");
-            item.setTid(Utils.getMiddleString(href, "tid=", "&"));
-            item.setTitle(titleLink.text());
-
-            Elements authorAES = tbodyE.select("tr td.author cite a");
-            if (authorAES.size() == 0) {
-                continue;
-            }
-            item.setAuthor(authorAES.first().text());
-
-            String spaceUrl = authorAES.first().attr("href");
-            if (!TextUtils.isEmpty(spaceUrl)) {
-                String uid = Utils.getMiddleString(spaceUrl, "uid=", "&");
-                item.setAvatarUrl(HiUtils.getAvatarUrlByUid(uid));
-            }
-
-            Elements timeES = tbodyE.select("tr td.author em");
-            if (timeES.size() > 0) {
-                item.setTime(timeES.first().text());
-            }
-
-            Elements forumES = tbodyE.select("tr td.forum");
-            if (forumES.size() > 0) {
-                item.setForum(forumES.first().text());
-            }
-
-            list.add(item);
-        }
-
-        return list;
-    }
-
-    private static SimpleListBean parseSearchFullText(Document doc) {
-        if (doc == null) {
-            return null;
-        }
-
-        SimpleListBean list = new SimpleListBean();
-        int last_page = 1;
-
-        //if this is the last page, page number is in <strong>
-        Elements pagesES = doc.select("div.pages_btns div.pages a");
-        pagesES.addAll(doc.select("div.pages_btns div.pages strong"));
-        String searchIdUrl;
-        if (pagesES.size() > 0) {
-            searchIdUrl = pagesES.first().attr("href");
-            list.setSearchId(Utils.getMiddleString(searchIdUrl, "searchid=", "&"));
-            for (Node n : pagesES) {
-                int tmp = Utils.getIntFromString(((Element) n).text());
-                if (tmp > last_page) {
-                    last_page = tmp;
-                }
-            }
-        }
-        list.setMaxPage(last_page);
-
-        Elements tbodyES = doc.select("table.datatable tr");
-        for (int i = 0; i < tbodyES.size(); ++i) {
-            Element trowE = tbodyES.get(i);
-            SimpleListItemBean item = new SimpleListItemBean();
-
-            Elements subjectES = trowE.select("div.sp_title a");
-            if (subjectES.size() == 0) {
-                continue;
-            }
-            item.setTitle(subjectES.first().text());
-            //gotopost.php?pid=12345
-            String postUrl = Utils.nullToText(subjectES.first().attr("href"));
-            item.setPid(Utils.getMiddleString(postUrl, "pid=", "&"));
-            if (TextUtils.isEmpty(item.getPid())) {
-                continue;
-            }
-
-            Elements contentES = trowE.select("div.sp_content");
-            if (contentES.size() > 0) {
-                item.setInfo(contentES.text());
-            }
-
-//            <div class="sp_theard">
-//            <span class="sp_w200">版块: <a href="forumdisplay.php?fid=2">Discovery</a></span>
-//            <span>作者: <a href="space.php?uid=189027">tsonglin</a></span>
-//            <span>查看: 1988</span>
-//            <span>回复: 56</span>
-//            <span class="sp_w200">最后发表: 2015-4-4 21:58</span>
-//            </div>
-            Elements postInfoES = trowE.select("div.sp_theard span");
-            if (postInfoES.size() != 5) {
-                continue;
-            }
-            Elements authorES = postInfoES.get(1).select("a");
-            if (authorES.size() > 0) {
-                item.setAuthor(authorES.first().text());
-                String spaceUrl = authorES.first().attr("href");
-                if (!TextUtils.isEmpty(spaceUrl)) {
-                    String uid = Utils.getMiddleString(spaceUrl, "uid=", "&");
-                    item.setAvatarUrl(HiUtils.getAvatarUrlByUid(uid));
-                }
-            }
-
-            item.setTime(Utils.getMiddleString(postInfoES.get(4).text(), ":", "&"));
-
-            Elements forumES = postInfoES.get(0).select("a");
-            if (forumES.size() > 0)
-                item.setForum(forumES.first().text());
 
             list.add(item);
         }

@@ -63,6 +63,27 @@ class HiPdaListsApiTest {
     }
 
     @Test
+    fun searchesRepeatTheirTermsOnEachPage() {
+        val (title, _) = requestedPath("search-title-p2-real.html") { api.search(SearchQuery("手机", "用户", "6", fullText = false), 2) }
+        val (fullText, page) = requestedPath("search-fulltext-real.html") { api.search(SearchQuery("Android", "", "0", fullText = true), 1) }
+
+        // The terms are GBK, as the old search sent them.
+        assertEquals("/forum/search.php?srchtype=title&srchtxt=%CA%D6%BB%FA&searchsubmit=true&st=on&srchuname=%D3%C3%BB%A7" +
+            "&srchfilter=all&srchfrom=0&before=&orderby=lastpost&ascdesc=desc&srchfid%5B0%5D=6&page=2", title)
+        assertEquals("/forum/search.php?srchtype=fulltext&srchtxt=Android&searchsubmit=true&st=on&srchuname=" +
+            "&srchfilter=all&srchfrom=0&before=&orderby=lastpost&ascdesc=desc&srchfid%5B0%5D=0", fullText)
+        assertEquals("74939927", page.items.first().pid)
+    }
+
+    @Test
+    fun aUsersThreadsStartASearchAndPageThroughIt() {
+        assertEquals("/forum/search.php?srchfid=all&srchfrom=0&searchsubmit=yes&srchuid=200001",
+            requestedPath("user-threads-real.html") { api.userThreads("200001", null, 1) }.first)
+        assertEquals("/forum/search.php?searchid=274&orderby=lastpost&ascdesc=desc&searchsubmit=yes&page=2",
+            requestedPath("user-threads-real.html") { api.userThreads("200001", "274", 2) }.first)
+    }
+
+    @Test
     fun aPageCarriesItsHeaderAndFormToken() {
         val (_, page) = requestedPath("favorites-real.html") { api.savedThreads(SavedThreads.FAVORITES, 1) }
 

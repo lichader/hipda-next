@@ -48,14 +48,11 @@ public class HiUtils {
     public static String NewSMS;
     public static String ClearSMS;
     public static String UploadImgUrl;
-    public static String SearchUrl;
-    public static String SearchUserThreads;
     public static String FavoritesUrl;
     public static String FavoriteAddUrl;
     public static String FavoriteRemoveUrl;
     public static String FavoriteDeleteUrl;
     public static String UserWarningUrl;
-    public static String SearchByIdUrl;
 
 
     private static String userAgent;
@@ -131,14 +128,11 @@ public class HiUtils {
         NewSMS = BaseUrl + "pm.php?filter=newpm";
         ClearSMS = BaseUrl + "pm.php?action=del&uid={uid}&filter=privatepm";
         UploadImgUrl = BaseUrl + "misc.php?action=swfupload&operation=upload&simple=1&type=image";
-        SearchUrl = BaseUrl + "search.php?srchtype={srchtype}&srchtxt={srchtxt}&searchsubmit=true&st=on&srchuname={srchuname}&srchfilter=all&srchfrom=0&before=&orderby=lastpost&ascdesc=desc&srchfid%5B0%5D={fid}";
-        SearchUserThreads = BaseUrl + "search.php?srchfid=all&srchfrom=0&searchsubmit=yes&srchuid={srchuid}";
         FavoritesUrl = BaseUrl + "my.php?item={item}&type=thread";
         FavoriteAddUrl = BaseUrl + "my.php?item={item}&action=add&inajax=1&ajaxtarget=favorite_msg&tid={tid}";
         FavoriteRemoveUrl = BaseUrl + "my.php?item={item}&action=remove&inajax=1&ajaxtarget=favorite_msg&tid={tid}";
         FavoriteDeleteUrl = BaseUrl + "my.php?item={item}&type=thread";
         UserWarningUrl = BaseUrl + "misc.php?action=viewwarning&tid={tid}&uid={uid}";
-        SearchByIdUrl = BaseUrl + "search.php?searchid={searchid}&orderby=lastpost&ascdesc=desc&searchsubmit=yes";
 
 
         SmallImages.clear();

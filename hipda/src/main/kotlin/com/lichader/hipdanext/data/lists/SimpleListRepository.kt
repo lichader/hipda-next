@@ -3,6 +3,7 @@ package com.lichader.hipdanext.data.lists
 import android.content.Context
 import android.text.TextUtils
 import com.lichader.hipdanext.async.FavoriteHelper
+import com.lichader.hipdanext.bean.SearchBean
 import com.lichader.hipdanext.data.account.AccountChangedException
 import com.lichader.hipdanext.data.account.AccountRepository
 import com.lichader.hipdanext.db.HistoryDao
@@ -11,6 +12,7 @@ import com.lichader.hipdanext.forum.lists.Avatar
 import com.lichader.hipdanext.forum.lists.ListItem
 import com.lichader.hipdanext.forum.lists.ListsApi
 import com.lichader.hipdanext.forum.lists.SavedThreads
+import com.lichader.hipdanext.forum.lists.SearchQuery
 import com.lichader.hipdanext.job.SimpleListJob
 import com.lichader.hipdanext.service.NotiHelper
 import com.lichader.hipdanext.utils.HiUtils
@@ -39,9 +41,10 @@ interface SimpleListRepository {
     /**
      * Page [page] of the list of [type], one of `SimpleListJob`'s types.
      *
-     * @param searchId new posts' search from page 1's result, or null to start one
+     * @param searchId the search of page 1's result, for new posts and a user's threads; null to start one
+     * @param search the search's terms for `TYPE_SEARCH`, or the user's uid for `TYPE_SEARCH_USER_THREADS`
      */
-    suspend fun page(type: Int, page: Int, searchId: String?): SimpleListResult
+    suspend fun page(type: Int, page: Int, searchId: String?, search: SearchBean? = null): SimpleListResult
 }
 
 /** Does what the old `SimpleListJob`, `HiParser` and `SimpleListFragment` did around parsing. */
@@ -55,7 +58,7 @@ class DefaultSimpleListRepository @Inject constructor(
     private val historyDao: HistoryDao,
 ) : SimpleListRepository {
 
-    override suspend fun page(type: Int, page: Int, searchId: String?): SimpleListResult {
+    override suspend fun page(type: Int, page: Int, searchId: String?, search: SearchBean?): SimpleListResult {
         if (type == SimpleListJob.TYPE_HISTORIES) return histories()
 
         val generation = account.generation.value
@@ -67,6 +70,11 @@ class DefaultSimpleListRepository @Inject constructor(
             SimpleListJob.TYPE_NEW_POSTS -> api.newPosts(searchId, page)
             SimpleListJob.TYPE_FAVORITES -> api.savedThreads(SavedThreads.FAVORITES, page)
             SimpleListJob.TYPE_ATTENTION -> api.savedThreads(SavedThreads.ATTENTION, page)
+            SimpleListJob.TYPE_SEARCH -> requireNotNull(search) { "A search needs its terms" }.let {
+                api.search(SearchQuery(it.query, it.author, it.forum, it.isFulltext), page)
+            }
+            SimpleListJob.TYPE_SEARCH_USER_THREADS ->
+                api.userThreads(requireNotNull(search) { "A user's threads need the uid" }.uid, searchId, page)
             else -> throw IllegalArgumentException("Not a simple list type: $type")
         }
         if (account.generation.value != generation) throw AccountChangedException()

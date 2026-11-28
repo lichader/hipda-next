@@ -190,6 +190,34 @@ internal object ListParsers {
         return Parsed(items, maxPage(doc, "div.pages_btns div.pages"), searchId)
     }
 
+    /** `search.php` full-text results: one row per post. */
+    fun fullTextSearch(doc: Document): Parsed {
+        val pageLinks = doc.select("div.pages_btns div.pages a") + doc.select("div.pages_btns div.pages strong")
+        val searchId = pageLinks.firstOrNull()?.attr("href")?.between("searchid=", "&")
+        val items = doc.select("table.datatable tr").mapNotNull { row ->
+            val titleLink = row.selectFirst("div.sp_title a") ?: return@mapNotNull null
+            // gotopost.php?pid=12345
+            val pid = titleLink.attr("href").between("pid=", "&")
+            if (pid.isEmpty()) return@mapNotNull null
+            // Forum, author, views, replies and last post, in that order.
+            val info = row.select("div.sp_theard span")
+            if (info.size != 5) return@mapNotNull null
+            val authorLink = info[1].selectFirst("a")
+            val spaceUrl = authorLink?.attr("href").orEmpty()
+            val contents = row.select("div.sp_content")
+            ListItem(
+                pid = pid,
+                title = titleLink.text(),
+                author = authorLink?.text(),
+                time = info[4].text().between(":", "&"),
+                forum = info[0].selectFirst("a")?.text(),
+                info = if (contents.isEmpty()) null else contents.text(),
+                avatar = if (spaceUrl.isEmpty()) null else Avatar.OfUser(spaceUrl.between("uid=", "&")),
+            )
+        }
+        return Parsed(items, maxPage(doc, "div.pages_btns div.pages"), searchId)
+    }
+
     /** `my.php?item=favorites` and `item=attention`. */
     fun savedThreads(doc: Document): Parsed {
         val items = doc.select("table.datatable tbody tr").mapNotNull { row ->
