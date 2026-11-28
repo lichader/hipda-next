@@ -111,9 +111,9 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 
 | ID | Item | Needs from the owner | Status |
 | --- | --- | --- | --- |
-| W6 | Migrate **simple lists and search**, including the user info screen's list of a user's threads (still `SimpleListJob` after W3); keeps the search query across rotation ([W1 result](#w1-result)) | – | Not started |
-| W7 | Migrate **private messages**, including the send dialog that user info opens (`BaseFragment.showSendSmsDialog`) | Test with a message to the owner's own account only | Not started |
-| W8 | Migrate **favorites** | – | Not started |
+| W6b | Migrate **search** (`SearchFragment`) and the user info screen's list of a user's threads (`TYPE_SEARCH_USER_THREADS`, still `SimpleListJob` after W3); keeps the search query across rotation ([W1 result](#w1-result)) | – | Not started |
+| W7 | Migrate **private messages**: the conversation (`SmsFragment`, `TYPE_SMS_DETAIL`), which removes `SimpleListJob`, and sending, including the dialog that user info opens (`BaseFragment.showSendSmsDialog`). The message list moved in W6a | Test with a message to the owner's own account only | Not started |
+| W8 | Migrate **favorites**: adding and removing (`FavoriteHelper`) and its cache. The lists moved in W6a | – | Not started |
 | W9 | Migrate **posting and image upload** (`PrePostAsyncTask`, `PostJob`, `ImageUploadJob`) | The owner does every step that posts | Not started |
 | W10 | Migrate **thread detail**; keeps the reading position across rotation ([W1 result](#w1-result)) | The owner votes, if a poll needs checking | Not started |
 | W11 | Migrate **notifications** (`NotiWorker`, `NotiHelper`) and `TaskHelper`'s daily tasks, which removes the last `BlacklistHelper` bridge | – | Not started |
@@ -122,6 +122,7 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 | S1 | Lint for `:forum`: API-level checks, which app lint doesn't apply to the module | – | Not started |
 | S2 | Real blacklist add/remove replies and a rejected-request reply as fixtures (with T1) | – | Not started |
 | S5 | **Fix the version comparison** ([TD-46](technical-debt/td-46-crash-handling-obsolete-code-and-setup-documentation-need-cleanup.md)): `UpgradeMigration.isNewer()` compares `5.1.0` lower than `5.0.05`. Needed before any release leaves the `#.#.##` format | – | Not started |
+| S6 | **Refreshing new posts shows the same results** (found in W6a): the refresh reuses the first page's `searchid`, so the forum returns the same search snapshot. Start a new search on refresh | – | Not started |
 
 ### Done
 
@@ -133,6 +134,7 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 | W4a | Login layer: `:forum` `AuthApi` and `AccountRepository` with an account generation; `LoginHelper` is a bridge. Refused-login replies are synthetic fixtures, because capturing one needs a wrong password on the owner's account | #26 |
 | W4b | Session recovery: `SessionGuard` logs in again once when a page comes back logged out (blacklist and user info use it); automatic logins are single-flight; the blacklist is not stored across an account change (TD-22) | #27; #28 fixed automatic logins counting as an account change |
 | W5 | Thread list on the new layers. Parity with the old parser checked on real Discovery and Buy & Sell pages. Java screens collect ViewModel flows with `FlowObservers.collect()`, and `PageHeader` passes the header's notice count to `NotiHelper` | #29 |
+| W6a | Simple lists on the new layers: my threads and replies, messages, notices, new posts, favorites and attention, history. Parity with the old parsers checked on eight real pages and two hand-written ones. The list type (favorites or attention) survives recreation | #30 |
 | W1 | Fix the app-wide crash on configuration changes | #18; [W1 result](#w1-result) |
 | W2 | Check the Blacklist PoC with a logged-in account | #19; [W2 result](#w2-result) |
 | D2 | Decide about the dead update check | 2026-11-28: remove `UpdateHelper` (S4); the owner plans a new update mechanism |
@@ -198,7 +200,7 @@ Done on 2026-11-28 in #18.
 **What a configuration change still loses** (no crash; fix with each screen's ViewModel):
 - **Thread detail** reloads from its arguments, so the reader returns to the page the thread was opened on, not the page they were reading. Author-only mode switched on later is also lost.
 - **Search** clears the typed query and results, because the query box lives in the toolbar menu, which is rebuilt. Restoring it here would start a search automatically, because of how a query passed in is handled.
-- **Simple lists, private messages and user info** reload their data, and the scroll position is lost. (The thread list keeps both since W5.)
+- **Private messages and user info** reload their data, and the scroll position is lost. (The thread list keeps both since W5, the simple lists since W6a.)
 - **Post editor:** typed text is restored by its views, and the draft is kept, being keyed by session ID. The thumbnails of images uploaded in this session are lost, but the forum lists those images as unused attachments, and the editor already offers to add them again.
 
 ### W2. Check the Blacklist PoC with a logged-in account
@@ -261,9 +263,9 @@ On the first pass the log showed no removal from user info; it was repeated, and
 | Blacklist | `BlacklistFragment`; `UserinfoFragment` (add/remove); `TaskHelper` (daily sync) | `BlacklistHelper` + inline Jsoup in fragment | **Migrated (PoC, #16)**, checked with a logged-in account ([W2](#w2-result)); `BlacklistHelper` bridge remains for `TaskHelper`'s daily sync (W11) |
 | User info | `UserinfoFragment` | `asyncGet` + `HiParser.parseUserInfo` in fragment; `SimpleListJob` for threads | **Migrated (W3, #25)**; its threads list moves with W6, its send dialog with W7 |
 | Thread list | `ThreadListFragment` | `ThreadListJob` + EventBus | **Migrated (W5, #29)** |
-| Simple lists, search | `SimpleListFragment`, `SearchFragment` | `SimpleListJob` (11 types) + EventBus | Not started (W6) |
-| Private messages | `SmsFragment`, `BaseFragment` SMS dialog | `SimpleListJob`, `PostSmsAsyncTask`, `asyncGet` | Not started (W7) |
-| Favorites | Thread detail menu, lists | `FavoriteHelper` | Not started (W8) |
+| Simple lists, search | `SimpleListFragment`, `SearchFragment` | `SimpleListJob` (11 types) + EventBus | **Lists migrated (W6a, #30)**; search and a user's threads in W6b |
+| Private messages | `SmsFragment`, `BaseFragment` SMS dialog | `SimpleListJob`, `PostSmsAsyncTask`, `asyncGet` | Message list migrated (W6a); the conversation and sending in W7 |
+| Favorites | Thread detail menu, lists | `FavoriteHelper` | Lists migrated (W6a); adding and removing in W8 |
 | Posting, upload | `PostFragment`, quick reply, vote, delete | `PrePostAsyncTask`, `PostJob`, `ImageUploadJob` | Not started (W9) |
 | Thread detail | `ThreadDetailFragment` | `ThreadDetailJob` + EventBus, `asyncGet` for warnings | Not started (W10) |
 | Login, session | `LoginDialog`, jobs' relogin | `LoginHelper` | **Migrated (W4a, W4b)**. `LoginHelper` bridges the Java callers. The jobs keep their own relogin until their features migrate, but it now shares the single-flight login |
