@@ -55,6 +55,26 @@ class UpgradeMigrationTest {
     }
 
     @Test
+    fun anUpgradeFromALaterNumberingKeepsTheServerSettings() {
+        settings.setInstalledVersion("5.1.0")
+        settings.setForumServer("https://forum.invalid")
+
+        assertTrue(migration.migrate("5.1.1"))
+
+        assertEquals("https://forum.invalid", settings.forumServer)
+    }
+
+    @Test
+    fun versionsCompareNumberByNumber() {
+        assertTrue(UpgradeMigration.isNewer("5.1.0", "5.0.05"))
+        assertTrue(UpgradeMigration.isNewer("5.0.10", "5.0.05"))
+        assertTrue(UpgradeMigration.isNewer("6", "5.9.99"))
+        assertFalse(UpgradeMigration.isNewer("5.0.03", "5.1.0"))
+        assertFalse(UpgradeMigration.isNewer("5.1", "5.1.0"))
+        assertFalse(UpgradeMigration.isNewer("5.1.0-beta", "5.0.05"))
+    }
+
+    @Test
     fun versionsCompareInTheHashDotHashDotHashHashFormat() {
         assertTrue(UpgradeMigration.isNewer("5.0.05", "5.0.03"))
         assertFalse(UpgradeMigration.isNewer("5.0.03", "5.0.05"))
