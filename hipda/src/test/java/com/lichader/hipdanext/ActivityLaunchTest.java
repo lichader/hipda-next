@@ -118,6 +118,22 @@ public class ActivityLaunchTest {
                 .putExtra(BlacklistFragment.TAG_KEY, BlacklistFragment.TAG_KEY));
     }
 
+    /**
+     * A configuration change, such as a rotation, recreates the activity. Hilt fragments that
+     * are retained crash at that point. The blacklist keeps its state in a ViewModel instead.
+     */
+    @Test
+    public void settingsBlacklistSurvivesRecreation() {
+        Intent intent = new Intent(context(), SettingActivity.class)
+                .putExtra(BlacklistFragment.TAG_KEY, BlacklistFragment.TAG_KEY);
+        try (ActivityScenario<Activity> scenario = ActivityScenario.launch(intent)) {
+            ShadowLooper.idleMainLooper();
+            scenario.recreate();
+            ShadowLooper.idleMainLooper();
+            scenario.onActivity(a -> assertInjected(a));
+        }
+    }
+
     @Test
     public void threadDetail() {
         assertLaunches(new Intent(context(), ThreadDetailActivity.class)

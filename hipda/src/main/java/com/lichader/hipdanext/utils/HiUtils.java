@@ -60,9 +60,6 @@ public class HiUtils {
     public static String FavoriteDeleteUrl;
     public static String UserInfoUrl;
     public static String UserWarningUrl;
-    public static String AddBlackUrl;
-    public static String DelBlackUrl;
-    public static String ViewBlackUrl;
     public static String NewPostsUrl;
     public static String SearchByIdUrl;
 
@@ -154,9 +151,6 @@ public class HiUtils {
         FavoriteDeleteUrl = BaseUrl + "my.php?item={item}&type=thread";
         UserInfoUrl = BaseUrl + "space.php?uid=";
         UserWarningUrl = BaseUrl + "misc.php?action=viewwarning&tid={tid}&uid={uid}";
-        AddBlackUrl = BaseUrl + "pm.php?action=addblack";
-        DelBlackUrl = BaseUrl + "pm.php?action=delblack";
-        ViewBlackUrl = BaseUrl + "pm.php?action=viewblack";
         NewPostsUrl = BaseUrl + "search.php?srchfrom=86400&searchsubmit=yes";
         SearchByIdUrl = BaseUrl + "search.php?searchid={searchid}&orderby=lastpost&ascdesc=desc&searchsubmit=yes";
 
