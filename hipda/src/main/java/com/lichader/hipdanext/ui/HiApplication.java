@@ -11,7 +11,7 @@ import androidx.hilt.work.HiltWorkerFactory;
 import androidx.work.Configuration;
 
 import com.lichader.hipdanext.R;
-import com.lichader.hipdanext.async.UpdateHelper;
+import com.lichader.hipdanext.data.UpgradeMigration;
 import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.okhttp.CachedDns;
 import com.lichader.hipdanext.okhttp.OkHttpHelper;
@@ -55,7 +55,7 @@ public class HiApplication extends Application
     @Inject
     Lazy<CachedDns> mCachedDns;
     @Inject
-    Lazy<UpdateHelper> mUpdateHelper;
+    Lazy<UpgradeMigration> mUpgradeMigration;
     @Inject
     HiltWorkerFactory mWorkerFactory;
 
@@ -70,7 +70,7 @@ public class HiApplication extends Application
 //        }
 
         UIUtils.setLightDarkThemeMode(mSettings.get());
-        updated = mUpdateHelper.get().updateApp();
+        updated = mUpgradeMigration.get().migrate();
 
         if (!mSettings.get().isLoginInfoValid()) {
             mOkHttpHelper.get().clearCookies();

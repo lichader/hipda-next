@@ -71,8 +71,6 @@ public class HiSettingsHelper {
     public static final String PERF_FAB_LEFT_SIDE = "PERF_FAB_LEFT_SIDE";
     public static final String PERF_FAB_AUTO_HIDE = "PERF_FAB_AUTO_HIDE";
     public static final String PERF_CLICK_EFFECT = "PERF_CLICK_EFFECT";
-    public static final String PERF_LAST_UPDATE_CHECK = "PERF_LAST_UPDATE_CHECK";
-    public static final String PERF_AUTO_UPDATE_CHECK = "PERF_AUTO_UPDATE_CHECK";
     public static final String PERF_ABOUT = "PERF_ABOUT";
     public static final String PERF_SUPPORT = "PERF_SUPPORT";
     public static final String PERF_CRASH_LOGS = "PERF_CRASH_LOGS";
@@ -891,31 +889,6 @@ public class HiSettingsHelper {
         editor.putBoolean(PERF_GESTURE_BACK, gestureBack).apply();
     }
 
-    public Date getLastUpdateCheckTime() {
-        String millis = mSharedPref.getString(PERF_LAST_UPDATE_CHECK, "");
-        if (!TextUtils.isEmpty(millis) && TextUtils.isDigitsOnly(millis)) {
-            try {
-                return new Date(Long.parseLong(millis));
-            } catch (Exception ignored) {
-            }
-        }
-        return null;
-    }
-
-    public void setLastUpdateCheckTime(Date d) {
-        SharedPreferences.Editor editor = mSharedPref.edit();
-        editor.putString(HiSettingsHelper.PERF_LAST_UPDATE_CHECK, d.getTime() + "").apply();
-    }
-
-    public void setAutoUpdateCheck(boolean b) {
-        SharedPreferences.Editor editor = mSharedPref.edit();
-        editor.putBoolean(HiSettingsHelper.PERF_AUTO_UPDATE_CHECK, b).apply();
-    }
-
-    public boolean isAutoUpdateCheck() {
-        return mSharedPref.getBoolean(PERF_AUTO_UPDATE_CHECK, true);
-    }
-
     public int getMaxPostsInPage() {
         if (mMaxPostsInPage <= 0) {
             mMaxPostsInPage = mSharedPref.getInt(PERF_MAX_POSTS_IN_PAGE, 50);
@@ -960,15 +933,6 @@ public class HiSettingsHelper {
         mBSTypeId = typeId;
         SharedPreferences.Editor editor = mSharedPref.edit();
         editor.putString(PERF_BS_TYPE_ID, typeId).apply();
-    }
-
-    public boolean isAutoUpdateCheckable() {
-        if (!isAutoUpdateCheck() || Utils.isFromGooglePlay(mCtx))
-            return false;
-        Date lastCheck = getLastUpdateCheckTime();
-        //check update if last check is older than 12 hours
-        return lastCheck == null
-                || System.currentTimeMillis() > lastCheck.getTime() + 12 * 60 * 60 * 1000;
     }
 
     public void setInstalledVersion(String version) {

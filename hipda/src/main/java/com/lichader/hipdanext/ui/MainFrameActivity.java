@@ -192,10 +192,6 @@ public class MainFrameActivity extends BaseActivity {
             if (HiApplication.isUpdated()) {
                 HiApplication.setUpdated(false);
                 UIUtils.showReleaseNotesDialog(this);
-            } else {
-                if (mSettings.isAutoUpdateCheckable()) {
-                    //mUpdateHelper.check(this, true);
-                }
             }
         }
     }

@@ -47,7 +47,7 @@ Device checks, none done yet:
 Before a release:
 
 - [ ] Test an in-place upgrade from 5.0.05 with matching signing keys, keeping accounts, drafts, history, preferences and scheduled work.
-- [ ] Keep the `#.#.##` version-name format, or fix `UpdateHelper.newer()` first: it compares versions with the dots removed, so `5.1.0` would suppress the release-notes dialog and, on the next upgrade, reset the forum server and image host settings ([TD-46](technical-debt/td-46-crash-handling-obsolete-code-and-setup-documentation-need-cleanup.md)).
+- [ ] Keep the `#.#.##` version-name format, or fix `UpgradeMigration.isNewer()` (TD-46) first: it compares versions with the dots removed, so `5.1.0` would suppress the release-notes dialog and, on the next upgrade, reset the forum server and image host settings ([TD-46](technical-debt/td-46-crash-handling-obsolete-code-and-setup-documentation-need-cleanup.md)).
 - [ ] Review backup and restore rules for encrypted preferences and cookies ([TD-03](technical-debt/td-03-backup-rules-omit-encrypted-credentials-and-session-data.md)).
 - [ ] Test the minified release APK separately, and update version metadata and release notes.
 
