@@ -48,9 +48,10 @@ sealed interface LoginOutcome {
 /**
  * The logged-in forum account: its session, login and logout.
  *
- * [generation] changes whenever the account may have changed, on every successful login and every
- * logout (an account switch is a logout plus a login). Work started under an older generation
- * belongs to a previous account, and its results can be discarded (TD-22).
+ * [generation] changes whenever the account may have changed: on every logout and every successful
+ * manual login (an account switch is one or both). An automatic login renews the session of the
+ * stored account, so it keeps the generation. Work started under an older generation belongs to a
+ * previous account, and its results can be discarded (TD-22).
  */
 interface AccountRepository {
 
@@ -88,6 +89,10 @@ class DefaultAccountRepository @Inject constructor(
     /** One login at a time: the jobs' relogin and the site adapter's session renewal can coincide. */
     private val loginLock = Mutex()
 
+    /** Successful logins, so that a login that waited for [loginLock] sees whether another one succeeded. */
+    @Volatile
+    private var logins = 0
+
     override fun isLoggedIn(): Boolean = !settings.username.isNullOrEmpty() && config.sessionKey != null
 
     override fun hasStoredCredentials(): Boolean =
@@ -95,14 +100,14 @@ class DefaultAccountRepository @Inject constructor(
 
     override suspend fun login(manual: Boolean): LoginOutcome {
         if (!manual && !hasStoredCredentials()) return LoginOutcome.NoCredentials
-        val seen = _generation.value
+        val seen = logins
         return loginLock.withLock {
             // Another login finished while this one waited; for an automatic login, its session will do.
-            if (!manual && _generation.value != seen && isLoggedIn()) LoginOutcome.Success else submitLogin()
+            if (!manual && logins != seen && isLoggedIn()) LoginOutcome.Success else submitLogin(manual)
         }
     }
 
-    private suspend fun submitLogin(): LoginOutcome {
+    private suspend fun submitLogin(manual: Boolean): LoginOutcome {
         val token = try {
             api.loginToken()
         } catch (e: ForumException) {
@@ -125,7 +130,8 @@ class DefaultAccountRepository @Inject constructor(
                 return@repeat
             }
             if (result != LoginResult.Success) return LoginOutcome.Refused(result)
-            _generation.update { it + 1 }
+            logins++
+            if (manual) _generation.update { it + 1 }
             return LoginOutcome.Success
         }
         return LoginOutcome.SubmitFailed(lastError!!)
