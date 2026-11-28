@@ -44,7 +44,7 @@ jobs:
 
       - name: Unit tests
         id: unit-tests
-        run: ./gradlew :forum:test :hipda:testDebugUnitTest --stacktrace
+        run: ./gradlew :forum:check :hipda:testDebugUnitTest --stacktrace
 
       # Show results in the job summary and annotate failures. annotate_only needs no
       # checks: write permission, so it also works for pull requests from forks.

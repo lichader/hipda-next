@@ -2,6 +2,9 @@
 // A pure Kotlin/JVM module, so it cannot use the Android SDK or app classes.
 // See docs/architecture-layering-plan.md.
 apply plugin: 'org.jetbrains.kotlin.jvm'
+// Checks the module's code against the Java APIs that Android 21, the app's minSdk, has (without
+// desugaring). Android lint can't check API levels in a plain JVM module (S1). Runs with `check`.
+apply plugin: 'ru.vyarus.animalsniffer'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
@@ -14,7 +17,13 @@ kotlin {
     }
 }
 
+animalsniffer {
+    sourceSets = [sourceSets.main]
+}
+
 dependencies {
+    signature 'com.toasttab.android:gummy-bears-api-21:0.16.0@signature'
+
     // Callers pass in the app's OkHttpClient and call suspend functions.
     api platform("com.squareup.okhttp3:okhttp-bom:4.12.0")
     api "com.squareup.okhttp3:okhttp"

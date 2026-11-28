@@ -16,6 +16,8 @@ buildscript {
         // version it uses instead of the older one AGP depends on.
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:$ksp_version"
+        // Checks :forum against the Android API the app supports (S1).
+        classpath 'ru.vyarus:gradle-animalsniffer-plugin:2.0.1'
     }
 }
 
