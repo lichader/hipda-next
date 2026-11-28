@@ -113,7 +113,6 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 | --- | --- | --- | --- |
 | T2 | **Owner's final test** when the migration is done: every migrated screen, plus the steps an agent can't do. These are sending a message that arrives, replying and clearing a conversation (W7, #32; the forum refuses messages to oneself) and every posting step (W9). On 2026-11-28 the owner chose one final test instead of checks after each item | The owner tests | Open |
 | W9 | Migrate **posting and image upload** (`PrePostAsyncTask`, `PostJob`, `ImageUploadJob`) | The owner does every step that posts | Not started |
-| W10b | Move **thread detail's screen** (`ThreadDetailFragment`, its page cache and paging) onto a view model, removing `ThreadDetailJob`, `ThreadDetailEvent` and the job's use of `ThreadDetailLoader`; keeps the reading position across rotation ([W1 result](#w1-result)). The content model moved in W10a | – | Not started |
 | W12 | **Remove the old plumbing** (phase 5): EventBus, read jobs, `AsyncTask`s, `HiUtils` URL statics, `SingletonEntryPoint` callers, the last bridges | – | Not started |
 | D1 | **Decide:** Compose or Views for the redesign | Decision, before the first redesigned screen | Open |
 
@@ -137,6 +136,7 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 | W11 | Notifications and daily tasks on the new layers: `NotiHelper` reads the new-messages page through `NewMessagesCheck` (rule 7 bridge) and the site adapter; `TaskHelper` is Kotlin and syncs the blacklist through its repository, which removes the `BlacklistHelper` bridge; the image host comes from `SiteApi` (`config.php`). A new-messages page without new messages now sets the count to 0 | #37 |
 | S1 | API-level checks for `:forum`: Animal Sniffer checks the module against Android API 21 signatures (`gummy-bears-api-21`, without desugaring) as part of `:forum:check`, which CI now runs. An API 24 call fails the build | #38 |
 | W10a | Thread pages on the site adapter with the structured content model: `ThreadApi` reads posts as ordered parts; the app renders them into today's HTML (`ThreadDetailBeans`). Parity checked field by field on 18 raw pages and the committed fixtures. `ThreadDetailJob` and `PostHelper` use the `ThreadDetailLoader` bridge until W10b and W9 | #39 |
+| W10b | Thread detail on a view model: `ThreadDetailViewModel` loads the pages and keeps them; `ThreadDetailJob`, `ThreadDetailEvent` and `EventCallback` are removed, and `ThreadDetailLoader` only reads the page after a post (W9). The fragment still chooses which page to load and where; it saves its reading position, so rotation shows the same post from the kept pages, and a restored process loads that page again | #40 |
 | W1 | Fix the app-wide crash on configuration changes | #18; [W1 result](#w1-result) |
 | W2 | Check the Blacklist PoC with a logged-in account | #19; [W2 result](#w2-result) |
 | D2 | Decide about the dead update check | 2026-11-28: remove `UpdateHelper` (S4); the owner plans a new update mechanism |
@@ -200,7 +200,7 @@ Done on 2026-11-28 in #18.
 - Not tested on a device: the post editor and private messages, to keep the logged-in account read-only. Both are covered by the recreation tests in `ActivityLaunchTest`.
 
 **What a configuration change still loses** (no crash; fix with each screen's ViewModel):
-- **Thread detail** reloads from its arguments, so the reader returns to the page the thread was opened on, not the page they were reading. Author-only mode switched on later is also lost.
+- **Thread detail** reloads from its arguments, so the reader returns to the page the thread was opened on, not the page they were reading. Author-only mode switched on later is also lost. (Since W10b the screen comes back at the first post it showed, in author-only mode if it was on, without loading again.)
 - **Search** loses text typed into the search box but not yet submitted, because the box lives in the toolbar menu, which is rebuilt. (Since W6b the submitted search and its results are kept.)
 - Nothing in the lists, private messages or user info reloads any more: the thread list keeps its data since W5, the simple lists and search since W6, the conversation since W7, and user info since W3.
 - **Post editor:** typed text is restored by its views, and the draft is kept, being keyed by session ID. The thumbnails of images uploaded in this session are lost, but the forum lists those images as unused attachments, and the editor already offers to add them again.
@@ -269,7 +269,7 @@ On the first pass the log showed no removal from user info; it was repeated, and
 | Private messages | `SmsFragment`, `BaseFragment` SMS dialog | `SimpleListJob`, `PostSmsAsyncTask`, `asyncGet` | **Migrated (W6a list, W7 #32)**; sending goes through the `SmsSender` bridge until the screens get view models for it |
 | Favorites | Thread detail menu, lists | `FavoriteHelper` | **Migrated (W6a lists, W8 #33)**; `FavoriteHelper` is a bridge until thread detail (W10) gets a view model |
 | Posting, upload | `PostFragment`, quick reply, vote, delete | `PrePostAsyncTask`, `PostJob`, `ImageUploadJob` | Not started (W9) |
-| Thread detail | `ThreadDetailFragment` | `ThreadDetailJob` + EventBus, `asyncGet` for warnings | Pages and content on the site adapter (W10a, #39); the screen moves in W10b |
+| Thread detail | `ThreadDetailFragment` | `ThreadDetailJob` + EventBus, `asyncGet` for warnings | Done (W10a #39, W10b #40); warnings still use `asyncGet`, posting from the screen goes with W9 |
 | Login, session | `LoginDialog`, jobs' relogin | `LoginHelper` | **Migrated (W4a, W4b)**. `LoginHelper` bridges the Java callers. The jobs keep their own relogin until their features migrate, but it now shares the single-flight login |
 | Notifications | `NotiWorker`, parser side effects | `NotiHelper` | **Migrated (W11, #37)**; the page header's notice count reaches `NotiHelper` from each migrated screen; thread detail still passes its page (W10) |
 
