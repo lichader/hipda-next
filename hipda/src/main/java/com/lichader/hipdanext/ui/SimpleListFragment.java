@@ -11,7 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -23,14 +25,9 @@ import com.lichader.hipdanext.R;
 import com.lichader.hipdanext.async.FavoriteHelper;
 import com.lichader.hipdanext.async.NetworkReadyEvent;
 import com.lichader.hipdanext.async.PostSmsAsyncTask;
-import com.lichader.hipdanext.bean.SimpleListBean;
 import com.lichader.hipdanext.bean.SimpleListItemBean;
-import com.lichader.hipdanext.job.EventCallback;
-import com.lichader.hipdanext.job.JobMgr;
-import com.lichader.hipdanext.job.SimpleListEvent;
 import com.lichader.hipdanext.job.SimpleListJob;
 import com.lichader.hipdanext.job.SmsRefreshEvent;
-import com.lichader.hipdanext.service.NotiHelper;
 import com.lichader.hipdanext.ui.adapter.RecyclerItemClickListener;
 import com.lichader.hipdanext.ui.adapter.SimpleListAdapter;
 import com.lichader.hipdanext.ui.widget.ContentLoadingView;
@@ -49,9 +46,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
 
@@ -60,32 +55,21 @@ public class SimpleListFragment extends BaseFragment
         implements SwipeRefreshLayout.OnRefreshListener, PostSmsAsyncTask.SmsPostListener {
 
     @Inject
-    JobMgr mJobMgr;
-
-    @Inject
-    NotiHelper mNotiHelper;
-
-    @Inject
     FavoriteHelper mFavoriteHelper;
 
     public static final String ARG_TYPE = "type";
 
     private int mType;
+    private SimpleListViewModel mViewModel;
 
     private XRecyclerView mRecyclerView;
     private SimpleListAdapter mSimpleListAdapter;
     private List<SimpleListItemBean> mSimpleListItemBeans = new ArrayList<>();
-    private String mSearchId = "";
     private SwipeRefreshLayout mSwipeLayout;
     private ContentLoadingView mLoadingView;
     private HiProgressDialog mSmsPostProgressDialog;
-    private SimpleListEventCallback mEventCallback = new SimpleListEventCallback();
 
-    private int mPage = 1;
-    private boolean mInloading = false;
-    private int mMaxPage;
     private int mFirstVisibleItem = 0;
-    private String mFormhash;
 
     private MenuItem mFavoritesMenuItem;
 
@@ -97,6 +81,10 @@ public class SimpleListFragment extends BaseFragment
         if (getArguments().containsKey(ARG_TYPE)) {
             mType = getArguments().getInt(ARG_TYPE);
         }
+        // The view model keeps the type across configuration changes: favorites can switch to attention.
+        mViewModel = new ViewModelProvider(this).get(SimpleListViewModel.class);
+        mViewModel.init(mType);
+        mType = mViewModel.getType();
 
         RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), mSettings, new OnItemClickListener());
         mSimpleListAdapter = new SimpleListAdapter(this, mSettings, mType, itemClickListener);
@@ -135,14 +123,20 @@ public class SimpleListFragment extends BaseFragment
         mLoadingView.setErrorStateListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!mInloading) {
-                    mInloading = true;
+                if (!mViewModel.isLoading()) {
                     mLoadingView.setState(ContentLoadingView.LOAD_NOW);
                     refresh();
                 }
             }
         });
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        FlowObservers.collect(getViewLifecycleOwner(), mViewModel.getState(), this::render);
+        FlowObservers.collect(getViewLifecycleOwner(), mViewModel.getEvents(), this::onViewModelEvent);
     }
 
     @Override
@@ -160,11 +154,13 @@ public class SimpleListFragment extends BaseFragment
             case SimpleListJob.TYPE_ATTENTION:
             case SimpleListJob.TYPE_NEW_POSTS:
             case SimpleListJob.TYPE_HISTORIES:
-                if (mSimpleListItemBeans.size() == 0) {
+                // The view model's list, which outlives the view: mSimpleListItemBeans is empty until it renders.
+                if (mViewModel.getState().getValue().getItems().isEmpty()) {
                     mRecyclerView.setFooterState(XFooterView.STATE_HIDDEN);
                     mLoadingView.setState(ContentLoadingView.LOADING);
-                    SimpleListJob job = new SimpleListJob(getActivity(), mSessionId, mType, mPage, mSearchId);
-                    mJobMgr.addJob(job);
+                    mViewModel.start();
+                } else {
+                    mLoadingView.setState(ContentLoadingView.CONTENT);
                 }
                 break;
         }
@@ -239,10 +235,8 @@ public class SimpleListFragment extends BaseFragment
                 mType = SimpleListJob.TYPE_FAVORITES;
                 setActionBarTitle(R.string.title_my_favorites);
             }
-            mSimpleListItemBeans.clear();
-            mSimpleListAdapter.setDatas(mSimpleListItemBeans);
             mRecyclerView.setFooterState(XFooterView.STATE_HIDDEN);
-            refresh();
+            mViewModel.switchType(mType);
             return true;
         }
         if (itemId == R.id.action_send_sms) {
@@ -253,10 +247,7 @@ public class SimpleListFragment extends BaseFragment
     }
 
     private void refresh() {
-        mMaxPage = 0;
-        mPage = 1;
-        SimpleListJob job = new SimpleListJob(getActivity(), mSessionId, mType, mPage, mSearchId);
-        mJobMgr.addJob(job);
+        mViewModel.refresh();
     }
 
     @Override
@@ -285,13 +276,9 @@ public class SimpleListFragment extends BaseFragment
                 mFirstVisibleItem = mLayoutManager.findFirstVisibleItemPosition();
 
                 if ((visibleItemCount + mFirstVisibleItem) >= totalItemCount - 5) {
-                    if (!mInloading) {
-                        mInloading = true;
-                        if (mPage < mMaxPage) {
-                            mPage++;
+                    if (!mViewModel.isLoading()) {
+                        if (mViewModel.loadMore()) {
                             mRecyclerView.setFooterState(XFooterView.STATE_LOADING);
-                            SimpleListJob job = new SimpleListJob(getActivity(), mSessionId, mType, mPage, mSearchId);
-                            mJobMgr.addJob(job);
                         } else {
                             mRecyclerView.setFooterState(XFooterView.STATE_END);
                         }
@@ -354,8 +341,8 @@ public class SimpleListFragment extends BaseFragment
         popupMenu.add("cancel", "取消收藏", new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mFavoriteHelper.deleteFavorite(getActivity(), mFormhash, FavoriteHelper.TYPE_FAVORITE, item.getTid());
-                removeItem(item);
+                mFavoriteHelper.deleteFavorite(getActivity(), mViewModel.getState().getValue().getFormhash(), FavoriteHelper.TYPE_FAVORITE, item.getTid());
+                mViewModel.remove(item.getTid());
             }
         });
         popupMenu.add("last_page", "转到最新回复", new AdapterView.OnItemClickListener() {
@@ -372,8 +359,8 @@ public class SimpleListFragment extends BaseFragment
         popupMenu.add("cancel", "取消关注", new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mFavoriteHelper.deleteFavorite(getActivity(), mFormhash, FavoriteHelper.TYPE_ATTENTION, item.getTid());
-                removeItem(item);
+                mFavoriteHelper.deleteFavorite(getActivity(), mViewModel.getState().getValue().getFormhash(), FavoriteHelper.TYPE_ATTENTION, item.getTid());
+                mViewModel.remove(item.getTid());
             }
         });
         popupMenu.add("last_page", "转到最新回复",
@@ -384,25 +371,6 @@ public class SimpleListFragment extends BaseFragment
                     }
                 });
         popupMenu.show();
-    }
-
-    private void removeItem(SimpleListItemBean item) {
-        int pos = -1;
-        for (int i = 0; i < mSimpleListAdapter.getDatas().size(); i++) {
-            SimpleListItemBean bean = mSimpleListAdapter.getItem(mSimpleListAdapter.getHeaderCount() + i);
-            if (item.getTid().equals(bean.getTid())) {
-                pos = mSimpleListAdapter.getHeaderCount() + i;
-                break;
-            }
-        }
-        if (pos != -1) {
-            mSimpleListAdapter.getDatas().remove(pos);
-            mSimpleListAdapter.notifyItemRemoved(pos);
-            if (mSimpleListAdapter.getItemCount() - pos - 1 > 0)
-                mSimpleListAdapter.notifyItemRangeChanged(pos, mSimpleListAdapter.getItemCount() - pos - 1);
-        } else {
-            refresh();
-        }
     }
 
     private void showLastPage(SimpleListItemBean item) {
@@ -435,88 +403,29 @@ public class SimpleListFragment extends BaseFragment
         }
     }
 
-    private class SimpleListEventCallback extends EventCallback<SimpleListEvent> {
+    /** Shows the view model's items in the legacy adapter. */
+    private void render(SimpleListViewModel.UiState state) {
+        mSimpleListItemBeans.clear();
+        mSimpleListItemBeans.addAll(ListBeans.of(state.getItems()));
+        mSimpleListAdapter.setDatas(mSimpleListItemBeans);
+    }
 
-        @Override
-        public void onFail(SimpleListEvent event) {
-            mSwipeLayout.setEnabled(true);
-            mSwipeLayout.setRefreshing(false);
+    private void onViewModelEvent(SimpleListViewModel.Event event) {
+        mSwipeLayout.setEnabled(true);
+        mSwipeLayout.setRefreshing(false);
+        mRecyclerView.setFooterState(XFooterView.STATE_HIDDEN);
+        if (event instanceof SimpleListViewModel.Event.Loaded) {
+            mLoadingView.setState(((SimpleListViewModel.Event.Loaded) event).getEmpty()
+                    ? ContentLoadingView.NO_DATA : ContentLoadingView.CONTENT);
+        } else if (event instanceof SimpleListViewModel.Event.Failed) {
             if (mSimpleListItemBeans.size() == 0)
                 mLoadingView.setState(ContentLoadingView.ERROR);
             else
                 mLoadingView.setState(ContentLoadingView.CONTENT);
-
-            mRecyclerView.setFooterState(XFooterView.STATE_HIDDEN);
-            mInloading = false;
-
-            UIUtils.errorSnack(getView(), event.mMessage, event.mDetail);
-        }
-
-        @Override
-        public void onSuccess(SimpleListEvent event) {
-            mSwipeLayout.setEnabled(true);
-            mSwipeLayout.setRefreshing(false);
-            mRecyclerView.setFooterState(XFooterView.STATE_HIDDEN);
-            mInloading = false;
-            mFormhash = event.mFormhash;
-
-            SimpleListBean list = event.mData;
-            if (list == null || list.getCount() == 0) {
-                if (mPage == 1) {
-                    mSimpleListItemBeans.clear();
-                    mSimpleListAdapter.setDatas(mSimpleListItemBeans);
-                }
-                mLoadingView.setState(ContentLoadingView.NO_DATA);
-                return;
-            }
-
-            mLoadingView.setState(ContentLoadingView.CONTENT);
-
-            if (mType == SimpleListJob.TYPE_FAVORITES
-                    || mType == SimpleListJob.TYPE_ATTENTION) {
-                String item = mType == SimpleListJob.TYPE_FAVORITES ? FavoriteHelper.TYPE_FAVORITE : FavoriteHelper.TYPE_ATTENTION;
-                Set<String> tids = new HashSet<>();
-                List<SimpleListItemBean> beans = list.getAll();
-                for (SimpleListItemBean itemBean : beans) {
-                    tids.add(itemBean.getTid());
-                }
-                mFavoriteHelper.addToCahce(item, tids);
-            }
-
-            if (mType == SimpleListJob.TYPE_SMS)
-                mNotiHelper.getCurrentNotification().clearSmsCount();
-            if (mType == SimpleListJob.TYPE_THREAD_NOTIFY)
-                mNotiHelper.getCurrentNotification().setThreadCount(0);
-            if (mType == SimpleListJob.TYPE_NEW_POSTS)
-                mSearchId = list.getSearchId();
-
-            if (mPage == 1) {
-                mSimpleListItemBeans.clear();
-            }
-            mMaxPage = list.getMaxPage();
-            mSimpleListItemBeans.addAll(list.getAll());
-            mSimpleListAdapter.setDatas(mSimpleListItemBeans);
-        }
-
-        @Override
-        public void onFailRelogin(SimpleListEvent event) {
-            mSwipeLayout.setEnabled(true);
-            mSwipeLayout.setRefreshing(false);
-            mSimpleListItemBeans.clear();
-            mSimpleListAdapter.notifyDataSetChanged();
+            UIUtils.errorSnack(getView(), ((SimpleListViewModel.Event.Failed) event).getMessage(), "");
+        } else if (event instanceof SimpleListViewModel.Event.NotLoggedIn) {
             mLoadingView.setState(ContentLoadingView.NOT_LOGIN);
-            mRecyclerView.setFooterState(XFooterView.STATE_HIDDEN);
-            mInloading = false;
         }
-    }
-
-    @SuppressWarnings("unused")
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEvent(SimpleListEvent event) {
-        if (!mSessionId.equals(event.mSessionId))
-            return;
-        EventBus.getDefault().removeStickyEvent(event);
-        mEventCallback.process(event);
     }
 
     @SuppressWarnings("unused")
@@ -530,7 +439,7 @@ public class SimpleListFragment extends BaseFragment
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(NetworkReadyEvent event) {
-        if (!mInloading && mSimpleListItemBeans.size() == 0)
+        if (!mViewModel.isLoading() && mSimpleListItemBeans.size() == 0)
             refresh();
     }
 

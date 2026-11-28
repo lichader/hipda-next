@@ -37,17 +37,13 @@ public class HiUtils {
     public static String EditUrl;
     public static String VotePollUrl;
     public static String NewThreadUrl;
-    public static String MyReplyUrl;
-    public static String MyPostUrl;
     public static String LastPageUrl;
     public static String RedirectToPostUrl;
     public static String GotoPostUrl;
-    public static String SMSUrl;
     public static String SMSDetailUrl;
     public static String SMSPreparePostUrl;
     public static String SMSPostByUid;
     public static String SMSPostByUsername;
-    public static String ThreadNotifyUrl;
     public static String CheckSMS;
     public static String NewSMS;
     public static String ClearSMS;
@@ -59,7 +55,6 @@ public class HiUtils {
     public static String FavoriteRemoveUrl;
     public static String FavoriteDeleteUrl;
     public static String UserWarningUrl;
-    public static String NewPostsUrl;
     public static String SearchByIdUrl;
 
 
@@ -125,17 +120,13 @@ public class HiUtils {
         EditUrl = BaseUrl + "post.php?action=edit";
         VotePollUrl = BaseUrl + "misc.php?action=votepoll&fid={fid}&tid={tid}&pollsubmit=yes&quickforward=yes&inajax=1";
         NewThreadUrl = BaseUrl + "post.php?action=newthread&fid=";
-        MyReplyUrl = BaseUrl + "my.php?item=posts";
-        MyPostUrl = BaseUrl + "my.php?item=threads";
         LastPageUrl = BaseUrl + "redirect.php?goto=lastpost&from=fastpost&tid=";
         RedirectToPostUrl = BaseUrl + "redirect.php?goto=findpost&pid={pid}&ptid={tid}";
         GotoPostUrl = BaseUrl + "gotopost.php?pid={pid}";
-        SMSUrl = BaseUrl + "pm.php?filter=privatepm";
         SMSDetailUrl = BaseUrl + "pm.php?daterange=5&uid=";
         SMSPreparePostUrl = BaseUrl + "pm.php?daterange=1&uid=";
         SMSPostByUid = BaseUrl + "pm.php?action=send&pmsubmit=yes&infloat=yes&inajax=1&uid={uid}";
         SMSPostByUsername = BaseUrl + "pm.php?action=send&pmsubmit=yes&infloat=yes&inajax=1";
-        ThreadNotifyUrl = BaseUrl + "notice.php";
         CheckSMS = BaseUrl + "pm.php?checknewpm";
         NewSMS = BaseUrl + "pm.php?filter=newpm";
         ClearSMS = BaseUrl + "pm.php?action=del&uid={uid}&filter=privatepm";
@@ -147,7 +138,6 @@ public class HiUtils {
         FavoriteRemoveUrl = BaseUrl + "my.php?item={item}&action=remove&inajax=1&ajaxtarget=favorite_msg&tid={tid}";
         FavoriteDeleteUrl = BaseUrl + "my.php?item={item}&type=thread";
         UserWarningUrl = BaseUrl + "misc.php?action=viewwarning&tid={tid}&uid={uid}";
-        NewPostsUrl = BaseUrl + "search.php?srchfrom=86400&searchsubmit=yes";
         SearchByIdUrl = BaseUrl + "search.php?searchid={searchid}&orderby=lastpost&ascdesc=desc&searchsubmit=yes";
 
 

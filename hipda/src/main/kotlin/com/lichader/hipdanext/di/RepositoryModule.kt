@@ -4,6 +4,8 @@ import com.lichader.hipdanext.data.account.AccountRepository
 import com.lichader.hipdanext.data.account.DefaultAccountRepository
 import com.lichader.hipdanext.data.blacklist.BlacklistRepository
 import com.lichader.hipdanext.data.blacklist.DefaultBlacklistRepository
+import com.lichader.hipdanext.data.lists.DefaultSimpleListRepository
+import com.lichader.hipdanext.data.lists.SimpleListRepository
 import com.lichader.hipdanext.data.threads.DefaultThreadListRepository
 import com.lichader.hipdanext.data.threads.ThreadListRepository
 import com.lichader.hipdanext.data.user.DefaultUserRepository
@@ -22,6 +24,9 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindBlacklistRepository(impl: DefaultBlacklistRepository): BlacklistRepository
+
+    @Binds
+    abstract fun bindSimpleListRepository(impl: DefaultSimpleListRepository): SimpleListRepository
 
     @Binds
     abstract fun bindThreadListRepository(impl: DefaultThreadListRepository): ThreadListRepository
