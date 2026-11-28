@@ -119,7 +119,6 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 | D1 | **Decide:** Compose or Views for the redesign | Decision, before the first redesigned screen | Open |
 | S1 | Lint for `:forum`: API-level checks, which app lint doesn't apply to the module | – | Not started |
 | S2 | Real blacklist add/remove replies and a rejected-request reply as fixtures (with T1) | – | Not started |
-| S6 | **Refreshing new posts shows the same results** (found in W6a): the refresh reuses the first page's `searchid`, so the forum returns the same search snapshot. Start a new search on refresh | – | Not started |
 
 ### Done
 
@@ -136,6 +135,7 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 | W7 | Private messages on the new layers: the conversation through `ConversationViewModel`, sending through the `SmsSender` bridge (rule 7) for the Java screens. Parity checked on a real conversation and the forum's real refusal. Removes `SimpleListJob` and `PostSmsAsyncTask`; the list types moved to `SimpleListTypes` | #32 |
 | W8 | Favorites on the new layers: adding and removing through `FavoritesRepository`, the device's copy in `FavoritesCache`, and `FavoriteHelper` as a bridge (rule 7) for the thread and list screens. Parity checked on the forum's real replies. Logout now clears the copy in memory too | #33 |
 | S5 | Version comparison (TD-46): `UpgradeMigration.isNewer()` compares the dot-separated numbers in order, so `5.1.0` is newer than `5.0.05` and an upgrade from it doesn't re-run the 5.0.03 migration | #34 |
+| S6 | Refreshing new posts starts a new search instead of reusing the first page's `searchid`, so it shows posts made since | #35 |
 | W1 | Fix the app-wide crash on configuration changes | #18; [W1 result](#w1-result) |
 | W2 | Check the Blacklist PoC with a logged-in account | #19; [W2 result](#w2-result) |
 | D2 | Decide about the dead update check | 2026-11-28: remove `UpdateHelper` (S4); the owner plans a new update mechanism |

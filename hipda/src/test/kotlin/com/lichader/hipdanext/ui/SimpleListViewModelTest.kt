@@ -134,6 +134,21 @@ class SimpleListViewModelTest {
     }
 
     @Test
+    fun refreshingNewPostsStartsANewSearch() = runTest(dispatcher) {
+        repository.pages = mapOf(1 to listOf("1"), 2 to listOf("2"))
+        repository.maxPage = 2
+        repository.searchId = "257"
+        val viewModel = createViewModel(SimpleListTypes.TYPE_NEW_POSTS)
+        viewModel.start()
+        advanceUntilIdle()
+
+        viewModel.refresh()
+        advanceUntilIdle()
+
+        assertEquals(listOf<String?>(null, null), repository.requested.map { it.third })
+    }
+
+    @Test
     fun switchingFromFavoritesToAttentionReloads() = runTest(dispatcher) {
         repository.pages = mapOf(1 to listOf("1"))
         val viewModel = createViewModel(SimpleListTypes.TYPE_FAVORITES)
