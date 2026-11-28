@@ -16,4 +16,10 @@ class HiPdaEndpoints(private val config: ForumConfig) {
     fun removeFromBlacklist(): String = baseUrl + "pm.php?action=delblack"
 
     fun userProfile(uid: String): String = baseUrl + "space.php?uid=" + uid
+
+    fun home(): String = baseUrl + "index.php"
+
+    fun loginForm(): String = baseUrl + "logging.php?action=login"
+
+    fun loginSubmit(): String = baseUrl + "logging.php?action=login&loginsubmit=yes&inajax=1"
 }

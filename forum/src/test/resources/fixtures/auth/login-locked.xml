@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="gbk"?><root><![CDATA[<script type="text/javascript" reload="1">
+display('main_messaqge');
+display('layer_login');
+display('layer_message');
+$('messageleft').innerHTML = '<p>密码错误次数过多，请 15 分钟后重新登录</p>';
+$('messageright').innerHTML = '<a href="https://www.4d4y.com/forum/index.php">现在将转入登录前页面</a>';
+setTimeout("window.location.href='https://www.4d4y.com/forum/index.php'", 1000);
+</script>
+</div></div>
+</div>
+]]></root>

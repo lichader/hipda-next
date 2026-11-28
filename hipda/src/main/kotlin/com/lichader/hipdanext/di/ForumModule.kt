@@ -5,6 +5,8 @@ import com.lichader.hipdanext.bean.HiSettingsHelper
 import com.lichader.hipdanext.data.SettingsForumConfig
 import com.lichader.hipdanext.forum.ForumConfig
 import com.lichader.hipdanext.forum.HiPdaEndpoints
+import com.lichader.hipdanext.forum.auth.AuthApi
+import com.lichader.hipdanext.forum.auth.HiPdaAuthApi
 import com.lichader.hipdanext.forum.blacklist.BlacklistApi
 import com.lichader.hipdanext.forum.blacklist.HiPdaBlacklistApi
 import com.lichader.hipdanext.forum.http.ForumTransport
@@ -55,6 +57,11 @@ object ForumModule {
         endpoints: HiPdaEndpoints,
         formhash: FormhashCache,
     ): BlacklistApi = HiPdaBlacklistApi(transport, endpoints, formhash)
+
+    @Provides
+    @Singleton
+    fun provideAuthApi(transport: ForumTransport, endpoints: HiPdaEndpoints): AuthApi =
+        HiPdaAuthApi(transport, endpoints)
 
     @Provides
     @Singleton

@@ -62,8 +62,6 @@ public class HiUtils {
     public static String NewPostsUrl;
     public static String SearchByIdUrl;
 
-    public static String LoginSubmit;
-    public static String LoginGetFormHash;
 
     private static String userAgent;
 
@@ -152,8 +150,6 @@ public class HiUtils {
         NewPostsUrl = BaseUrl + "search.php?srchfrom=86400&searchsubmit=yes";
         SearchByIdUrl = BaseUrl + "search.php?searchid={searchid}&orderby=lastpost&ascdesc=desc&searchsubmit=yes";
 
-        LoginSubmit = BaseUrl + "logging.php?action=login&loginsubmit=yes&inajax=1";
-        LoginGetFormHash = BaseUrl + "logging.php?action=login";
 
         SmallImages.clear();
     }
