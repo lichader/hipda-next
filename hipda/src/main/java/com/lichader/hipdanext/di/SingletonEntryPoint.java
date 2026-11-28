@@ -1,6 +1,7 @@
 package com.lichader.hipdanext.di;
 
 import com.lichader.hipdanext.data.favorites.FavoritesCache;
+import com.lichader.hipdanext.async.EditorBridge;
 import com.lichader.hipdanext.async.LoginHelper;
 import com.lichader.hipdanext.async.PostHelper;
 import com.lichader.hipdanext.async.UploadImgHelper;
@@ -37,6 +38,8 @@ public interface SingletonEntryPoint {
     LoginHelper loginHelper();
 
     NotiHelper notiHelper();
+
+    EditorBridge editorBridge();
 
     PostHelper.Factory postHelperFactory();
 

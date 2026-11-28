@@ -1,5 +1,6 @@
 package com.lichader.hipdanext.forum
 
+import com.lichader.hipdanext.forum.post.EditorKind
 import java.net.URLEncoder
 
 /**
@@ -115,4 +116,14 @@ class HiPdaEndpoints(private val config: ForumConfig) {
     fun loginForm(): String = baseUrl + "logging.php?action=login"
 
     fun loginSubmit(): String = baseUrl + "logging.php?action=login&loginsubmit=yes&inajax=1"
+
+    fun editor(kind: EditorKind): String = when (kind) {
+        is EditorKind.Reply -> baseUrl + "post.php?action=reply&tid=" + kind.tid
+        is EditorKind.ReplyToPost -> baseUrl + "post.php?action=reply&tid=" + kind.tid + "&reppost=" + kind.pid
+        is EditorKind.Quote -> baseUrl + "post.php?action=reply&tid=" + kind.tid + "&repquote=" + kind.pid
+        is EditorKind.NewThread -> baseUrl + "post.php?action=newthread&fid=" + kind.fid
+        is EditorKind.Edit -> baseUrl + "post.php?action=edit&fid=" + kind.fid + "&tid=" + kind.tid + "&pid=" + kind.pid + "&page=1"
+    }
+
+    fun uploadImage(): String = baseUrl + "misc.php?action=swfupload&operation=upload&simple=1&type=image"
 }

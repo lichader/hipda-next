@@ -1,11 +1,10 @@
 package com.lichader.hipdanext.job;
 
+import com.lichader.hipdanext.async.EditorLoad;
 import com.lichader.hipdanext.async.PostHelper;
-import com.lichader.hipdanext.async.PrePostAsyncTask;
 import com.lichader.hipdanext.bean.DetailListBean;
 import com.lichader.hipdanext.bean.PostBean;
 import com.lichader.hipdanext.bean.PrePostInfoBean;
-import com.lichader.hipdanext.ui.HiApplication;
 import com.lichader.hipdanext.utils.Constants;
 import com.lichader.hipdanext.utils.HiUtils;
 
@@ -45,15 +44,11 @@ public class PostJob extends BaseJob {
         long start = System.currentTimeMillis();
 
         if (mMode == PostHelper.MODE_QUICK_DELETE) {
-            PrePostAsyncTask prePostAsyncTask = new PrePostAsyncTask(HiApplication.getAppContext(), mSettings, mOkHttpHelper, null, PostHelper.MODE_EDIT_POST);
-            PostBean postBean = new PostBean();
-            postBean.setTid(mPostArg.getTid());
-            postBean.setPid(mPostArg.getPid());
-            postBean.setFid(mPostArg.getFid());
-            mPrePostInfo = prePostAsyncTask.doInBackground(postBean);
+            EditorLoad editor = mServices.editorBridge().editor(PostHelper.MODE_EDIT_POST, mPostArg.getFid(), mPostArg.getTid(), mPostArg.getPid());
+            mPrePostInfo = editor.getInfo();
             if (mPrePostInfo == null) {
                 mEvent.mStatus = Constants.STATUS_FAIL;
-                mEvent.mMessage = prePostAsyncTask.getMessage();
+                mEvent.mMessage = editor.getMessage();
                 EventBus.getDefault().postSticky(mEvent);
                 return;
             }

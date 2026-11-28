@@ -14,6 +14,7 @@ class ForumErrorFormatter(private val isConnected: () -> Boolean) {
         is ForumException.Server -> error.message
         is ForumException.Parse -> "页面解析错误"
         is ForumException.NotLoggedIn -> "请重新登录"
+        is ForumException.RealNameRequired -> "需要通过网页完成实名验证才可以发帖"
         is AccountChangedException -> "登录账号已变更，请重试"
         else -> if (!isConnected()) "请检查网络连接" else when (error) {
             is ForumException.Network ->

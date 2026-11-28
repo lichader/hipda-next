@@ -1,6 +1,5 @@
 package com.lichader.hipdanext.async;
 
-import android.content.Context;
 import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
@@ -28,7 +27,6 @@ import java.util.List;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
-import dagger.hilt.android.qualifiers.ApplicationContext;
 import okhttp3.Response;
 
 public class PostHelper {
@@ -49,12 +47,11 @@ public class PostHelper {
     private String mResult;
     private int mStatus = Constants.STATUS_FAIL;
     private DetailListBean mDetailListBean;
-    private final Context mCtx;
     private final HiSettingsHelper mSettings;
     private final OkHttpHelper mOkHttpHelper;
     private final ThreadDetailLoader mThreadDetailLoader;
+    private final EditorBridge mEditorBridge;
     private PrePostInfoBean mInfo;
-    private PrePostAsyncTask mPrePostAsyncTask;
     private PostBean mPostArg;
 
     private String mTid;
@@ -68,17 +65,17 @@ public class PostHelper {
     }
 
     @AssistedInject
-    public PostHelper(@ApplicationContext Context ctx,
-                      HiSettingsHelper settings,
+    public PostHelper(HiSettingsHelper settings,
                       OkHttpHelper okHttpHelper,
                       ThreadDetailLoader threadDetailLoader,
+                      EditorBridge editorBridge,
                       @Assisted int mode,
                       @Assisted @Nullable PrePostInfoBean info,
                       @Assisted PostBean postArg) {
-        mCtx = ctx;
         mSettings = settings;
         mOkHttpHelper = okHttpHelper;
         mThreadDetailLoader = threadDetailLoader;
+        mEditorBridge = editorBridge;
         mMode = mode;
         mInfo = info;
         mPostArg = postArg;
@@ -95,11 +92,10 @@ public class PostHelper {
         String subject = postBean.getSubject();
         String typeid = postBean.getTypeid();
 
-        mPrePostAsyncTask = new PrePostAsyncTask(mCtx, mSettings, mOkHttpHelper, null, mMode);
         int count = 0;
         while (mInfo == null && count < 3) {
             count++;
-            mInfo = new PrePostAsyncTask(mCtx, mSettings, mOkHttpHelper, null, mMode).doInBackground(postBean);
+            mInfo = mEditorBridge.editor(mMode, fid, tid, pid).getInfo();
         }
 
         mFloor = floor;
@@ -157,11 +153,7 @@ public class PostHelper {
         String formhash = mInfo != null ? mInfo.getFormhash() : null;
 
         if (TextUtils.isEmpty(formhash)) {
-            if (mPrePostAsyncTask != null && !TextUtils.isEmpty(mPrePostAsyncTask.getMessage())) {
-                mResult = mPrePostAsyncTask.getMessage();
-            } else {
-                mResult = "发表失败，无法获取必要信息 ！";
-            }
+            mResult = "发表失败，无法获取必要信息 ！";
             mStatus = Constants.STATUS_FAIL;
             return;
         }

@@ -10,6 +10,8 @@ import com.lichader.hipdanext.data.lists.DefaultSimpleListRepository
 import com.lichader.hipdanext.data.lists.SimpleListRepository
 import com.lichader.hipdanext.data.messages.DefaultMessageRepository
 import com.lichader.hipdanext.data.messages.MessageRepository
+import com.lichader.hipdanext.data.post.DefaultPostRepository
+import com.lichader.hipdanext.data.post.PostRepository
 import com.lichader.hipdanext.data.thread.DefaultThreadRepository
 import com.lichader.hipdanext.data.thread.ThreadRepository
 import com.lichader.hipdanext.data.threads.DefaultThreadListRepository
@@ -39,6 +41,9 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindSimpleListRepository(impl: DefaultSimpleListRepository): SimpleListRepository
+
+    @Binds
+    abstract fun bindPostRepository(impl: DefaultPostRepository): PostRepository
 
     @Binds
     abstract fun bindThreadRepository(impl: DefaultThreadRepository): ThreadRepository

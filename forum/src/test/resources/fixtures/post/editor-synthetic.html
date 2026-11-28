@@ -1,0 +1,47 @@
+<html>
+<head>
+<title>编辑帖子 - Discovery - 4D4Y</title>
+<script type="text/javascript">var discuz_uid = 100001, discuz_user = 'test_user';</script>
+<script type="text/javascript">var other = 1;</script>
+</head>
+<body>
+<div id="umenu"><cite><a href="space.php?uid=100001">test_user</a></cite></div>
+<form method="post" action="post.php?action=edit&amp;extra=&amp;editsubmit=yes">
+<input type="hidden" name="formhash" id="formhash" value="a1b2c3d4" />
+<input name="subject" id="subject" class="txt" value="主题 2" />
+<select name="typeid" id="typeid">
+<option value="0">分类</option>
+<option value="9" selected>聚会</option>
+<option value="33" selected="selected">汽车</option>
+<option value="38">大杂烩</option>
+</select>
+<input type="checkbox" name="delete" id="delete" value="1" title="删除本帖">
+<input type="hidden" name="noticeauthor" value="r|200001|[i]user_1[/i]" />
+<input type="hidden" name="noticetrimstr" value="[b]回复 [/b]" />
+<input type="hidden" name="noticeauthormsg" value="内容 2" />
+<textarea name="message" id="e_textarea">第一行
+  第二行</textarea>
+<div class="notice uploadinfo">文件尺寸: <strong>小于 500KB</strong> 上传限制: 99 个文件</div>
+<div class="notice uploadinfo">文件尺寸: <strong>小于 8MB</strong></div>
+<input type="hidden" name="hash" value="0123456789abcdef0123456789abcdef">
+<div class="upfilelist">
+<div id="imgattachlist">
+<table class="imglist"><tr><td><a href="javascript:;"><img src="https://img02.4d4y.com/forum/attachments/day_261128/1.jpg" id="image_9000012" onclick="insertAttachimgTag('9000012')" /></a></td></tr></table>
+</div>
+<div id="unusedimgattachlist">
+<table class="imglist"><tr>
+<td><a href="javascript:;"><img src="https://img02.4d4y.com/forum/attachments/swfupload/2.png" id="image_9000011" /></a></td>
+<td><a href="javascript:;"><img src="https://img02.4d4y.com/forum/images/common/none.gif" id="image_9000014" /></a></td>
+<td><a href="javascript:;"><img src="https://img02.4d4y.com/forum/attachments/swfupload/3.png" id="image_new" /></a></td>
+</tr></table>
+</div>
+<table><tr><td>
+<span><a href="javascript:;" class="lighttxt" onclick="insertAttachimgTag('9000013')" title="附件 3.jpg">附件 3.jpg</a></span>
+<span><a href="javascript:;" class="lighttxt" onclick="insertAttachTag('8000001')" title="文件 1.zip">文件 1.zip</a></span>
+<span class="right"><a href="javascript:;" onclick="delImgAttach(9000011,1)" class="deloption">删除</a></span>
+<span><a href="attachment.php?aid=8000002" onclick="insertAttachTag('8000002')">文件 2.zip</a></span>
+</td></tr></table>
+</div>
+</form>
+</body>
+</html>

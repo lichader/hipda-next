@@ -119,13 +119,6 @@ public class OkHttpHelper {
         return get(url, null);
     }
 
-    public Response getAsResponse(String url) throws IOException {
-        Request request = buildGetRequest(url, null, CacheControl.FORCE_NETWORK);
-
-        Call call = mClient.newCall(request);
-        return call.execute();
-    }
-
     public String get(String url, String tag) throws IOException {
         return get(url, tag, FORCE_NETWORK);
     }

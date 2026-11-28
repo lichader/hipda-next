@@ -40,19 +40,22 @@ class SessionGuard(
      * @throws ForumException.NotLoggedIn if the page is logged out and logging in again fails, or
      * the page is still logged out afterwards
      */
-    suspend fun page(url: String): Document {
+    suspend fun page(url: String): Document = served(url).doc
+
+    /** Like [page], with the URL the page came from after redirects. */
+    suspend fun served(url: String): ServedPage {
         val seen = mutex.withLock { renewals }
-        val doc = load(url)
-        if (!Pages.isLoggedOut(doc)) return doc
+        val page = load(url)
+        if (!Pages.isLoggedOut(page.doc)) return page
         if (!renew(seen)) throw ForumException.NotLoggedIn()
         val again = load(url)
-        if (Pages.isLoggedOut(again)) throw ForumException.NotLoggedIn()
+        if (Pages.isLoggedOut(again.doc)) throw ForumException.NotLoggedIn()
         return again
     }
 
-    private suspend fun load(url: String): Document {
-        val html = transport.get(url)
-        return withContext(parseDispatcher) { Jsoup.parse(html) }
+    private suspend fun load(url: String): ServedPage {
+        val response = transport.fetch(url)
+        return ServedPage(response.url, withContext(parseDispatcher) { Jsoup.parse(response.body) })
     }
 
     /** Logs in again, unless another request already did since it read [seen]. One login at a time. */
@@ -61,3 +64,6 @@ class SessionGuard(
         renewer.renew().also { if (it) renewals++ }
     }
 }
+
+/** A page and the URL it came from, after redirects. */
+class ServedPage(val url: String, val doc: Document)

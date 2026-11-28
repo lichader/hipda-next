@@ -12,6 +12,8 @@ import com.lichader.hipdanext.forum.blacklist.HiPdaBlacklistApi
 import com.lichader.hipdanext.forum.http.ForumTransport
 import com.lichader.hipdanext.async.LoginHelper
 import com.lichader.hipdanext.forum.session.FormhashCache
+import com.lichader.hipdanext.forum.post.HiPdaPostApi
+import com.lichader.hipdanext.forum.post.PostApi
 import com.lichader.hipdanext.forum.session.SessionGuard
 import com.lichader.hipdanext.forum.favorites.FavoritesApi
 import com.lichader.hipdanext.forum.favorites.HiPdaFavoritesApi
@@ -119,6 +121,11 @@ object ForumModule {
     @Provides
     @Singleton
     fun provideListsApi(endpoints: HiPdaEndpoints, session: SessionGuard): ListsApi = HiPdaListsApi(endpoints, session)
+
+    @Provides
+    @Singleton
+    fun providePostApi(endpoints: HiPdaEndpoints, transport: ForumTransport, session: SessionGuard): PostApi =
+        HiPdaPostApi(endpoints, transport, session)
 
     @Provides
     @Singleton
