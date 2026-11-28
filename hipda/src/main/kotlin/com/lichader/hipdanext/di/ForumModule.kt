@@ -9,6 +9,8 @@ import com.lichader.hipdanext.forum.blacklist.BlacklistApi
 import com.lichader.hipdanext.forum.blacklist.HiPdaBlacklistApi
 import com.lichader.hipdanext.forum.http.ForumTransport
 import com.lichader.hipdanext.forum.session.FormhashCache
+import com.lichader.hipdanext.forum.user.HiPdaUserApi
+import com.lichader.hipdanext.forum.user.UserApi
 import com.lichader.hipdanext.ui.ForumErrorFormatter
 import com.lichader.hipdanext.utils.Connectivity
 import dagger.Module
@@ -53,6 +55,14 @@ object ForumModule {
         endpoints: HiPdaEndpoints,
         formhash: FormhashCache,
     ): BlacklistApi = HiPdaBlacklistApi(transport, endpoints, formhash)
+
+    @Provides
+    @Singleton
+    fun provideUserApi(
+        transport: ForumTransport,
+        endpoints: HiPdaEndpoints,
+        formhash: FormhashCache,
+    ): UserApi = HiPdaUserApi(transport, endpoints, formhash)
 
     @Provides
     @Singleton

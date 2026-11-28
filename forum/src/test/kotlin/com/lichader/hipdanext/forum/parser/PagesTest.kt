@@ -21,6 +21,11 @@ class PagesTest {
     }
 
     @Test
+    fun formhashFallsBackToTheLogoutLink() {
+        assertEquals("a1b2c3d4", Pages.formhash(Jsoup.parse(fixture("user/profile-online-real.html"))))
+    }
+
+    @Test
     fun formhashIsNullWithoutAForm() {
         assertNull(Pages.formhash(Jsoup.parse(fixture("blacklist/not-logged-in.html"))))
     }

@@ -15,6 +15,9 @@ import javax.inject.Singleton
  */
 interface BlacklistRepository {
 
+    /** Whether [username] is on the device's copy of the blacklist. */
+    fun isBlacklisted(username: String): Boolean
+
     /** Fetches the forum's blacklist, stores it on the device and returns it. */
     suspend fun sync(): List<String>
 
@@ -28,6 +31,8 @@ class DefaultBlacklistRepository @Inject constructor(
     private val api: BlacklistApi,
     private val settings: HiSettingsHelper,
 ) : BlacklistRepository {
+
+    override fun isBlacklisted(username: String): Boolean = settings.isInBlacklist(username)
 
     override suspend fun sync(): List<String> {
         val usernames = api.fetch()
