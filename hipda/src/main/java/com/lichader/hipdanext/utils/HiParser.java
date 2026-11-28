@@ -1,8 +1,6 @@
 package com.lichader.hipdanext.utils;
 
 
-import com.lichader.hipdanext.bean.SimpleListBean;
-import com.lichader.hipdanext.bean.SimpleListItemBean;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -13,72 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HiParser {
-
-    public static SimpleListBean parseSMS(Document doc) {
-        if (doc == null) {
-            return null;
-        }
-
-        Elements pmlistES = doc.select("ul.pm_list");
-        if (pmlistES.size() < 1) {
-            return null;
-        }
-
-        SimpleListBean list = new SimpleListBean();
-        Elements liES = pmlistES.first().select("li");
-        for (int i = 0; i < liES.size(); ++i) {
-            Element liE = liES.get(i);
-            SimpleListItemBean item = new SimpleListItemBean();
-
-            // avatar
-            Elements avatarES = liE.select("a.avatar");
-            if (avatarES.size() > 0) {
-                Elements avatarImgES = avatarES.first().select("img");
-                if (avatarImgES.size() > 0) {
-                    item.setAvatarUrl(avatarImgES.first().attr("src"));
-                }
-            }
-
-            // author and author uid
-            Elements pciteES = liE.select("p.cite");
-            if (pciteES.size() == 0) {
-                continue;
-            }
-            Elements citeES = pciteES.first().select("cite");
-            if (citeES.size() == 0) {
-                continue;
-            }
-            item.setAuthor(citeES.first().text());
-            Elements uidAES = citeES.first().select("a");
-            if (uidAES.size() == 0) {
-                continue;
-            }
-            String uid = uidAES.first().attr("href");
-            item.setUid(Utils.getMiddleString(uid, "uid=", "&"));
-
-            // time
-            item.setTime(pciteES.first().ownText());
-
-            // new
-            Elements imgES = pciteES.first().select("img");
-            if (imgES.size() > 0) {
-                if (imgES.first().attr("src").contains(HiUtils.NewPMImage)) {
-                    item.setNew(true);
-                }
-            }
-
-            // info
-            Elements summaryES = liE.select("div.summary");
-            if (summaryES.size() == 0) {
-                continue;
-            }
-            item.setTitle(summaryES.first().text());
-
-            list.add(item);
-        }
-
-        return list;
-    }
 
     public static String parseErrorMessage(Document doc) {
         Elements errors = doc.select("div.alert_error");

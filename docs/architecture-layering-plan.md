@@ -55,7 +55,7 @@ Model         :forum module: data classes, ForumException (sealed)
    - The forum's own messages pass through unchanged.
 5. **ViewModels expose an immutable `StateFlow<UiState>` and a one-shot `Flow<String>` for messages.** The messages come from a buffered `Channel`, so messages sent while the screen is stopped are delivered on return.
 6. **Repositories are interfaces with a `Default…` implementation**, so ViewModel tests use plain fakes.
-7. **Legacy Java callers that can't call `suspend` functions get a thin Kotlin bridge** that launches on the `@ApplicationScope` scope (for example `async/BlacklistHelper`). A bridge is deleted when its last caller gets a ViewModel.
+7. **Legacy Java callers that can't call `suspend` functions get a thin Kotlin bridge** that launches on the `@ApplicationScope` scope (for example `async/SmsSender` and `async/FavoriteHelper`). A bridge is deleted when its last caller gets a ViewModel.
 8. **No fragment is retained** (`setRetainInstance`), because Hilt crashes retained fragments on configuration changes. A screen's state lives in its ViewModel, or in saved instance state for legacy screens. Activities add their fragment only when `savedInstanceState` is null, so a restored fragment is kept. `ActivityLaunchTest` recreates every screen; new screens get a test there too.
 9. **Pages that need a session are fetched with `SessionGuard.page()`.** If a page comes back logged out, the guard logs in again once and fetches it again; form submissions are not retried. A repository that stores a result checks `AccountRepository.generation` before and after the request, and drops the result if the account changed (TD-22). The guard's own login doesn't change the generation: it renews the stored account's session.
 
@@ -114,10 +114,9 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 | W7-check | **Owner checks private messages** (W7, #32): send a message that arrives, reply in a conversation, clear a conversation. The forum refuses messages to oneself, so an agent can't check these | The owner sends and clears; the steps are in #32 | Open |
 | W9 | Migrate **posting and image upload** (`PrePostAsyncTask`, `PostJob`, `ImageUploadJob`) | The owner does every step that posts | Not started |
 | W10 | Migrate **thread detail**; keeps the reading position across rotation ([W1 result](#w1-result)) | The owner votes, if a poll needs checking | Not started |
-| W11 | Migrate **notifications** (`NotiWorker`, `NotiHelper`) and `TaskHelper`'s daily tasks, which removes the last `BlacklistHelper` bridge | – | Not started |
 | W12 | **Remove the old plumbing** (phase 5): EventBus, read jobs, `AsyncTask`s, `HiUtils` URL statics, `SingletonEntryPoint` callers, the last bridges | – | Not started |
 | D1 | **Decide:** Compose or Views for the redesign | Decision, before the first redesigned screen | Open |
-| S1 | Lint for `:forum`: API-level checks, which app lint doesn't apply to the module | – | Not started |
+| S1 | Lint for `:forum`: API-level checks against the app's minSdk. **Needs a decision** (found 2026-11-28): Android lint skips API checks (NewApi) in plain JVM modules, even with `checkDependencies`; a probe calling an API 24 method was flagged in app code but not in `:forum`. Options: check `:forum`'s bytecode against Android API 21 signatures with the Animal Sniffer plugin (as OkHttp does), or make `:forum` an Android library with minSdk 21 | The owner picks an option | Open |
 
 ### Done
 
@@ -136,6 +135,7 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 | S5 | Version comparison (TD-46): `UpgradeMigration.isNewer()` compares the dot-separated numbers in order, so `5.1.0` is newer than `5.0.05` and an upgrade from it doesn't re-run the 5.0.03 migration | #34 |
 | S6 | Refreshing new posts starts a new search instead of reusing the first page's `searchid`, so it shows posts made since | #35 |
 | S2 | Real blacklist add and remove replies as fixtures, captured through the app with the recorder; they replace the synthetic success reply. The rejected reply stays synthetic: the app always sends a valid token | #36 |
+| W11 | Notifications and daily tasks on the new layers: `NotiHelper` reads the new-messages page through `NewMessagesCheck` (rule 7 bridge) and the site adapter; `TaskHelper` is Kotlin and syncs the blacklist through its repository, which removes the `BlacklistHelper` bridge; the image host comes from `SiteApi` (`config.php`). A new-messages page without new messages now sets the count to 0 | #37 |
 | W1 | Fix the app-wide crash on configuration changes | #18; [W1 result](#w1-result) |
 | W2 | Check the Blacklist PoC with a logged-in account | #19; [W2 result](#w2-result) |
 | D2 | Decide about the dead update check | 2026-11-28: remove `UpdateHelper` (S4); the owner plans a new update mechanism |
@@ -261,7 +261,7 @@ On the first pass the log showed no removal from user info; it was repeated, and
 
 | Feature | Screens and callers | Old path | Status |
 | --- | --- | --- | --- |
-| Blacklist | `BlacklistFragment`; `UserinfoFragment` (add/remove); `TaskHelper` (daily sync) | `BlacklistHelper` + inline Jsoup in fragment | **Migrated (PoC, #16)**, checked with a logged-in account ([W2](#w2-result)); `BlacklistHelper` bridge remains for `TaskHelper`'s daily sync (W11) |
+| Blacklist | `BlacklistFragment`; `UserinfoFragment` (add/remove); `TaskHelper` (daily sync) | `BlacklistHelper` + inline Jsoup in fragment | **Migrated (PoC, #16)**, checked with a logged-in account ([W2](#w2-result)); the daily sync uses the repository since W11 (#37) |
 | User info | `UserinfoFragment` | `asyncGet` + `HiParser.parseUserInfo` in fragment; `SimpleListJob` for threads | **Migrated (W3, #25)**; its threads list in W6b (#31); its send dialog moves with W7 |
 | Thread list | `ThreadListFragment` | `ThreadListJob` + EventBus | **Migrated (W5, #29)** |
 | Simple lists, search | `SimpleListFragment`, `SearchFragment` | `SimpleListJob` (11 types) + EventBus | **Migrated (W6a #30, W6b #31)** |
@@ -270,7 +270,7 @@ On the first pass the log showed no removal from user info; it was repeated, and
 | Posting, upload | `PostFragment`, quick reply, vote, delete | `PrePostAsyncTask`, `PostJob`, `ImageUploadJob` | Not started (W9) |
 | Thread detail | `ThreadDetailFragment` | `ThreadDetailJob` + EventBus, `asyncGet` for warnings | Not started (W10) |
 | Login, session | `LoginDialog`, jobs' relogin | `LoginHelper` | **Migrated (W4a, W4b)**. `LoginHelper` bridges the Java callers. The jobs keep their own relogin until their features migrate, but it now shares the single-flight login |
-| Notifications | `NotiWorker`, parser side effects | `NotiHelper` | Not started (W11) |
+| Notifications | `NotiWorker`, parser side effects | `NotiHelper` | **Migrated (W11, #37)**; the page header's notice count reaches `NotiHelper` from each migrated screen; thread detail still passes its page (W10) |
 
 ### PoC: Blacklist
 

@@ -27,6 +27,11 @@ class HiPdaEndpoints(private val config: ForumConfig) {
 
     fun messages(): String = baseUrl + "pm.php?filter=privatepm"
 
+    fun newMessages(): String = baseUrl + "pm.php?filter=newpm"
+
+    /** The site's settings, outside the forum's folder. */
+    fun siteConfig(): String = config.forumServer + "/config.php"
+
     fun notices(): String = baseUrl + "notice.php"
 
     /** New posts of the last day; a [searchId] from the first page fetches that search's pages. */

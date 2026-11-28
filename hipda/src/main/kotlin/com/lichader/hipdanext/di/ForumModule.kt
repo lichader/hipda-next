@@ -20,6 +20,8 @@ import com.lichader.hipdanext.forum.lists.ListsApi
 import com.lichader.hipdanext.forum.messages.HiPdaMessagesApi
 import com.lichader.hipdanext.forum.messages.MessagesApi
 import com.lichader.hipdanext.forum.session.SessionRenewer
+import com.lichader.hipdanext.forum.site.HiPdaSiteApi
+import com.lichader.hipdanext.forum.site.SiteApi
 import com.lichader.hipdanext.forum.threads.HiPdaThreadListApi
 import com.lichader.hipdanext.forum.threads.ThreadListApi
 import com.lichader.hipdanext.utils.Constants
@@ -89,6 +91,10 @@ object ForumModule {
     @Singleton
     fun provideAuthApi(transport: ForumTransport, endpoints: HiPdaEndpoints): AuthApi =
         HiPdaAuthApi(transport, endpoints)
+
+    @Provides
+    @Singleton
+    fun provideSiteApi(transport: ForumTransport, endpoints: HiPdaEndpoints): SiteApi = HiPdaSiteApi(transport, endpoints)
 
     @Provides
     @Singleton
