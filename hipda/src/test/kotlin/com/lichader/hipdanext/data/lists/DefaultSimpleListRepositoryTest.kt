@@ -32,7 +32,7 @@ class DefaultSimpleListRepositoryTest {
 
     private val entry = SingletonEntryPoint.get()
     private val notiHelper = entry.notiHelper()
-    private val favorites = entry.favorites()
+    private val favorites = entry.favoritesCache()
     private val account = FakeAccount()
     private val api = FakeListsApi()
     private val repository = DefaultSimpleListRepository(
@@ -42,7 +42,7 @@ class DefaultSimpleListRepositoryTest {
     @Before
     fun setUp() {
         notiHelper.holdFetchNotify()
-        favorites.clearAll()
+        favorites.clear()
     }
 
     @Test
@@ -50,11 +50,11 @@ class DefaultSimpleListRepositoryTest {
         api.items = listOf(ListItem(tid = "11"), ListItem(tid = "12"))
 
         repository.page(SimpleListTypes.TYPE_FAVORITES, 1, null)
-        assertTrue(favorites.isInFavorite("11"))
-        assertFalse(favorites.isInAttention("11"))
+        assertTrue(favorites.contains(SavedThreads.FAVORITES, "11"))
+        assertFalse(favorites.contains(SavedThreads.ATTENTION, "11"))
 
         repository.page(SimpleListTypes.TYPE_ATTENTION, 1, null)
-        assertTrue(favorites.isInAttention("12"))
+        assertTrue(favorites.contains(SavedThreads.ATTENTION, "12"))
         assertEquals(listOf(SavedThreads.FAVORITES, SavedThreads.ATTENTION), api.savedLists)
     }
 
@@ -89,7 +89,7 @@ class DefaultSimpleListRepositoryTest {
         api.duringRequest = { account.generation.value++ }
 
         assertThrows(AccountChangedException::class.java) { runBlocking { repository.page(SimpleListTypes.TYPE_FAVORITES, 1, null) } }
-        assertFalse(favorites.isInFavorite("11"))
+        assertFalse(favorites.contains(SavedThreads.FAVORITES, "11"))
     }
 
     @Test
@@ -127,7 +127,7 @@ class DefaultSimpleListRepositoryTest {
 
         private fun page(): ListPage {
             duringRequest()
-            return ListPage(items, 1, searchId, "a1b2c3d4", PageHeader("100001", "test_user", 0))
+            return ListPage(items, 1, searchId, PageHeader("100001", "test_user", 0))
         }
 
         override suspend fun myReplies(page: Int) = page()

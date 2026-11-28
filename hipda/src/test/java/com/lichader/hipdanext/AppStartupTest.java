@@ -15,7 +15,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.work.ListenableWorker;
 import androidx.work.testing.TestListenableWorkerBuilder;
 
-import com.lichader.hipdanext.async.FavoriteHelper;
+import com.lichader.hipdanext.data.favorites.FavoritesCache;
+import com.lichader.hipdanext.forum.lists.SavedThreads;
 import com.lichader.hipdanext.async.LoginHelper;
 import com.lichader.hipdanext.bean.HiSettingsHelper;
 import com.lichader.hipdanext.bean.PostBean;
@@ -69,7 +70,7 @@ public class AppStartupTest {
         assertSame(hilt.okHttpHelper(), hilt.okHttpHelper());
         assertSame(hilt.cachedDns(), hilt.cachedDns());
         assertSame(hilt.settings(), hilt.settings());
-        assertSame(hilt.favorites(), hilt.favorites());
+        assertSame(hilt.favoritesCache(), hilt.favoritesCache());
     }
 
     @Test
@@ -120,11 +121,11 @@ public class AppStartupTest {
 
     @Test
     public void favoritesCacheRoundTrip() {
-        FavoriteHelper favorites = SingletonEntryPoint.get().favorites();
-        favorites.addToCahce(FavoriteHelper.TYPE_FAVORITE, "12345");
-        assertTrue(favorites.isInFavorite("12345"));
-        favorites.removeFromCahce(FavoriteHelper.TYPE_FAVORITE, "12345");
-        assertFalse(favorites.isInFavorite("12345"));
+        FavoritesCache favorites = SingletonEntryPoint.get().favoritesCache();
+        favorites.add(SavedThreads.FAVORITES, "12345");
+        assertTrue(favorites.contains(SavedThreads.FAVORITES, "12345"));
+        favorites.remove(SavedThreads.FAVORITES, "12345");
+        assertFalse(favorites.contains(SavedThreads.FAVORITES, "12345"));
     }
 
     @Test

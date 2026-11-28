@@ -43,10 +43,6 @@ public class HiUtils {
     public static String CheckSMS;
     public static String NewSMS;
     public static String UploadImgUrl;
-    public static String FavoritesUrl;
-    public static String FavoriteAddUrl;
-    public static String FavoriteRemoveUrl;
-    public static String FavoriteDeleteUrl;
     public static String UserWarningUrl;
 
 
@@ -118,10 +114,6 @@ public class HiUtils {
         CheckSMS = BaseUrl + "pm.php?checknewpm";
         NewSMS = BaseUrl + "pm.php?filter=newpm";
         UploadImgUrl = BaseUrl + "misc.php?action=swfupload&operation=upload&simple=1&type=image";
-        FavoritesUrl = BaseUrl + "my.php?item={item}&type=thread";
-        FavoriteAddUrl = BaseUrl + "my.php?item={item}&action=add&inajax=1&ajaxtarget=favorite_msg&tid={tid}";
-        FavoriteRemoveUrl = BaseUrl + "my.php?item={item}&action=remove&inajax=1&ajaxtarget=favorite_msg&tid={tid}";
-        FavoriteDeleteUrl = BaseUrl + "my.php?item={item}&type=thread";
         UserWarningUrl = BaseUrl + "misc.php?action=viewwarning&tid={tid}&uid={uid}";
 
 

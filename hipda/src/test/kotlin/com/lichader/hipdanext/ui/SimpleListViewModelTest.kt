@@ -65,7 +65,6 @@ class SimpleListViewModelTest {
         assertEquals(listOf("1", "2", "3"), viewModel.tids())
         assertFalse(viewModel.loadMore())
         assertEquals(listOf(Event.Loaded(empty = false), Event.Loaded(empty = false)), events)
-        assertEquals("a1b2c3d4", viewModel.state.value.formhash)
     }
 
     @Test
@@ -195,7 +194,7 @@ class SimpleListViewModelTest {
             requested += Triple(type, page, searchId)
             searches += search?.query
             error?.let { throw it }
-            return SimpleListResult(pages[page].orEmpty().map { ListItem(tid = it) }, maxPage, this.searchId, "a1b2c3d4")
+            return SimpleListResult(pages[page].orEmpty().map { ListItem(tid = it) }, maxPage, this.searchId)
         }
     }
 }

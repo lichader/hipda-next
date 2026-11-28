@@ -29,8 +29,6 @@ class SimpleListViewModel @Inject constructor(
     data class UiState(
         val items: List<ListItem> = emptyList(),
         val loading: Boolean = false,
-        /** The last page's form token, for removing a favorite. */
-        val formhash: String? = null,
     )
 
     sealed interface Event {
@@ -122,14 +120,14 @@ class SimpleListViewModel @Inject constructor(
             this.page = page
             val old = _state.value.items
             if (result.items.isEmpty()) {
-                _state.value = UiState(if (page == 1) emptyList() else old, formhash = result.formhash)
+                _state.value = UiState(if (page == 1) emptyList() else old)
                 _events.send(Event.Loaded(empty = true))
                 return
             }
             // A search ID comes only with new posts; the other lists keep none.
             searchId = result.searchId
             maxPage = result.maxPage
-            _state.value = UiState(if (page == 1) result.items else old + result.items, formhash = result.formhash)
+            _state.value = UiState(if (page == 1) result.items else old + result.items)
             _events.send(Event.Loaded(empty = false))
         } catch (e: CancellationException) {
             throw e
