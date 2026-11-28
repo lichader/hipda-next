@@ -58,7 +58,7 @@ class PagesTest {
 
     @Test
     fun errorMessageIsNullWithoutAnErrorBox() {
-        assertNull(Pages.errorMessage(Jsoup.parse(fixture("blacklist/submit-ok.html"))))
+        assertNull(Pages.errorMessage(Jsoup.parse(fixture("blacklist/addblack-real.html"))))
     }
 
     @Test

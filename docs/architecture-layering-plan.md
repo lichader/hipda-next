@@ -118,7 +118,6 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 | W12 | **Remove the old plumbing** (phase 5): EventBus, read jobs, `AsyncTask`s, `HiUtils` URL statics, `SingletonEntryPoint` callers, the last bridges | – | Not started |
 | D1 | **Decide:** Compose or Views for the redesign | Decision, before the first redesigned screen | Open |
 | S1 | Lint for `:forum`: API-level checks, which app lint doesn't apply to the module | – | Not started |
-| S2 | Real blacklist add/remove replies and a rejected-request reply as fixtures (with T1) | – | Not started |
 
 ### Done
 
@@ -136,6 +135,7 @@ Never post, edit or delete posts, vote, or message anyone else. For those steps,
 | W8 | Favorites on the new layers: adding and removing through `FavoritesRepository`, the device's copy in `FavoritesCache`, and `FavoriteHelper` as a bridge (rule 7) for the thread and list screens. Parity checked on the forum's real replies. Logout now clears the copy in memory too | #33 |
 | S5 | Version comparison (TD-46): `UpgradeMigration.isNewer()` compares the dot-separated numbers in order, so `5.1.0` is newer than `5.0.05` and an upgrade from it doesn't re-run the 5.0.03 migration | #34 |
 | S6 | Refreshing new posts starts a new search instead of reusing the first page's `searchid`, so it shows posts made since | #35 |
+| S2 | Real blacklist add and remove replies as fixtures, captured through the app with the recorder; they replace the synthetic success reply. The rejected reply stays synthetic: the app always sends a valid token | #36 |
 | W1 | Fix the app-wide crash on configuration changes | #18; [W1 result](#w1-result) |
 | W2 | Check the Blacklist PoC with a logged-in account | #19; [W2 result](#w2-result) |
 | D2 | Decide about the dead update check | 2026-11-28: remove `UpdateHelper` (S4); the owner plans a new update mechanism |
@@ -252,7 +252,7 @@ On the first pass the log showed no removal from user info; it was repeated, and
 - The real markup matches the parser's assumptions, and an empty list says "暂无数据". See the fixtures' README.
 
 **Not captured**
-- The forum's replies to add and remove: the blacklist page has no add form, so they can't be saved from a browser. `submit-ok.html` and `submit-error.html` stay synthetic, although the test above handled the real replies correctly.
+- The forum's replies to add and remove: the blacklist page has no add form, so they couldn't be saved from a browser. S2 captured them through the app with the recorder (`addblack-real.html`, `delblack-real.html`); only the rejected reply stays synthetic.
 - A rejected request, such as adding a user that doesn't exist, is still covered only by a synthetic page.
 
 ## Status

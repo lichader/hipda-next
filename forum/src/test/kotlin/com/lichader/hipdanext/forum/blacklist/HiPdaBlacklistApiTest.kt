@@ -76,7 +76,7 @@ class HiPdaBlacklistApiTest {
             MockResponse().setHeader("Content-Type", "text/html")
                 .setBody(Buffer().writeString(fixture("blacklist/viewblack-real.html"), Charset.forName("GBK")))
         )
-        page("submit-ok.html")
+        page("delblack-real.html")
 
         assertEquals(listOf("blocked_user_1"), api.fetch())
         api.remove("blocked_user_1")
@@ -88,7 +88,7 @@ class HiPdaBlacklistApiTest {
     @Test
     fun realEmptyPageGivesAnEmptyListAndAFormhash() = runBlocking {
         page("viewblack-empty-real.html")
-        page("submit-ok.html")
+        page("addblack-real.html")
 
         assertEquals(emptyList<String>(), api.fetch())
         api.add("blocked_user_1")
@@ -127,7 +127,7 @@ class HiPdaBlacklistApiTest {
     @Test
     fun removeReusesTheFormhashOfTheLastFetch() = runBlocking {
         page("list.html")
-        page("submit-ok.html")
+        page("delblack-real.html")
 
         api.fetch()
         api.remove("bob_99")
@@ -140,7 +140,7 @@ class HiPdaBlacklistApiTest {
     @Test
     fun addFetchesAFormhashWhenNoneIsKnown() = runBlocking {
         page("list.html")
-        page("submit-ok.html")
+        page("addblack-real.html")
 
         api.add("carol")
 
@@ -152,7 +152,7 @@ class HiPdaBlacklistApiTest {
     fun aNewSessionDoesNotReuseTheOldFormhash() = runBlocking {
         page("list.html", formhash = "old00000")
         page("list.html", formhash = "new11111")
-        page("submit-ok.html")
+        page("delblack-real.html")
 
         api.fetch()
         config.sessionKey = "session-2"
