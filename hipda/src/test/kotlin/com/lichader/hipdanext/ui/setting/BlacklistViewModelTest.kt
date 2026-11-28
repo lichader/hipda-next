@@ -136,6 +136,8 @@ class BlacklistViewModelTest {
         var syncCalls = 0
         val removed = mutableListOf<String>()
 
+        override fun isBlacklisted(username: String) = username in usernames
+
         override suspend fun sync(): List<String> {
             syncCalls++
             syncError?.let { throw it }

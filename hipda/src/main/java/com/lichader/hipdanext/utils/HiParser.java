@@ -5,7 +5,6 @@ import android.text.TextUtils;
 
 import com.lichader.hipdanext.bean.SimpleListBean;
 import com.lichader.hipdanext.bean.SimpleListItemBean;
-import com.lichader.hipdanext.bean.UserInfoBean;
 import com.lichader.hipdanext.glide.GlideHelper;
 import com.lichader.hipdanext.job.SimpleListJob;
 import com.lichader.hipdanext.service.NotiHelper;
@@ -723,66 +722,6 @@ public class HiParser {
         }
 
         return list;
-    }
-
-    public static UserInfoBean parseUserInfo(String rsp) {
-        Document doc = Jsoup.parse(rsp);
-        if (doc == null) {
-            return null;
-        }
-
-        UserInfoBean info = new UserInfoBean();
-
-        Elements usernameES = doc.select("div#profilecontent div.itemtitle h1");
-        if (usernameES.size() > 0) {
-            info.setUsername(Utils.nullToText(usernameES.first().text()).trim());
-        }
-
-        Elements onlineImgES = doc.select("div#profilecontent div.itemtitle img");
-        if (onlineImgES.size() > 0) {
-            info.setOnline(Utils.nullToText(onlineImgES.first().attr("src")).contains("online"));
-        }
-
-        Elements uidES = doc.select("div#profilecontent div.itemtitle ul li");
-        if (uidES.size() > 0) {
-            info.setUid(Utils.getMiddleString(uidES.first().text(), "(UID:", ")").trim());
-        }
-
-        Elements avatarES = doc.select("div.side div.profile_side div.avatar img");
-        if (avatarES.size() != 0) {
-            info.setAvatarUrl(avatarES.first().attr("src"));
-        }
-
-        Elements logoutUrls = doc.select("div#umenu a");
-        if (logoutUrls.size() > 0) {
-            for (Element url : logoutUrls) {
-                String formhash = Utils.getMiddleString(url.attr("href"), "formhash=", "&");
-                if (!TextUtils.isEmpty(formhash)) {
-                    info.setFormhash(formhash);
-                    break;
-                }
-            }
-        }
-
-        StringBuilder sb = new StringBuilder();
-
-        Elements titleES = doc.select("h3.blocktitle");
-        int i = 0;
-        for (Element titleEl : titleES) {
-            sb.append(titleEl.text()).append("\n\n");
-            if (i == 0) {
-                Elements detailES = doc.select("div.main div.s_clear ul.commonlist li");
-                for (Element detail : detailES) {
-                    sb.append(detail.text()).append('\n');
-                }
-            }
-            i++;
-            sb.append("\n");
-            if (i >= 2)
-                break;
-        }
-        info.setDetail(sb.toString());
-        return info;
     }
 
     public static String parseFormhash(Document doc) {

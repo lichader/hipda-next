@@ -14,4 +14,6 @@ class HiPdaEndpoints(private val config: ForumConfig) {
     fun addToBlacklist(): String = baseUrl + "pm.php?action=addblack"
 
     fun removeFromBlacklist(): String = baseUrl + "pm.php?action=delblack"
+
+    fun userProfile(uid: String): String = baseUrl + "space.php?uid=" + uid
 }
