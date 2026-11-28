@@ -42,6 +42,8 @@ The app uses Hilt (`@HiltAndroidApp` on `HiApplication`). The core services are 
 
 ## Commit & Pull Request Guidelines
 
+Never commit to `master` directly. Make every change on its own branch, created from an up-to-date `master`. Where possible, work in a separate git worktree (`git worktree add ../hipda-next-<topic> -b <branch> master`) so the main checkout stays on `master`. Merge into `master` only through a pull request.
+
 History uses short, lowercase imperative subjects, such as `fix image upload` and `improve vote ui`. Keep commits focused. PRs should describe the behavior change, link related issues, state build and validation results, and include screenshots for UI changes.
 
 ## Security & Configuration
