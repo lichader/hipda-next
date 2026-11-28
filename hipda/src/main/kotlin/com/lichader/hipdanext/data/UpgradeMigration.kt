@@ -37,17 +37,23 @@ class UpgradeMigration @Inject constructor(private val settings: HiSettingsHelpe
 
     companion object {
         /**
-         * Whether [version] is newer than [than], for versions in the `#.#.##` format, by
-         * comparing them with the dots removed. Other formats compare wrongly; see TD-46.
+         * Whether [version] is newer than [than], comparing their dot-separated numbers in order,
+         * so that `5.1.0` is newer than `5.0.05` (TD-46). A missing number counts as 0. False if
+         * [than] is empty, or either version isn't numbers and dots.
          */
         @JvmStatic
         fun isNewer(version: String, than: String?): Boolean {
             if (than.isNullOrEmpty()) return false
-            return try {
-                version.replace(".", "").toInt() > than.replace(".", "").toInt()
-            } catch (e: NumberFormatException) {
-                false
+            val a = numbers(version) ?: return false
+            val b = numbers(than) ?: return false
+            for (i in 0 until maxOf(a.size, b.size)) {
+                val x = a.getOrElse(i) { 0 }
+                val y = b.getOrElse(i) { 0 }
+                if (x != y) return x > y
             }
+            return false
         }
+
+        private fun numbers(version: String): List<Int>? = version.split(".").map { it.toIntOrNull() ?: return null }
     }
 }

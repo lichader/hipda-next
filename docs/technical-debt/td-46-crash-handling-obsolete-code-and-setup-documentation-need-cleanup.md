@@ -11,6 +11,8 @@ The version comparison has a concrete trigger and should be fixed before the res
 
 Fix this before any release changes the version format; the [Android 17 migration plan](../android-17-migration.md) release gate tracks this.
 
+**Update 2026-11-28 (S5 in the layering plan, #34):** fixed. `isNewer()` now compares the dot-separated numbers in order; a missing number counts as 0, and anything that isn't numbers and dots is not newer. Tests cover `5.1.0` against `5.0.05` and an upgrade from 5.1.0 keeping the server settings. The rest of this item is still open.
+
 Source: [SimpleExceptionHandler.java:20](../../hipda/src/main/java/com/lichader/hipdanext/utils/SimpleExceptionHandler.java#L20), [Utils.java:286](../../hipda/src/main/java/com/lichader/hipdanext/utils/Utils.java#L286), [README.md](../../README.md), [UpgradeMigration.kt](../../hipda/src/main/kotlin/com/lichader/hipdanext/data/UpgradeMigration.kt).
 
 **Improve:** Compare versions by version code or by numeric segments. Use minimal crash logging with reliable delegation, recreate affected activities without process exit, verify unused code/resources before removal, and update build/release documentation. **Verify:** Test version comparisons including `5.0.05`, `5.1.0`, and `5.10.0`; force a controlled crash, test settings-triggered recreation, and follow setup instructions on a fresh machine.
