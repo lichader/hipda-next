@@ -38,7 +38,6 @@ public class SimpleGridMenu {
     private DetailBean mDetailBean;
     private AlertDialog mDialog;
     private DialogInterface.OnDismissListener mOnDismissListener;
-    private View.OnClickListener mReportListener;
 
 
     private LinkedHashMap<String, MenuItem> mMenuItems = new LinkedHashMap<>();
@@ -61,16 +60,11 @@ public class SimpleGridMenu {
         mOnDismissListener = onDismissListener;
     }
 
-    public void setReportListener(View.OnClickListener reportListener) {
-        mReportListener = reportListener;
-    }
-
     public void show() {
         View view = mInflater.inflate(R.layout.dialog_grid_menu, null);
         GridView gridView = view.findViewById(R.id.grid_view);
         TextView tvTitle = view.findViewById(R.id.tv_title);
         ImageView avatarView = view.findViewById(R.id.iv_avatar);
-        ImageView reportView = view.findViewById(R.id.iv_report);
 
         if (mSettings.isLoadAvatar()) {
             GlideHelper.loadAvatar(mFragment, avatarView, HiUtils.getAvatarUrlByUid(mDetailBean.getUid()), mSettings);
@@ -80,10 +74,6 @@ public class SimpleGridMenu {
 
         gridView.setAdapter(new MenuActionAdapter(mContext));
         tvTitle.setText(mDetailBean.getFloor() + "# " + mDetailBean.getAuthor());
-
-        if (mSettings.getUid().equals(mDetailBean.getUid()))
-            reportView.setVisibility(View.INVISIBLE);
-        reportView.setOnClickListener(mReportListener);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         builder.setView(view);
