@@ -13,12 +13,13 @@ The other files are synthetic, written from the markup the parser selects (`div.
 | `not-logged-in.html` | Synthetic | The forum's error page, shown when the session has expired |
 | `unexpected.html` | Synthetic | A page without the blacklist container |
 | `unmarked-empty.html` | Synthetic | A blacklist container that lists no users and does not say it is empty |
-| `submit-ok.html` | Synthetic | Reply to `pm.php?action=addblack` or `delblack` that succeeded |
-| `submit-error.html` | Synthetic | Reply to `pm.php?action=addblack` or `delblack` that the forum rejected |
+| `addblack-real.html` | Captured 2026-11-28 | Reply to `pm.php?action=addblack` that succeeded: 指定用户的消息已被屏蔽 in `div.alert_right` |
+| `delblack-real.html` | Captured 2026-11-28 | Reply to `pm.php?action=delblack` that succeeded: 屏蔽设置已移除 |
+| `submit-error.html` | Synthetic | Reply to `pm.php?action=addblack` or `delblack` that the forum rejected. The app always sends a valid token, so a rejection can't be captured through it |
 
 What the real page showed (2026-11-28):
 - `div.blacklist` holds a form with the formhash, for the "accept or block all messages" setting, then `<ul class="commonlist inlinelist">`.
 - Each entry is a `space.php?username=` link followed by a "移除" link, `pm.php?action=delblack&formhash=…&user=…`, shown on hover.
 - The page has no form for adding a user; the app posts to `pm.php?action=addblack` directly.
 - An empty list is a single `<li>暂无数据</li>` in the same `ul.commonlist`, which is the text the parser looks for.
-- Replies to add and remove can't be captured from a browser, because the page has no add form. `submit-ok.html` and `submit-error.html` stay synthetic. In the logged-in check (W2), real adds and removes succeeded.
+- Replies to add and remove can't be saved from a browser, because the page has no add form. Since S2 they are captured through the app with the debug response recorder (`addblack-real.html`, `delblack-real.html`); only the rejected reply, `submit-error.html`, stays synthetic.
